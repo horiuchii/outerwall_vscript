@@ -10,78 +10,60 @@ function CheckSoldierHoliday()
 	const TF_SOLDIER_HOLIDAY = 12;
 
 	if (!IsHolidayActive(TF_SOLDIER_HOLIDAY))
-	{
 		EntFire("soldier_statue", "kill");
-	}
-}
-
-::RoundEndEvent <- function()
-{
-	EntFire("outerwall_soundscape", "kill");
-	EntFire("outerwall_soundscape_empty_trigger", "Enable");
 }
 
 ::PlayerZoneList <- array(33)
 
-::PlayerSpawnEvent <- function()
+::GameEventPlayerSpawn <- function(eventdata)
 {
-	if (activator.GetClassname() != "player")
-		return;
-
-	local client = activator.GetEntityIndex();
+	local client = GetPlayerFromUserID(eventdata.userid);
 	
-	switch(PlayerZoneList[client])
+	if (client == null || client.GetTeam() <= 1)
+		return;
+	
+	local player_index = client.GetEntityIndex();
+	
+	switch(PlayerZoneList[player_index])
 	{		
 		case 1: //last cave
-		{
-			activator.SetOrigin(Vector(7024,-3504,10740));
-			activator.SetAngles(0,90,0);
+			client.SetOrigin(Vector(7024,-3504,10740));
+			client.SetAngles(0,90,0);
 			break;
-		}
 		
 		case 2: //balcony
-		{
-			activator.SetOrigin(Vector(4616,-2208,12020));
-			activator.SetAngles(0,90,0);
+			client.SetOrigin(Vector(4616,-2208,12020));
+			client.SetAngles(0,90,0);
 			break;
-		}
 		
 		case 3: //inner wall
-		{
-			activator.SetOrigin(Vector(-1392,7904,-13788));
-			activator.SetAngles(0,270,0);
+			client.SetOrigin(Vector(-1392,7904,-13788));
+			client.SetAngles(0,270,0);
 			break;
-		}
 		
 		case 4: //hell
-		{
-			activator.SetOrigin(Vector(-704,-10368,13284));
-			activator.SetAngles(0,90,0);
+			client.SetOrigin(Vector(-704,-10368,13284));
+			client.SetAngles(0,90,0);
 			break;
-		}
 		
 		case 5: //wind fortress
-		{
-			activator.SetOrigin(Vector(-1824,7616,13412));
-			activator.SetAngles(0,0,0);
+			client.SetOrigin(Vector(-1824,7616,13412));
+			client.SetAngles(0,0,0);
 			break;
-		}
 		
 		default: //oside
-		{
-			activator.SetOrigin(Vector(3328,-320,-14044));
-			activator.SetAngles(0,180,0);
+			client.SetOrigin(Vector(3328,-320,-14044));
+			client.SetAngles(0,180,0);
 			break;
-		}
 	}
 }
 
 ::SetPlayerZone <- function(zone)
 {
-	if(activator.GetClassname() != "player")
+	if (activator == null || !activator.IsPlayer())
 		return;
 
-	local client = activator.GetEntityIndex();
+	local player_index = activator.GetEntityIndex();
 	
-	PlayerZoneList[client] = zone;
+	PlayerZoneList[player_index] = zone;
 }
