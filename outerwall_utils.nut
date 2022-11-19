@@ -1,4 +1,5 @@
-::DEBUG_OUTPUT <- true;
+IsDedicatedServer() ? ::DEBUG_OUTPUT <- false : ::DEBUG_OUTPUT <- true
+
 
 ::DebugPrint <- function(Text)
 {

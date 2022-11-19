@@ -4,11 +4,14 @@ IncludeScript("outerwall_utils.nut", this)
 {
 	const SND_QUOTE_WALK = "outerwall/snd_quote_walk.mp3";
 	const SND_PURPLECOIN_COLLECT = "outerwall/snd_purplecometcoin_collect.mp3";
+	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt"
 
 	PrecacheSound(SND_QUOTE_WALK);
 	PrecacheSound(SND_PURPLECOIN_COLLECT);
 	
 	CheckSoldierHoliday();
+	
+	EntFire("logic_relay_enablebonus6", "Trigger");
 	
 	DebugPrint("OUTERWALL INIT ENDED");
 }
@@ -27,7 +30,7 @@ function CheckSoldierHoliday()
 {
 	local client = GetPlayerFromUserID(eventdata.userid);
 	
-	if (client == null || client.GetTeam() <= 1)
+	if (!client.IsPlayer() || client.GetTeam() <= 1) //spec & unassigned
 		return;
 	
 	local player_index = client.GetEntityIndex();
@@ -60,12 +63,12 @@ function CheckSoldierHoliday()
 			break;
 			
 		case 6: //purple coin
-			client.SetOrigin(Vector(0,0,0));
-			client.SetAngles(0,0,0);
+			client.SetOrigin(Vector(5072,6944,-13436));
+			client.SetAngles(0,180,0);
 			break;
 		
 		default: //oside
-			client.SetOrigin(Vector(3328,-320,-14044));
+			client.SetOrigin(Vector(3328,-1344,-14044));
 			client.SetAngles(0,180,0);
 			break;
 	}
@@ -75,7 +78,7 @@ function CheckSoldierHoliday()
 
 ::SetPlayerZone <- function(zone)
 {
-	if (activator == null || !activator.IsPlayer())
+	if (!activator.IsPlayer())
 		return;
 
 	local player_index = activator.GetEntityIndex();
@@ -88,10 +91,11 @@ function CheckSoldierHoliday()
 
 
 
-
-const PURPLECOIN_COUNT = 100;
+const PURPLECOIN_COUNT = 120;
 const PURPLECOIN_TRIGGERPATH = "purplecoin_trigger-InstanceAuto";
 const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
+
+const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 
 ::PlayerCoinStatusTable <- {}
 ::PlayerCoinCount <- array(33)
@@ -101,10 +105,7 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	local player_index = activator.GetEntityIndex();
 
 	PlayerCoinCount[player_index] = 0;
-	PlayerCoinStatusTable[player_index] <- array(PURPLECOIN_COUNT)
-	
-	EntFire(PURPLECOIN_COINPATH + "*", "Enable"); //TEMPORARY
-	//transmit all coins to player
+	PlayerCoinStatusTable[player_index] <- array(PURPLECOIN_COUNT + 1)
 	
 	local PlayerCoinStatusArray = null;
 	PlayerCoinStatusArray = PlayerCoinStatusTable[player_index];
@@ -113,11 +114,20 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	while(iArrayIndex < PlayerCoinStatusArray.len())
 	{
 		PlayerCoinStatusArray[iArrayIndex] = true;
-		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatusArray[iArrayIndex]);
+		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatusArray[iArrayIndex]);
 		iArrayIndex++;
 	}
 	
 	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
+	
+	EntFire(PURPLECOIN_COINPATH + "*", "Enable"); //TEMPORARY
+	//transmit all coins to player
+	
+	//Set Player Targetname for map logic to send the correct game_text
+	NetProps.SetPropString(activator, "m_iName", "outerwall_bonus6_" + player_index);
+
+	//Reset Player HUD Count
+	EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
 	
 	DebugPrint("Reset Arena for player " + player_index);
 }
@@ -140,31 +150,43 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	if (PlayerCoinStatusArray[TriggerID] == false)
 		return;
 	
-	if (TriggerID > (PURPLECOIN_COUNT - 1) || TriggerID < 0)
-	{
-		DebugPrint("WTF? TriggerID " + (TriggerID + 1) + "should not have this number! Not collecting!")
-		return;
-	}
-	
 	PlayerCoinStatusArray[TriggerID] = false;
 	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatusArray[TriggerID]);
-	
 	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
-	
-	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY
-	//transmit the dissapearing of coin
 	
 	PlayerCoinCount[player_index] += 1;
 	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
 	
+	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY
+	//transmit the dissapearing of coin
+	
+	//update player HUD
+	if (PlayerCoinCount[player_index] < 10)
+		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 00" + PlayerCoinCount[player_index]));
+	else if (PlayerCoinCount[player_index] < 100)
+		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 0" + PlayerCoinCount[player_index]));
+	else
+		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message " + PlayerCoinCount[player_index]));
+	
 	DispatchParticleEffect("purplecoin_collect", caller.GetOrigin(), Vector(0,90,0));
 	caller.EmitSound(SND_PURPLECOIN_COLLECT);
+	//DOESN'T WORK: RE-ADD LATER
+	//EmitSoundOnClient(SND_PURPLECOIN_COLLECT, activator);
 	
 	//Collected all coins
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
 	{
 		DebugPrint("All Coins Collected for player " + player_index);
-		//Teleport player to bonus6_end which teleports to start
-		//activator.SetOrigin(Vector(753,-341,66));
+		activator.SetOrigin(Vector(3920,6992,-11724));
+		activator.SetAngles(0,180,0);
 	}
+}
+
+::SetPurpleCoinHUDOverlay <- function(bSetHUD)
+{
+	if(bSetHUD)
+		activator.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
+	else
+		activator.SetScriptOverlayMaterial(null);
+	
 }
