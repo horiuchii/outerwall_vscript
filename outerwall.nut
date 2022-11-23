@@ -1,192 +1,180 @@
-IncludeScript("outerwall_utils.nut", this)
+IncludeScript("outerwall_utils.nut", this);
+IncludeScript("outerwall_purplecoin.nut", this);
+
+::PlayerZoneList <- array(33, 0)
+::PlayerSoundtrackList <- array(33, 0)
+::PlayerCheckpointStatus <- array(33, 0)
+
+::ZoneLocations <-
+[
+	Vector(3328,-1344,-14044), //oside
+	Vector(7024,-3504,10740), //lastcave
+	Vector(4616,-2208,12020), //balcony
+	Vector(-1392,7904,-13788), //inner wall
+	Vector(-704,-10368,13284), //hell
+	Vector(-1824,7616,13412), //wind fortress
+	Vector(5072,6944,-13436) //sand pit
+]
+
+::ZoneAngles <-
+[
+	QAngle(0,180,0), //oside
+	QAngle(0,90,0), //lastcave
+	QAngle(0,90,0), //balcony
+	QAngle(0,270,0), //inner wall
+	QAngle(0,90,0), //hell
+	QAngle(0,0,0), //wind fortress
+	QAngle(0,180,0) //sand pit
+]
 
 ::OuterwallMain <- function()
 {
 	const SND_QUOTE_WALK = "outerwall/snd_quote_walk.mp3";
+	const SND_QUOTE_HURT = "outerwall/snd_quote_hurt.mp3";
+	const SND_CHECKPOINT = "outerwall/checkpoint.mp3";
 	const SND_PURPLECOIN_COLLECT = "outerwall/snd_purplecometcoin_collect.mp3";
-	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt"
+	
+	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
 
 	PrecacheSound(SND_QUOTE_WALK);
+	PrecacheSound(SND_QUOTE_HURT);
+	PrecacheSound(SND_CHECKPOINT);
 	PrecacheSound(SND_PURPLECOIN_COLLECT);
 	
-	CheckSoldierHoliday();
-	
-	EntFire("logic_relay_enablebonus6", "Trigger");
+	if (!IsHolidayActive(12)) //soldier holiday
+		EntFire("soldier_statue", "kill");
 	
 	DebugPrint("OUTERWALL INIT ENDED");
 }
 
-function CheckSoldierHoliday()
+function OuterwallThink()
 {
-	const TF_SOLDIER_HOLIDAY = 12;
-
-	if (!IsHolidayActive(TF_SOLDIER_HOLIDAY))
-		EntFire("soldier_statue", "kill");
+	PurpleCoinHUDThink();
 }
-
-::PlayerZoneList <- array(33, 0)
 
 ::GameEventPlayerSpawn <- function(eventdata)
 {
 	local client = GetPlayerFromUserID(eventdata.userid);
 	
-	if (!client.IsPlayer() || client.GetTeam() <= 1) //spec & unassigned
+	if (client == null || client.GetTeam() <= 1) //spec & unassigned
 		return;
 	
 	local player_index = client.GetEntityIndex();
 	
-	switch(PlayerZoneList[player_index])
-	{		
-		case 1: //last cave
-			client.SetOrigin(Vector(7024,-3504,10740));
-			client.SetAngles(0,90,0);
-			break;
-		
-		case 2: //balcony
-			client.SetOrigin(Vector(4616,-2208,12020));
-			client.SetAngles(0,90,0);
-			break;
-		
-		case 3: //inner wall
-			client.SetOrigin(Vector(-1392,7904,-13788));
-			client.SetAngles(0,270,0);
-			break;
-		
-		case 4: //hell
-			client.SetOrigin(Vector(-704,-10368,13284));
-			client.SetAngles(0,90,0);
-			break;
-		
-		case 5: //wind fortress
-			client.SetOrigin(Vector(-1824,7616,13412));
-			client.SetAngles(0,0,0);
-			break;
-			
-		case 6: //purple coin
-			client.SetOrigin(Vector(5072,6944,-13436));
-			client.SetAngles(0,180,0);
-			break;
-		
-		default: //oside
-			client.SetOrigin(Vector(3328,-1344,-14044));
-			client.SetAngles(0,180,0);
-			break;
-	}
+	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false);
 	
 	DebugPrint("Player " + player_index + " was respawned at " + PlayerZoneList[player_index]);
 }
 
-::SetPlayerZone <- function(zone)
+::SetPlayerSoundtrack <- function(iTrack)
 {
-	if (!activator.IsPlayer())
-		return;
-
+	local Soundtracks = ["remastered","ridiculon","organya"]
 	local player_index = activator.GetEntityIndex();
 	
-	PlayerZoneList[player_index] = zone;
-	DebugPrint("Player " + player_index + "'s zone index is: " + zone);
+	PlayerSoundtrackList[player_index] = iTrack;
+	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
 
+::PlayTrack <- function(iTrack)
+{
+	local Soundtracks = ["remastered","ridiculon","organya"]
+	local Tracks = ["white","pulse","moonsong_inside","moonsong_outside","lastcave","balcony","balcony_lava","geothermal","hell_inside","hell_outside","windfortress_inside","windfortress_outside","windfortress_lava","meltdown"]
+	local player_index = activator.GetEntityIndex();
+	
+	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, activator, activator);
+	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
+}
 
-
-
-
-const PURPLECOIN_COUNT = 120;
-const PURPLECOIN_TRIGGERPATH = "purplecoin_trigger-InstanceAuto";
-const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
-
-const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
-
-::PlayerCoinStatusTable <- {}
-::PlayerCoinCount <- array(33)
-
-::ResetArena <- function()
+::SetPlayerZone <- function(iZone)
 {
 	local player_index = activator.GetEntityIndex();
+	
+	PlayerZoneList[player_index] = iZone;
+	DebugPrint("Player " + player_index + "'s zone index is: " + iZone);
+}
 
-	PlayerCoinCount[player_index] = 0;
-	PlayerCoinStatusTable[player_index] <- array(PURPLECOIN_COUNT + 1)
+::SetPlayerCheckpoint <- function(iNewCheckpoint)
+{
+	local player_index = activator.GetEntityIndex();
+	local current_checkpoint = PlayerCheckpointStatus[player_index];
 	
-	local PlayerCoinStatusArray = null;
-	PlayerCoinStatusArray = PlayerCoinStatusTable[player_index];
+	if(iNewCheckpoint != current_checkpoint + 1 && iNewCheckpoint != 0)
+		return;
 	
-	local iArrayIndex = 0;
-	while(iArrayIndex < PlayerCoinStatusArray.len())
+	PlayerCheckpointStatus[player_index] = iNewCheckpoint;
+	
+	if(iNewCheckpoint > 0)
+		EmitSoundOnClient(SND_CHECKPOINT, activator);
+	
+	DebugPrint("Player " + player_index + "'s new checkpoint is: " + iNewCheckpoint);
+}
+
+::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false)
+{
+	if(client == null)
+		return;
+
+	//TODO: Add a case for the checkpoints in bonus 4 and 5
+	local player_index = client.GetEntityIndex();
+	
+	if(iZone == null) //Player is Out Of Bounds
 	{
-		PlayerCoinStatusArray[iArrayIndex] = true;
-		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatusArray[iArrayIndex]);
-		iArrayIndex++;
+		EmitSoundOnClient(SND_QUOTE_HURT, client);
+		iZone = PlayerZoneList[player_index];
 	}
 	
-	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
+	if(iCheckpointFilter != null)
+	{
+		if(bAllowOnlyInFilter && PlayerCheckpointStatus[player_index] != iCheckpointFilter)
+		{
+			DebugPrint("Player " + player_index + " does not match teleport filter: Only allowed those in checkpoint " + iCheckpointFilter);
+			return;
+		}
+		else if(!bAllowOnlyInFilter && PlayerCheckpointStatus[player_index] == iCheckpointFilter)
+		{
+			DebugPrint("Player " + player_index + " does not match teleport filter: Only allowed those not in checkpoint " + iCheckpointFilter);
+			return;
+		}
+	}
 	
-	EntFire(PURPLECOIN_COINPATH + "*", "Enable"); //TEMPORARY
-	//transmit all coins to player
-	
-	//Set Player Targetname for map logic to send the correct game_text
-	NetProps.SetPropString(activator, "m_iName", "outerwall_bonus6_" + player_index);
-
-	//Reset Player HUD Count
-	EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
-	
-	DebugPrint("Reset Arena for player " + player_index);
+	DebugPrint("Player " + player_index + " teleported via ::TeleportPlayerToZone()");
+	client.SetOrigin(ZoneLocations[PlayerZoneList[player_index]]);
+	client.SnapEyeAngles(ZoneAngles[PlayerZoneList[player_index]]);
 }
 
-::CoinTouch <- function()
-{	
+::DoGoal <- function(iZoneGoal, iRequiredCheckpoint)
+{
 	local player_index = activator.GetEntityIndex();
-	
-	//FIXME: Array index will not exist and throw an error if the player doesn't touch ::ResetArena() first
-	local PlayerCoinStatusArray = null;
-	PlayerCoinStatusArray = PlayerCoinStatusTable[player_index];
 
-	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
-		return;
-	
-	local strTriggerName = null;
-	strTriggerName = NetProps.GetPropString(caller, "m_iName");
-	local TriggerID = strTriggerName.slice(PURPLECOIN_TRIGGERPATH.len()).tointeger() - 1;
-	
-	if (PlayerCoinStatusArray[TriggerID] == false)
-		return;
-	
-	PlayerCoinStatusArray[TriggerID] = false;
-	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatusArray[TriggerID]);
-	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
-	
-	PlayerCoinCount[player_index] += 1;
-	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
-	
-	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY
-	//transmit the dissapearing of coin
-	
-	//update player HUD
-	if (PlayerCoinCount[player_index] < 10)
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 00" + PlayerCoinCount[player_index]));
-	else if (PlayerCoinCount[player_index] < 100)
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 0" + PlayerCoinCount[player_index]));
-	else
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message " + PlayerCoinCount[player_index]));
-	
-	DispatchParticleEffect("purplecoin_collect", caller.GetOrigin(), Vector(0,90,0));
-	caller.EmitSound(SND_PURPLECOIN_COLLECT);
-	//DOESN'T WORK: RE-ADD LATER
-	//EmitSoundOnClient(SND_PURPLECOIN_COLLECT, activator);
-	
-	//Collected all coins
-	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
+	if(PlayerCheckpointStatus[player_index] == iRequiredCheckpoint)
 	{
-		DebugPrint("All Coins Collected for player " + player_index);
-		activator.SetOrigin(Vector(3920,6992,-11724));
-		activator.SetAngles(0,180,0);
+		if(iZoneGoal == 0)
+			EntFire("logic_relay_goal", "Trigger");
+		
+		else
+			EntFire("logic_relay_goal_bonus" + iZoneGoal, "Trigger");
 	}
 }
 
-::SetPurpleCoinHUDOverlay <- function(bSetHUD)
+::HurtTouch <- function(iSpikeType)
 {
-	if(bSetHUD)
-		activator.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
-	else
-		activator.SetScriptOverlayMaterial(null);
-	
+	const DMG_BURN = 8;
+
+	switch(iSpikeType)
+	{
+		case 0: //Normal Spike
+			ApplyAbsVelocityImpulse(Vector(0,0,350));
+		case 1: //No Launch Spike
+			activator.TakeDamage(100.0, DMG_BURN, null);
+			EmitSoundOnClient(Outerwall.SpikeHurt, activator);
+			break;
+		case 2: //Lava
+			activator.TakeDamage(50.0, DMG_BURN, null);
+			ApplyAbsVelocityImpulse(Vector(0,0,650));
+			EmitSoundOnClient(Outerwall.LavaHurt, activator);
+			break;
+		default: //Error
+			printl("ERROR ERROR! ::HurtTouch() called with invalid iSpikeType!!!!");
+			break;
+	}
 }
