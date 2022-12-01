@@ -5,8 +5,8 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 
 ::PlayerCoinStatusTable <- {}
-::PlayerCoinCount <- array(33, 0)
-::PurpleCoinPlayerHUDStatusArray <- array(33, false)
+::PlayerCoinCount <- array(MAX_PLAYERS, 0)
+::PurpleCoinPlayerHUDStatusArray <- array(MAX_PLAYERS, false)
 
 ::ResetArena <- function()
 {
@@ -48,8 +48,7 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
 		return;
 	
-	local strTriggerName = null;
-	strTriggerName = NetProps.GetPropString(caller, "m_iName");
+	local strTriggerName = NetProps.GetPropString(caller, "m_iName");
 	local TriggerID = strTriggerName.slice(PURPLECOIN_TRIGGERPATH.len()).tointeger() - 1;
 	
 	if (PlayerCoinStatusArray[TriggerID] == false)
@@ -63,7 +62,8 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
 	
 	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY
-	//transmit the dissapearing of coin
+	local coin = Entities.FindByName(null, PURPLECOIN_COINPATH + (TriggerID + 1));
+	//activator.SetTransmit(coin, false);
 	
 	//update player HUD
 	if (PlayerCoinCount[player_index] < 10)
@@ -75,8 +75,7 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	
 	//show particle and play sound
 	DispatchParticleEffect("purplecoin_collect", caller.GetOrigin(), Vector(0,90,0));
-	caller.EmitSound(SND_PURPLECOIN_COLLECT);
-	//EmitSoundOnClient(SND_PURPLECOIN_COLLECT, activator);
+	EmitSoundOnClient(SND_PURPLECOIN_COLLECT, activator);
 	
 	//Collected all coins
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
@@ -89,15 +88,37 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 
 ::PurpleCoinHUDThink <- function()
 {
-	local iArrayIndex = 0;
-	while(iArrayIndex < PurpleCoinPlayerHUDStatusArray.len())
+	local player_index = 0;
+	while(player_index < MAX_PLAYERS)
 	{
-		if(PurpleCoinPlayerHUDStatusArray[iArrayIndex] == true)
+		local client = PlayerInstanceFromIndex(player_index);
+		
+		if(client != null)
 		{
-			local GameTextEntity = ("outerwall_bonus6_gametext_" + iArrayIndex);
-			EntFire(GameTextEntity, "Display", "", 0.0, PlayerInstanceFromIndex(iArrayIndex));
+			local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+		
+			if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
+			{
+				local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget").GetEntityIndex();
+				if(spectator_target <= MAX_PLAYERS && PurpleCoinPlayerHUDStatusArray[spectator_target] == true)
+				{
+					local GameTextEntity = ("outerwall_bonus6_gametext_" + spectator_target);
+					EntFire(GameTextEntity, "Display", "", 0.0, PlayerInstanceFromIndex(player_index));
+					client.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
+				}
+				else
+					client.SetScriptOverlayMaterial(null);
+			}
+			else if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
+			{
+				local GameTextEntity = ("outerwall_bonus6_gametext_" + player_index);
+				EntFire(GameTextEntity, "Display", "", 0.0, PlayerInstanceFromIndex(player_index));
+				client.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
+			}
+			else
+				client.SetScriptOverlayMaterial(null);
 		}
-		iArrayIndex++;
+		player_index++;
 	}
 }
 
@@ -105,14 +126,5 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 {
 	local player_index = activator.GetEntityIndex();
 	
-	if(bSetHUD)
-	{
-		PurpleCoinPlayerHUDStatusArray[player_index] = true;
-		activator.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
-	}
-	else
-	{
-		PurpleCoinPlayerHUDStatusArray[player_index] = false;
-		activator.SetScriptOverlayMaterial(null);
-	}
+	PurpleCoinPlayerHUDStatusArray[player_index] = bSetHUD;
 }

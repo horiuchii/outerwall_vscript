@@ -1,9 +1,31 @@
 IncludeScript("outerwall_utils.nut", this);
 IncludeScript("outerwall_purplecoin.nut", this);
 
-::PlayerZoneList <- array(33, 0)
-::PlayerSoundtrackList <- array(33, 0)
-::PlayerCheckpointStatus <- array(33, 0)
+::PlayerZoneList <- array(MAX_PLAYERS, null)
+::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
+::PlayerTrackList <- array(MAX_PLAYERS, 2)
+::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
+::PlayerLastHurt <- array(MAX_PLAYERS, null)
+
+::Soundtracks <-
+[
+	"remastered",
+	"ridiculon",
+	"organya"
+]
+
+::Tracks <-
+[
+	"white", //0
+	"pulse", //1
+	"moonsong_inside","moonsong_outside", //2,3
+	"lastcave", //4
+	"balcony","balcony_lava", //5,6
+	"geothermal", //7
+	"hell_inside","hell_outside", //8,9
+	"windfortress_inside","windfortress_outside","windfortress_lava", //10,11,12
+	"meltdown" //13
+]
 
 ::ZoneLocations <-
 [
@@ -31,6 +53,7 @@ IncludeScript("outerwall_purplecoin.nut", this);
 {
 	const SND_QUOTE_WALK = "outerwall/snd_quote_walk.mp3";
 	const SND_QUOTE_HURT = "outerwall/snd_quote_hurt.mp3";
+	const SND_QUOTE_HURT_LAVA = "outerwall/snd_quote_hurt_lava.mp3";
 	const SND_CHECKPOINT = "outerwall/checkpoint.mp3";
 	const SND_PURPLECOIN_COLLECT = "outerwall/snd_purplecometcoin_collect.mp3";
 	
@@ -38,10 +61,11 @@ IncludeScript("outerwall_purplecoin.nut", this);
 
 	PrecacheSound(SND_QUOTE_WALK);
 	PrecacheSound(SND_QUOTE_HURT);
+	PrecacheSound(SND_QUOTE_HURT_LAVA);
 	PrecacheSound(SND_CHECKPOINT);
 	PrecacheSound(SND_PURPLECOIN_COLLECT);
 	
-	if (!IsHolidayActive(12)) //soldier holiday
+	if (!IsHolidayActive(Constants.EHoliday.kHoliday_Soldier))
 		EntFire("soldier_statue", "kill");
 	
 	DebugPrint("OUTERWALL INIT ENDED");
@@ -50,13 +74,28 @@ IncludeScript("outerwall_purplecoin.nut", this);
 function OuterwallThink()
 {
 	PurpleCoinHUDThink();
+	
+	PlaySpectatorTrackThink();
+}
+
+::GameEventPlayerInitialSpawn <- function(eventdata)
+{
+	local client = GetPlayerFromUserID(eventdata.userid);
+	local player_index = client.GetEntityIndex();
+	//reset all global arrays to default
+	PlayerZoneList[player_index] = null;
+	PlayerSoundtrackList[player_index] = 0;
+	PlayerTrackList[player_index] = 2;
+	PlayerCheckpointStatus[player_index] = 0;
+	PurpleCoinPlayerHUDStatusArray[player_index] = false;
+	PlayerLastHurt[player_index] = null;
 }
 
 ::GameEventPlayerSpawn <- function(eventdata)
 {
 	local client = GetPlayerFromUserID(eventdata.userid);
 	
-	if (client == null || client.GetTeam() <= 1) //spec & unassigned
+	if(!client.IsPlayer() || client.GetTeam() == (TEAM_UNASSIGNED || TEAM_SPECTATOR))
 		return;
 	
 	local player_index = client.GetEntityIndex();
@@ -68,21 +107,45 @@ function OuterwallThink()
 
 ::SetPlayerSoundtrack <- function(iTrack)
 {
-	local Soundtracks = ["remastered","ridiculon","organya"]
 	local player_index = activator.GetEntityIndex();
 	
 	PlayerSoundtrackList[player_index] = iTrack;
+	PlayTrack(PlayerTrackList[player_index], activator);
+	EmitSoundOnClient(SND_CHECKPOINT, activator);
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
 
-::PlayTrack <- function(iTrack)
+::PlayTrack <- function(iTrack, client)
 {
-	local Soundtracks = ["remastered","ridiculon","organya"]
-	local Tracks = ["white","pulse","moonsong_inside","moonsong_outside","lastcave","balcony","balcony_lava","geothermal","hell_inside","hell_outside","windfortress_inside","windfortress_outside","windfortress_lava","meltdown"]
-	local player_index = activator.GetEntityIndex();
+	local player_index = client.GetEntityIndex();
 	
-	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, activator, activator);
+	PlayerTrackList[player_index] = iTrack;
+		
+	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
 	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
+}
+
+::PlaySpectatorTrackThink <- function()
+{
+	local player_index = 0;
+	while(player_index < MAX_PLAYERS)
+	{
+		local client = PlayerInstanceFromIndex(player_index);
+		
+		if(client != null)
+		{
+			local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+			
+			if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
+			{
+				local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget").GetEntityIndex();
+				
+				if(spectator_target <= MAX_PLAYERS)
+					DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target]], "StartTouch", "", 0.0, client, client);
+			}
+		}
+		player_index++;
+	}
 }
 
 ::SetPlayerZone <- function(iZone)
@@ -111,11 +174,14 @@ function OuterwallThink()
 
 ::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false)
 {
+	//TODO: Add a case for the checkpoints in bonus 4 and 5
 	if(client == null)
 		return;
 
-	//TODO: Add a case for the checkpoints in bonus 4 and 5
 	local player_index = client.GetEntityIndex();
+
+	if(PlayerZoneList[player_index] == null) //player's first spawn
+		return;
 	
 	if(iZone == null) //Player is Out Of Bounds
 	{
@@ -156,25 +222,30 @@ function OuterwallThink()
 	}
 }
 
-::HurtTouch <- function(iSpikeType)
+::HurtTouch <- function(iSpikeType, client)
 {
-	const DMG_BURN = 8;
+	local player_index = client.GetEntityIndex();
+	
+	if(PlayerLastHurt[player_index] != null && PlayerLastHurt[player_index] + 0.5 > Time())
+		return;
 
 	switch(iSpikeType)
 	{
 		case 0: //Normal Spike
-			ApplyAbsVelocityImpulse(Vector(0,0,350));
+			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,350));
 		case 1: //No Launch Spike
-			activator.TakeDamage(100.0, DMG_BURN, null);
-			EmitSoundOnClient(Outerwall.SpikeHurt, activator);
+			client.TakeDamageEx(null, client, null, Vector(0,0,0), Vector(0,0,0), 50.0, 8);
+			client.EmitSound(SND_QUOTE_HURT);
 			break;
 		case 2: //Lava
-			activator.TakeDamage(50.0, DMG_BURN, null);
-			ApplyAbsVelocityImpulse(Vector(0,0,650));
-			EmitSoundOnClient(Outerwall.LavaHurt, activator);
+			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,650));
+			client.TakeDamageEx(null, client, null, Vector(0,0,0), Vector(0,0,0), 25.0, 8);
+			client.EmitSound(SND_QUOTE_HURT_LAVA);
 			break;
 		default: //Error
 			printl("ERROR ERROR! ::HurtTouch() called with invalid iSpikeType!!!!");
 			break;
 	}
+	
+	PlayerLastHurt[player_index] = Time();
 }
