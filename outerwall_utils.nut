@@ -4,6 +4,7 @@
 ::TEAM_SPECTATOR <- Constants.ETFTeam.TEAM_SPECTATOR
 ::OBS_MODE_IN_EYE <- Constants.ESpectatorMode.OBS_MODE_IN_EYE
 ::OBS_MODE_CHASE <- Constants.ESpectatorMode.OBS_MODE_CHASE
+::DMG_BURN <- Constants.FDmgType.DMG_BURN
 
 ::DEBUG_OUTPUT <- !IsDedicatedServer()
 

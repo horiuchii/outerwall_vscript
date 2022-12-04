@@ -75,7 +75,7 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	
 	//show particle and play sound
 	DispatchParticleEffect("purplecoin_collect", caller.GetOrigin(), Vector(0,90,0));
-	EmitSoundOnClient(SND_PURPLECOIN_COLLECT, activator);
+	activator.EmitSound(SND_PURPLECOIN_COLLECT);
 	
 	//Collected all coins
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)

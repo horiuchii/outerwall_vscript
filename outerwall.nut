@@ -51,19 +51,21 @@ IncludeScript("outerwall_purplecoin.nut", this);
 
 ::OuterwallMain <- function()
 {
-	const SND_QUOTE_WALK = "outerwall/snd_quote_walk.mp3";
-	const SND_QUOTE_HURT = "outerwall/snd_quote_hurt.mp3";
-	const SND_QUOTE_HURT_LAVA = "outerwall/snd_quote_hurt_lava.mp3";
-	const SND_CHECKPOINT = "outerwall/checkpoint.mp3";
-	const SND_PURPLECOIN_COLLECT = "outerwall/snd_purplecometcoin_collect.mp3";
-	
 	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
 
-	PrecacheSound(SND_QUOTE_WALK);
-	PrecacheSound(SND_QUOTE_HURT);
-	PrecacheSound(SND_QUOTE_HURT_LAVA);
-	PrecacheSound(SND_CHECKPOINT);
-	PrecacheSound(SND_PURPLECOIN_COLLECT);
+	PrecacheSound("outerwall/snd_quote_walk.mp3");
+	
+	PrecacheSound("outerwall/snd_quote_hurt.mp3");
+	const SND_QUOTE_HURT = "Outerwall.QuoteHurt";
+	
+	PrecacheSound("outerwall/snd_quote_hurt_lava.mp3");
+	const SND_QUOTE_HURT_LAVA = "Outerwall.QuoteHurtLava";
+	
+	PrecacheSound("outerwall/checkpoint.mp3");
+	const SND_CHECKPOINT = "Outerwall.Checkpoint";
+	
+	PrecacheSound("outerwall/snd_purplecometcoin_collect.mp3");
+	const SND_PURPLECOIN_COLLECT = "Outerwall.PurpleCometCoinCollect";
 	
 	if (!IsHolidayActive(Constants.EHoliday.kHoliday_Soldier))
 		EntFire("soldier_statue", "kill");
@@ -89,6 +91,11 @@ function OuterwallThink()
 	PlayerCheckpointStatus[player_index] = 0;
 	PurpleCoinPlayerHUDStatusArray[player_index] = false;
 	PlayerLastHurt[player_index] = null;
+	//precache soundscripts
+	client.PrecacheSoundScript(SND_QUOTE_HURT);
+	client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
+	client.PrecacheSoundScript(SND_CHECKPOINT);
+	client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
 }
 
 ::GameEventPlayerSpawn <- function(eventdata)
@@ -100,7 +107,7 @@ function OuterwallThink()
 	
 	local player_index = client.GetEntityIndex();
 	
-	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false);
+	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false, false);
 	
 	DebugPrint("Player " + player_index + " was respawned at " + PlayerZoneList[player_index]);
 }
@@ -109,9 +116,13 @@ function OuterwallThink()
 {
 	local player_index = activator.GetEntityIndex();
 	
+	if(PlayerSoundtrackList[player_index] == iTrack)
+		return;
+	
 	PlayerSoundtrackList[player_index] = iTrack;
 	PlayTrack(PlayerTrackList[player_index], activator);
-	EmitSoundOnClient(SND_CHECKPOINT, activator);
+	activator.EmitSound(SND_CHECKPOINT);
+	
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
 
@@ -172,7 +183,7 @@ function OuterwallThink()
 	DebugPrint("Player " + player_index + "'s new checkpoint is: " + iNewCheckpoint);
 }
 
-::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false)
+::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false, bPlayHurtSound = true)
 {
 	//TODO: Add a case for the checkpoints in bonus 4 and 5
 	if(client == null)
@@ -185,7 +196,6 @@ function OuterwallThink()
 	
 	if(iZone == null) //Player is Out Of Bounds
 	{
-		EmitSoundOnClient(SND_QUOTE_HURT, client);
 		iZone = PlayerZoneList[player_index];
 	}
 	
@@ -204,6 +214,10 @@ function OuterwallThink()
 	}
 	
 	DebugPrint("Player " + player_index + " teleported via ::TeleportPlayerToZone()");
+	
+	if(bPlayHurtSound)
+		client.EmitSound(SND_QUOTE_HURT);
+	
 	client.SetOrigin(ZoneLocations[PlayerZoneList[player_index]]);
 	client.SnapEyeAngles(ZoneAngles[PlayerZoneList[player_index]]);
 }
@@ -234,12 +248,12 @@ function OuterwallThink()
 		case 0: //Normal Spike
 			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,350));
 		case 1: //No Launch Spike
-			client.TakeDamageEx(null, client, null, Vector(0,0,0), Vector(0,0,0), 50.0, 8);
+			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 50.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT);
 			break;
 		case 2: //Lava
 			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,650));
-			client.TakeDamageEx(null, client, null, Vector(0,0,0), Vector(0,0,0), 25.0, 8);
+			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 25.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT_LAVA);
 			break;
 		default: //Error
