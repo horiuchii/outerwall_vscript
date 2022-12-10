@@ -1,12 +1,3 @@
-IncludeScript("outerwall_utils.nut", this);
-IncludeScript("outerwall_purplecoin.nut", this);
-
-::PlayerZoneList <- array(MAX_PLAYERS, null)
-::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
-::PlayerTrackList <- array(MAX_PLAYERS, 2)
-::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
-::PlayerLastHurt <- array(MAX_PLAYERS, null)
-
 ::Soundtracks <-
 [
 	"remastered",
@@ -49,6 +40,16 @@ IncludeScript("outerwall_purplecoin.nut", this);
 	QAngle(0,180,0) //sand pit
 ]
 
+IncludeScript("outerwall_utils.nut", this);
+IncludeScript("outerwall_purplecoin.nut", this);
+IncludeScript("outerwall_timer.nut", this);
+
+::PlayerZoneList <- array(MAX_PLAYERS, null)
+::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
+::PlayerTrackList <- array(MAX_PLAYERS, 2)
+::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
+::PlayerLastHurt <- array(MAX_PLAYERS, null)
+
 ::OuterwallMain <- function()
 {
 	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
@@ -67,23 +68,40 @@ IncludeScript("outerwall_purplecoin.nut", this);
 	PrecacheSound("outerwall/snd_purplecometcoin_collect.mp3");
 	const SND_PURPLECOIN_COLLECT = "Outerwall.PurpleCometCoinCollect";
 	
-	if (!IsHolidayActive(Constants.EHoliday.kHoliday_Soldier))
+	PrecacheSound("ui/itemcrate_smash_common.wav");
+	const SND_MEDAL_BRONZE = "Outerwall.MedalBronze";
+	
+	PrecacheSound("ui/itemcrate_smash_rare.wav");
+	const SND_MEDAL_SILVER = "Outerwall.MedalSilver";
+	
+	PrecacheSound("ui/itemcrate_smash_ultrarare_short.wav");
+	const SND_MEDAL_GOLD = "Outerwall.MedalGold";
+	
+	if (!IsHolidayActive(kHoliday_Soldier))
 		EntFire("soldier_statue", "kill");
 	
 	DebugPrint("OUTERWALL INIT ENDED");
 }
 
-function OuterwallThink()
+::OuterwallServerThink <- function()
 {
-	PurpleCoinHUDThink();
-	
-	PlaySpectatorTrackThink();
 }
 
-::GameEventPlayerInitialSpawn <- function(eventdata)
+::OuterwallClientThink <- function()
 {
-	local client = GetPlayerFromUserID(eventdata.userid);
-	local player_index = client.GetEntityIndex();
+	PlaySpectatorTrackThink(self);
+	
+	PurpleCoinHUDThink(self);
+}
+
+::GameEventPlayerConnect <- function(eventdata)
+{
+	local player_index = eventdata.index + 1;
+	ResetPlayerGlobalArrays(player_index);
+}
+
+::ResetPlayerGlobalArrays <- function(player_index)
+{
 	//reset all global arrays to default
 	PlayerZoneList[player_index] = null;
 	PlayerSoundtrackList[player_index] = 0;
@@ -91,21 +109,36 @@ function OuterwallThink()
 	PlayerCheckpointStatus[player_index] = 0;
 	PurpleCoinPlayerHUDStatusArray[player_index] = false;
 	PlayerLastHurt[player_index] = null;
-	//precache soundscripts
-	client.PrecacheSoundScript(SND_QUOTE_HURT);
-	client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
-	client.PrecacheSoundScript(SND_CHECKPOINT);
-	client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
+	//reset arena array
+	ResetPlayerArenaArray(player_index);
+	//reset medal times
+	ResetMedalTimes(player_index);
+	
+	DebugPrint("Reset global arrays for player " + player_index);
 }
 
 ::GameEventPlayerSpawn <- function(eventdata)
 {
 	local client = GetPlayerFromUserID(eventdata.userid);
 	
-	if(!client.IsPlayer() || client.GetTeam() == (TEAM_UNASSIGNED || TEAM_SPECTATOR))
+	if(!client || !client.IsPlayer() || client.GetTeam() == (TEAM_UNASSIGNED || TEAM_SPECTATOR))
 		return;
 	
 	local player_index = client.GetEntityIndex();
+	
+	ResetPlayerArenaArray(player_index);
+	
+	if(PlayerZoneList[player_index] == null) //player's first spawn
+	{
+		//precache soundscripts
+		client.PrecacheSoundScript(SND_QUOTE_HURT);
+		client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
+		client.PrecacheSoundScript(SND_CHECKPOINT);
+		client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
+		AddThinkToEnt(client, "OuterwallClientThink");
+		DebugPrint("Player " + player_index + " had their first spawn");
+		return;
+	}
 	
 	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false, false);
 	
@@ -136,26 +169,18 @@ function OuterwallThink()
 	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
 }
 
-::PlaySpectatorTrackThink <- function()
+::PlaySpectatorTrackThink <- function(client)
 {
-	local player_index = 0;
-	while(player_index < MAX_PLAYERS)
+	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+	
+	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
 	{
-		local client = PlayerInstanceFromIndex(player_index);
-		
-		if(client != null)
-		{
-			local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
-			
-			if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
-			{
-				local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget").GetEntityIndex();
-				
-				if(spectator_target <= MAX_PLAYERS)
-					DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target]], "StartTouch", "", 0.0, client, client);
-			}
-		}
-		player_index++;
+		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
+	
+		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
+			DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target.GetEntityIndex()]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
+		else //we're likely spectating the credits camera, play our pulse
+			DoEntFire("trigger_soundscape_pulse_" + Soundtracks[PlayerSoundtrackList[client.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
 	}
 }
 
@@ -186,18 +211,13 @@ function OuterwallThink()
 ::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false, bPlayHurtSound = true)
 {
 	//TODO: Add a case for the checkpoints in bonus 4 and 5
-	if(client == null)
-		return;
-
-	local player_index = client.GetEntityIndex();
-
-	if(PlayerZoneList[player_index] == null) //player's first spawn
+	if(!client || client.IsNoclipping())
 		return;
 	
+	local player_index = client.GetEntityIndex();
+	
 	if(iZone == null) //Player is Out Of Bounds
-	{
 		iZone = PlayerZoneList[player_index];
-	}
 	
 	if(iCheckpointFilter != null)
 	{
@@ -233,6 +253,8 @@ function OuterwallThink()
 		
 		else
 			EntFire("logic_relay_goal_bonus" + iZoneGoal, "Trigger");
+		
+		CheckPlayerMedal(iZoneGoal, activator);
 	}
 }
 
@@ -240,7 +262,7 @@ function OuterwallThink()
 {
 	local player_index = client.GetEntityIndex();
 	
-	if(PlayerLastHurt[player_index] != null && PlayerLastHurt[player_index] + 0.5 > Time())
+	if(client.IsNoclipping() || PlayerLastHurt[player_index] != null && PlayerLastHurt[player_index] + 0.5 > Time())
 		return;
 
 	switch(iSpikeType)
