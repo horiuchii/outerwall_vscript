@@ -1,3 +1,13 @@
+IncludeScript("outerwall_utils.nut", this);
+IncludeScript("outerwall_purplecoin.nut", this);
+IncludeScript("outerwall_timer.nut", this);
+
+::PlayerZoneList <- array(MAX_PLAYERS, null)
+::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
+::PlayerTrackList <- array(MAX_PLAYERS, 2)
+::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
+::PlayerLastHurt <- array(MAX_PLAYERS, null)
+
 ::Soundtracks <-
 [
 	"remastered",
@@ -40,19 +50,11 @@
 	QAngle(0,180,0) //sand pit
 ]
 
-IncludeScript("outerwall_utils.nut", this);
-IncludeScript("outerwall_purplecoin.nut", this);
-IncludeScript("outerwall_timer.nut", this);
-
-::PlayerZoneList <- array(MAX_PLAYERS, null)
-::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
-::PlayerTrackList <- array(MAX_PLAYERS, 2)
-::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
-::PlayerLastHurt <- array(MAX_PLAYERS, null)
-
 ::OuterwallMain <- function()
 {
 	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
+	const MAT_MEDALTIMEHUD = "outerwall/medaltimehud.vmt";
+	const MAT_PURPLECOINANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
 
 	PrecacheSound("outerwall/snd_quote_walk.mp3");
 	
@@ -80,6 +82,8 @@ IncludeScript("outerwall_timer.nut", this);
 	if (!IsHolidayActive(kHoliday_Soldier))
 		EntFire("soldier_statue", "kill");
 	
+	CreateMedalTimeText();
+	
 	DebugPrint("OUTERWALL INIT ENDED");
 }
 
@@ -91,7 +95,7 @@ IncludeScript("outerwall_timer.nut", this);
 {
 	PlaySpectatorTrackThink(self);
 	
-	PurpleCoinHUDThink(self);
+	PlayerHUDThink(self);
 }
 
 ::GameEventPlayerConnect <- function(eventdata)
@@ -135,6 +139,9 @@ IncludeScript("outerwall_timer.nut", this);
 		client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
 		client.PrecacheSoundScript(SND_CHECKPOINT);
 		client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
+		client.PrecacheSoundScript(SND_MEDAL_BRONZE);
+		client.PrecacheSoundScript(SND_MEDAL_SILVER);
+		client.PrecacheSoundScript(SND_MEDAL_GOLD);
 		AddThinkToEnt(client, "OuterwallClientThink");
 		DebugPrint("Player " + player_index + " had their first spawn");
 		return;
@@ -184,6 +191,59 @@ IncludeScript("outerwall_timer.nut", this);
 	}
 }
 
+::PlayerHUDThink <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+
+	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+	local PurpleCoinHUDGameTextEntity = null;
+	local MedalTimeHUDGameTextEntity = null;
+	
+	// if we're spectating, get our spec target info
+	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
+	{
+		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
+		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
+		{
+			local spectator_target_index = spectator_target.GetEntityIndex();
+			if(PurpleCoinPlayerHUDStatusArray[spectator_target_index] == true)
+				PurpleCoinHUDGameTextEntity = ("outerwall_bonus6_gametext_" + spectator_target_index);
+			if(PlayerMedalTimeHUDStatusArray[spectator_target_index] == true)
+				MedalTimeHUDGameTextEntity = ("medaltimes_zone" + PlayerZoneList[spectator_target_index]);
+		}
+	}
+	// we aren't spectating, get our own info
+	else
+	{
+		if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
+			PurpleCoinHUDGameTextEntity = ("outerwall_bonus6_gametext_" + player_index);
+		if(PlayerMedalTimeHUDStatusArray[player_index] == true)
+			MedalTimeHUDGameTextEntity = ("medaltimes_zone" + PlayerZoneList[player_index]);
+	}
+	// alright, we got the info, lets display to us
+	if(PurpleCoinHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null)
+	{
+		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
+		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
+		client.SetScriptOverlayMaterial(MAT_PURPLECOINANDMEDALTIMEHUD);
+		return;
+	}
+	else if(PurpleCoinHUDGameTextEntity != null)
+	{
+		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
+		client.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
+		return;
+	}
+	else if(MedalTimeHUDGameTextEntity != null)
+	{
+		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
+		client.SetScriptOverlayMaterial(MAT_MEDALTIMEHUD);
+		return;
+	}
+	
+	client.SetScriptOverlayMaterial(null);
+}
+
 ::SetPlayerZone <- function(iZone)
 {
 	local player_index = activator.GetEntityIndex();
@@ -197,7 +257,7 @@ IncludeScript("outerwall_timer.nut", this);
 	local player_index = activator.GetEntityIndex();
 	local current_checkpoint = PlayerCheckpointStatus[player_index];
 	
-	if(iNewCheckpoint != current_checkpoint + 1 && iNewCheckpoint != 0)
+	if(iNewCheckpoint != current_checkpoint + 1 && iNewCheckpoint != 0 || activator.IsNoclipping())
 		return;
 	
 	PlayerCheckpointStatus[player_index] = iNewCheckpoint;
@@ -246,7 +306,7 @@ IncludeScript("outerwall_timer.nut", this);
 {
 	local player_index = activator.GetEntityIndex();
 
-	if(PlayerCheckpointStatus[player_index] == iRequiredCheckpoint)
+	if(!activator.IsNoclipping() && PlayerCheckpointStatus[player_index] == iRequiredCheckpoint && PlayerZoneList[player_index] == iZoneGoal)
 	{
 		if(iZoneGoal == 0)
 			EntFire("logic_relay_goal", "Trigger");

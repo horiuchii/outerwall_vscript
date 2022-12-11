@@ -96,31 +96,6 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	}
 }
 
-::PurpleCoinHUDThink <- function(client)
-{
-	local player_index = client.GetEntityIndex();
-
-	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
-	local GameTextEntity = null;
-	
-	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
-	{
-		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
-		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS && PurpleCoinPlayerHUDStatusArray[spectator_target.GetEntityIndex()] == true)
-			GameTextEntity = ("outerwall_bonus6_gametext_" + spectator_target.GetEntityIndex());
-	}
-	else if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
-		GameTextEntity = ("outerwall_bonus6_gametext_" + player_index);
-		
-	if(GameTextEntity != null)
-	{
-		EntFire(GameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
-	}
-	else
-		client.SetScriptOverlayMaterial(null);
-}
-
 ::SetPurpleCoinHUD <- function(bSetHUD)
 {
 	local player_index = activator.GetEntityIndex();

@@ -1,4 +1,5 @@
 const PF_MEDAL_MODEL = "models/beepin/pf_medal/pf_medal.mdl"
+const PF_MEDAL_SKIN_IRIDECENT = 1;
 const PF_MEDAL_SKIN_GOLD = 2;
 const PF_MEDAL_SKIN_SILVER = 3;
 const PF_MEDAL_SKIN_BRONZE = 4;
@@ -7,26 +8,28 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 [
 	"Bronze",
 	"Silver",
-	"Gold"
+	"Gold",
+	"Iridecent"
 ]
 
 ::MedalColors <-
 [
 	"D2691E", //bronze
 	"C0C0C0", //silver
-	"FFD700" //gold
+	"FFD700", //gold
+	"B71111" //iridecence
 ]
 
 ::ZoneTimes <-
 [
-	// bronze, silver, gold
-	[85, 70, 50], //oside
-	[60, 45, 35], //last cave
-	[70, 55, 45], //balcony
-	[65, 45, 35], //inner wall
-	[135, 100, 70], //hell
-	[138, 103, 73], //wind fortress
-	[155, 135, 115] //sand pit
+	// bronze, silver, gold, iridecence
+	[85, 70, 50, 35], //oside
+	[60, 45, 35, 30], //last cave
+	[70, 55, 45, 30], //balcony
+	[65, 45, 35, 25], //inner wall
+	[135, 100, 70, 60], //hell
+	[138, 103, 73, 65], //wind fortress
+	[155, 135, 115, 100] //sand pit
 ]
 
 ::MedalLocations <-
@@ -51,6 +54,16 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 	"Sand Pit's"
 ]
 
+::MessagePrefixesIridecence <-
+[
+	"Faster than fast! You",
+	"I don't believe it! You",
+	"There's no way! You",
+	"Did you cheat? That was TOO fast! You",
+	"You're a damn legend! You",
+	"You're the best of the best! You"
+]
+
 ::MessagePrefixesGold <-
 [
 	"Sweet! You",
@@ -58,8 +71,6 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 	"Alright! You",
 	"Excellent! You",
 	"That was fast! You",
-	"Faster than fast! You",
-	"I don't believe it! You"
 ]
 
 ::MessagePrefixesSilver <-
@@ -100,11 +111,53 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 ]
 
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
-::PlayerBestMedalArray <- array(MAX_PLAYERS, array(ZoneNames.len() - 1, -1))
+::PlayerBestMedalArray <- array(MAX_PLAYERS, array(ZoneNames.len(), -1))
+::PlayerMedalTimeHUDStatusArray <- array(MAX_PLAYERS, false)
+
+::CreateMedalTimeText <- function()
+{
+	for(local iArrayIndex = 0 ; iArrayIndex < ZoneNames.len() ; iArrayIndex++)
+	{
+		local MedalTimesText = ZoneNames[iArrayIndex] + " Medal Times" + "\n" + "------------------------" + "\n";
+		for(local medal_index = 2 ; medal_index > -1 ; medal_index--)
+		{
+			local Milestone = ZoneTimes[iArrayIndex][medal_index];
+			local Min = Milestone / 60;
+			local Sec = Milestone - (Min * 60);
+			local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+			MedalTimesText += Medals[medal_index] + " time: " + Min + ":" + SecString + "\n";
+		}
+		
+		local gametext = SpawnEntityFromTable("game_text",
+		{
+			targetname = "medaltimes_zone" + iArrayIndex,
+			message = MedalTimesText,
+			channel = 5,
+			color = "240 255 0",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.025,
+			y = 0.375
+		})
+		
+		Entities.DispatchSpawn(gametext);
+	}
+}
+
+::SetMedalTimeHUD <- function(bSetHUD)
+{
+	local player_index = activator.GetEntityIndex();
+	
+	if(bSetHUD)
+		EmitSoundOnClient(SND_CHECKPOINT, activator);
+	
+	PlayerMedalTimeHUDStatusArray[player_index] = bSetHUD;
+}
 
 ::ResetMedalTimes <- function(player_index)
 {
-	for(local iArrayIndex = 0 ; iArrayIndex < ZoneNames.len() - 1 ; iArrayIndex++)
+	for(local iArrayIndex = 0 ; iArrayIndex < ZoneNames.len() ; iArrayIndex++)
 	{
 		PlayerBestMedalArray[player_index][iArrayIndex] = -1;
 	}
@@ -114,6 +167,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 {
 	switch(medal)
 	{
+		case 3: return MessagePrefixesIridecence[RandomInt(0, MessagePrefixesIridecence.len() - 1)];
 		case 2: return MessagePrefixesGold[RandomInt(0, MessagePrefixesGold.len() - 1)];
 		case 1: return MessagePrefixesSilver[RandomInt(0, MessagePrefixesSilver.len() - 1)];
 		case 0: return MessagePrefixesBronze[RandomInt(0, MessagePrefixesBronze.len() - 1)];
@@ -125,6 +179,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 {
 	switch(medal)
 	{
+		case 3: return "!";
 		case 2: return "!";
 		case 1: return MessagePostfixesSilver[RandomInt(0, MessagePostfixesSilver.len() - 1)];
 		case 0: return MessagePostfixesBronze[RandomInt(0, MessagePostfixesBronze.len() - 1)];
@@ -151,7 +206,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 	local medal = null;
 	local medal_times = ZoneTimes[iZone];
 	
-	for(local medal_index = 2 ; medal_index > -1 ; medal_index--)
+	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
 	{
 		if(total_time < medal_times[medal_index])
 		{
@@ -183,6 +238,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 
 	switch(medal_type)
 	{
+		case 3: prop_skin = PF_MEDAL_SKIN_IRIDECENT; medal_sound = SND_MEDAL_GOLD; break;
 		case 2: prop_skin = PF_MEDAL_SKIN_GOLD; medal_sound = SND_MEDAL_GOLD; break;
 		case 1: prop_skin = PF_MEDAL_SKIN_SILVER; medal_sound = SND_MEDAL_SILVER; break;
 		case 0: prop_skin = PF_MEDAL_SKIN_BRONZE; medal_sound = SND_MEDAL_BRONZE; break;
@@ -196,7 +252,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 		origin = prop_origin,
 		modelscale = 1.0,
 		DefaultAnim = "spin",
-		playbackrate = 0.75,
+		playbackrate = 0.50,
 		solid = 0
 	})
 	
