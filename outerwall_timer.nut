@@ -3,6 +3,7 @@ const PF_MEDAL_SKIN_IRIDECENT = 1;
 const PF_MEDAL_SKIN_GOLD = 2;
 const PF_MEDAL_SKIN_SILVER = 3;
 const PF_MEDAL_SKIN_BRONZE = 4;
+const ZONE_COUNT = 8;
 
 ::Medals <-
 [
@@ -23,13 +24,15 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 ::ZoneTimes <-
 [
 	// bronze, silver, gold, iridecence
+	
 	[85, 70, 50, 35], //oside
 	[60, 45, 35, 30], //last cave
 	[70, 55, 45, 30], //balcony
 	[65, 45, 35, 25], //inner wall
 	[135, 100, 70, 60], //hell
-	[138, 103, 73, 65], //wind fortress
-	[155, 135, 115, 100] //sand pit
+	[145, 110, 80, 75], //wind fortress
+	[155, 135, 115, 100], //sand pit
+	[155, 135, 115, 100] //final cave
 ]
 
 ::MedalLocations <-
@@ -41,6 +44,7 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 	Vector(-5696,-1247,12457), //hell
 	Vector(5663,4704,14856), //wind fortress
 	Vector(4928,6944,-13392) //sand pit
+	Vector(4928,6944,-13392) //final cave
 ]
 
 ::ZoneNames <-
@@ -51,7 +55,8 @@ const PF_MEDAL_SKIN_BRONZE = 4;
 	"Inner Wall's",
 	"Sacred Grounds'",
 	"Wind Fortress'",
-	"Sand Pit's"
+	"Sand Pit's",
+	"Final Cave's"
 ]
 
 ::MessagePrefixesIridecence <-

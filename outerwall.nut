@@ -1,6 +1,7 @@
 IncludeScript("outerwall_utils.nut", this);
 IncludeScript("outerwall_purplecoin.nut", this);
 IncludeScript("outerwall_timer.nut", this);
+IncludeScript("outerwall_tips.nut", this);
 
 ::PlayerZoneList <- array(MAX_PLAYERS, null)
 ::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
@@ -26,6 +27,25 @@ IncludeScript("outerwall_timer.nut", this);
 	"hell_inside","hell_outside", //8,9
 	"windfortress_inside","windfortress_outside","windfortress_lava", //10,11,12
 	"meltdown" //13
+	"breakdown", "scorchingback_outside" "scorchingback_lava","lastbattle_transition" ,"lastbattle_lava", "lastbattle_outside" //14,15,16,17,18,19
+	"credits" //20
+]
+
+::SoundTestTracks <-
+[
+	"white", //0
+	"pulse", //1
+	"moonsong", //2
+	"lastcave", //3
+	"balcony", //4
+	"geothermal", //5
+	"hell", //6
+	"windfortress", //7
+	"meltdown", //8
+	"breakdown", //9
+	"scorchingback", //10
+	"lastbattle", //11
+	"credits" //12
 ]
 
 ::ZoneLocations <-
@@ -36,7 +56,8 @@ IncludeScript("outerwall_timer.nut", this);
 	Vector(-1392,7904,-13788), //inner wall
 	Vector(-704,-10368,13284), //hell
 	Vector(-1824,7616,13412), //wind fortress
-	Vector(5072,6944,-13436) //sand pit
+	Vector(3328,-1344,-14044) //Vector(5072,6944,-13436) //sand pit DO NOT SHIP
+	Vector(3328,-1344,-14044) //final cave
 ]
 
 ::ZoneAngles <-
@@ -48,6 +69,7 @@ IncludeScript("outerwall_timer.nut", this);
 	QAngle(0,90,0), //hell
 	QAngle(0,0,0), //wind fortress
 	QAngle(0,180,0) //sand pit
+	QAngle(0,180,0) //final cave
 ]
 
 ::OuterwallMain <- function()
@@ -69,6 +91,9 @@ IncludeScript("outerwall_timer.nut", this);
 	
 	PrecacheSound("outerwall/snd_purplecometcoin_collect.mp3");
 	const SND_PURPLECOIN_COLLECT = "Outerwall.PurpleCometCoinCollect";
+	
+	//PrecacheSound("outerwall/snd_timepickup_collect.mp3");
+	//const SND_TIMEPICKUP_COLLECT = "Outerwall.TimePickupCollect";
 	
 	PrecacheSound("ui/itemcrate_smash_common.wav");
 	const SND_MEDAL_BRONZE = "Outerwall.MedalBronze";
@@ -96,6 +121,8 @@ IncludeScript("outerwall_timer.nut", this);
 	PlaySpectatorTrackThink(self);
 	
 	PlayerHUDThink(self);
+	
+	//PlayerTimeTrialThink(self);
 }
 
 ::GameEventPlayerConnect <- function(eventdata)
@@ -139,6 +166,7 @@ IncludeScript("outerwall_timer.nut", this);
 		client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
 		client.PrecacheSoundScript(SND_CHECKPOINT);
 		client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
+		//client.PrecacheSoundScript(SND_TIMEPICKUP_COLLECT);
 		client.PrecacheSoundScript(SND_MEDAL_BRONZE);
 		client.PrecacheSoundScript(SND_MEDAL_SILVER);
 		client.PrecacheSoundScript(SND_MEDAL_GOLD);
@@ -171,9 +199,22 @@ IncludeScript("outerwall_timer.nut", this);
 	local player_index = client.GetEntityIndex();
 	
 	PlayerTrackList[player_index] = iTrack;
-		
-	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
-	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
+	
+	if(iTrack != -1)
+	{
+		DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
+		DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
+	}
+	else
+		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, client, client);
+}
+
+::PlaySoundTestTrack <- function(iTrack, client)
+{
+	local player_index = client.GetEntityIndex();
+	
+	PlayerTrackList[player_index] = -1;
+	DoEntFire("soundtest_trigger_soundscape_" + SoundTestTracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
 }
 
 ::PlaySpectatorTrackThink <- function(client)
@@ -185,7 +226,12 @@ IncludeScript("outerwall_timer.nut", this);
 		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
 	
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
-			DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target.GetEntityIndex()]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
+		{
+			if(PlayerTrackList[spectator_target.GetEntityIndex()] != -1)
+				DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target.GetEntityIndex()]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
+			else
+				DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, client, client);
+		}
 		else //we're likely spectating the credits camera, play our pulse
 			DoEntFire("trigger_soundscape_pulse_" + Soundtracks[PlayerSoundtrackList[client.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
 	}
@@ -338,6 +384,8 @@ IncludeScript("outerwall_timer.nut", this);
 			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 25.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT_LAVA);
 			break;
+		case 3: //Instant Kill
+			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 9999999.0, DMG_BURN);
 		default: //Error
 			printl("ERROR ERROR! ::HurtTouch() called with invalid iSpikeType!!!!");
 			break;
