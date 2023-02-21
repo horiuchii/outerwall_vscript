@@ -1,11 +1,13 @@
 const PF_MEDAL_MODEL = "models/beepin/pf_medal/pf_medal.mdl"
-const PF_MEDAL_SKIN_IRIDECENT = 1;
+const PF_MEDAL_SKIN_IRIDESCENT = 1;
 const PF_MEDAL_SKIN_GOLD = 2;
 const PF_MEDAL_SKIN_SILVER = 3;
 const PF_MEDAL_SKIN_BRONZE = 4;
-const ZONE_COUNT = 8;
+const TIMER_PLAYERHUDTEXT = "outerwall_timer_gametext_";
 
-::Medals <-
+const NO_MEDAL_COLOR = "008B8B";
+
+::MedalTypes <-
 [
 	"Bronze",
 	"Silver",
@@ -15,16 +17,15 @@ const ZONE_COUNT = 8;
 
 ::MedalColors <-
 [
-	"D2691E", //bronze
-	"C0C0C0", //silver
-	"FFD700", //gold
-	"B71111" //iridecence
+	"D2691E" //bronze
+	"C0C0C0" //silver
+	"FFD700" //gold
+	"B71111" //iridescence
 ]
 
 ::ZoneTimes <-
 [
-	// bronze, silver, gold, iridecence
-	
+	// bronze, silver, gold, iridescence
 	[85, 70, 50, 35], //oside
 	[60, 45, 35, 30], //last cave
 	[70, 55, 45, 30], //balcony
@@ -32,7 +33,7 @@ const ZONE_COUNT = 8;
 	[135, 100, 70, 60], //hell
 	[145, 110, 80, 75], //wind fortress
 	[155, 135, 115, 100], //sand pit
-	[155, 135, 115, 100] //final cave
+	[300, 350, 300, 250] //final cave
 ]
 
 ::MedalLocations <-
@@ -49,94 +50,50 @@ const ZONE_COUNT = 8;
 
 ::ZoneNames <-
 [
-	"Outer Wall's",
-	"Last Cave's",
-	"Balcony's",
-	"Inner Wall's",
-	"Sacred Grounds'",
-	"Wind Fortress'",
-	"Sand Pit's",
+	"Outer Wall's"
+	"Last Cave's"
+	"Balcony's"
+	"Inner Wall's"
+	"Sacred Grounds'"
+	"Wind Fortress'"
+	"Sand Pit's"
 	"Final Cave's"
-]
-
-::MessagePrefixesIridecence <-
-[
-	"Faster than fast! You",
-	"I don't believe it! You",
-	"There's no way! You",
-	"Did you cheat? That was TOO fast! You",
-	"You're a damn legend! You",
-	"You're the best of the best! You"
-]
-
-::MessagePrefixesGold <-
-[
-	"Sweet! You",
-	"Amazing Job! You",
-	"Alright! You",
-	"Excellent! You",
-	"That was fast! You",
-]
-
-::MessagePrefixesSilver <-
-[
-	"You're getting somewhere! You",
-	"Good job, you",
-	"Neat, you",
-	"Not too shabby, you",
-	"Decently fast, you"
-]
-
-::MessagePrefixesBronze <-
-[
-	"Not bad, but not great either, you",
-	"Eh, you",
-	"Not very fast... You",
-	"That could've gone better, you"
-]
-
-::MessagePostfixesSilver <-
-[
-	", now go for Gold!",
-	", now can you reach Gold?",
-	"... Now beat the Gold time!",
-	"... Now grab that Gold!",
-	", though the Gold is still up for grabs!",
-	", but y'know the real treasure is Gold, right?"
-]
-
-::MessagePostfixesBronze <-
-[
-	", atleast try to get Silver, yeah?",
-	", I know you can do better than that...",
-	"... C'mon now, atleast go for Silver!",
-	"... Now bump that time up to a Silver!",
-	"... Don't leave me hanging at just a Bronze now...",
-	"... Atleast you can only go up from here!"
 ]
 
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
 ::PlayerBestMedalArray <- array(MAX_PLAYERS, array(ZoneNames.len(), -1))
 ::PlayerMedalTimeHUDStatusArray <- array(MAX_PLAYERS, false)
+::PlayerCheatedCurrentRun <- array(MAX_PLAYERS, false)
+
+::DisplayTime <- function(client, bLapText, iMedal = 3)
+{
+	local player_index = client.GetEntityIndex();
+	
+	local time = Time() - PlayerStartTime[player_index];
+	local timedecimal = (round(time - time.tointeger(), 1) * 10).tostring();
+	local Min = time.tointeger() / 60;
+	local Sec = time.tointeger() - (Min * 60);
+	local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+	
+	local message = bLapText ? OUTERWALL_TIMER_LAPTIME : OUTERWALL_TIMER_FINALTIME;
+	
+	local messagecolor = null;
+	if(iMedal == null)
+		messagecolor = NO_MEDAL_COLOR;
+	else
+		messagecolor = bLapText ? "FF0000" : MedalColors[iMedal];
+	
+	ClientPrint(client, HUD_PRINTTALK, "\x07" + messagecolor + TranslateString(message) + "\x01" + Min + ":" + SecString + "." + timedecimal);
+}
 
 ::CreateMedalTimeText <- function()
 {
-	for(local iArrayIndex = 0 ; iArrayIndex < ZoneNames.len() ; iArrayIndex++)
+	for(local iArrayIndex = 1 ; iArrayIndex < MAX_PLAYERS ; iArrayIndex++)
 	{
-		local MedalTimesText = ZoneNames[iArrayIndex] + " Medal Times" + "\n" + "------------------------" + "\n";
-		for(local medal_index = 2 ; medal_index > -1 ; medal_index--)
-		{
-			local Milestone = ZoneTimes[iArrayIndex][medal_index];
-			local Min = Milestone / 60;
-			local Sec = Milestone - (Min * 60);
-			local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
-			MedalTimesText += Medals[medal_index] + " time: " + Min + ":" + SecString + "\n";
-		}
-		
 		local gametext = SpawnEntityFromTable("game_text",
 		{
-			targetname = "medaltimes_zone" + iArrayIndex,
-			message = MedalTimesText,
+			targetname = TIMER_PLAYERHUDTEXT + iArrayIndex,
+			message = "You shouldn't see this message! If you do, let me know!",
 			channel = 5,
 			color = "240 255 0",
 			fadein = 0,
@@ -148,6 +105,23 @@ const ZONE_COUNT = 8;
 		
 		Entities.DispatchSpawn(gametext);
 	}
+}
+
+::UpdateMedalTimeText <- function(player_index)
+{
+	local MedalTimesText = format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES, player_index), ZoneNames[PlayerZoneList[player_index]]) + "\n" + "------------------------" + "\n";
+	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
+	{
+		local Milestone = ZoneTimes[PlayerZoneList[player_index]][medal_index];
+		local Min = Milestone / 60;
+		local Sec = Milestone - (Min * 60);
+		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index) + Min + ":" + SecString + (medal_index >= 1 && PlayerZoneList[player_index] == 7 ? TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAPTWO, player_index) : "") + "\n";
+	}
+	
+	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
+
+	NetProps.SetPropString(text, "m_iszMessage", MedalTimesText);
 }
 
 ::SetMedalTimeHUD <- function(bSetHUD)
@@ -168,34 +142,11 @@ const ZONE_COUNT = 8;
 	}
 }
 
-::MedalTextPrefix <- function(medal)
-{
-	switch(medal)
-	{
-		case 3: return MessagePrefixesIridecence[RandomInt(0, MessagePrefixesIridecence.len() - 1)];
-		case 2: return MessagePrefixesGold[RandomInt(0, MessagePrefixesGold.len() - 1)];
-		case 1: return MessagePrefixesSilver[RandomInt(0, MessagePrefixesSilver.len() - 1)];
-		case 0: return MessagePrefixesBronze[RandomInt(0, MessagePrefixesBronze.len() - 1)];
-		default: return "";
-	}
-}
-
-::MedalTextPostfix <- function(medal)
-{
-	switch(medal)
-	{
-		case 3: return "!";
-		case 2: return "!";
-		case 1: return MessagePostfixesSilver[RandomInt(0, MessagePostfixesSilver.len() - 1)];
-		case 0: return MessagePostfixesBronze[RandomInt(0, MessagePostfixesBronze.len() - 1)];
-		default: return ".";
-	}
-}
-
 ::StartPlayerTimer <- function(client)
 {
 	local player_index = client.GetEntityIndex();
 	PlayerStartTime[player_index] = Time();
+	PlayerCheatedCurrentRun[player_index] = false;
 }
 
 ::CheckPlayerMedal <- function(iZone, client)
@@ -209,6 +160,7 @@ const ZONE_COUNT = 8;
 	DebugPrint("Player " + player_index + "'s time for stage " + iZone + " is " + total_time);
 	
 	local medal = null;
+	local medal_displaytime = null;
 	local medal_times = ZoneTimes[iZone];
 	
 	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
@@ -218,10 +170,23 @@ const ZONE_COUNT = 8;
 			if(player_best_medal >= medal_index)
 			{
 				DebugPrint(player_best_medal + " is better than " + medal_index);
-				return;
+				continue;
 			}
 			
+			// only allow iri, gold and silver for bonus 7 if lap 2 is active
+			if(iZone == 7 && medal_index >= 1 && PlayerLapTwoStatus[player_index] != true)
+				continue;
+			
 			medal = medal_index;
+			break;
+		}
+	}
+	
+	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
+	{
+		if(total_time < medal_times[medal_index])
+		{
+			medal_displaytime = medal_index;
 			break;
 		}
 	}
@@ -229,9 +194,19 @@ const ZONE_COUNT = 8;
 	if(medal != null)
 	{
 		PlayerBestMedalArray[player_index][iZone] = medal;
-		DebugPrint("Setting player " + player_index + "'s best medal for stage " + iZone + " to " + Medals[medal]);
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + MedalColors[medal] + MedalTextPrefix(medal) + " achieved " + ZoneNames[iZone] + " " + Medals[medal] + " medal" + MedalTextPostfix(medal));
+		DebugPrint("Setting player " + player_index + "'s best medal for stage " + iZone + " to " + medal);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + MedalColors[medal] + TranslateString(OUTERWALL_TIMER_MESSAGE[medal][RandomInt(0, OUTERWALL_TIMER_MESSAGE[medal].len() - 1)], player_index) + TranslateString(OUTERWALL_TIMER_ACHIEVED, player_index) + ZoneNames[iZone] + " " + TranslateString(OUTERWALL_TIMER_MEDAL_ACHIEVED[medal], player_index));
 		SpawnPropMedal(medal, iZone, client);
+	}
+	
+	if(medal == null && player_best_medal == -1)
+	{
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(OUTERWALL_TIMER_MESSAGE_NOMEDAL[RandomInt(0, OUTERWALL_TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_FAILEDTOQUALIFY, player_index), ZoneNames[iZone));
+	}
+	
+	if(PlayerSettingDisplayTime[player_index] == true)
+	{
+		DisplayTime(activator, false, medal_displaytime);
 	}
 }
 
@@ -243,7 +218,7 @@ const ZONE_COUNT = 8;
 
 	switch(medal_type)
 	{
-		case 3: prop_skin = PF_MEDAL_SKIN_IRIDECENT; medal_sound = SND_MEDAL_GOLD; break;
+		case 3: prop_skin = PF_MEDAL_SKIN_IRIDESCENT; medal_sound = SND_MEDAL_IRIDESCENT; break;
 		case 2: prop_skin = PF_MEDAL_SKIN_GOLD; medal_sound = SND_MEDAL_GOLD; break;
 		case 1: prop_skin = PF_MEDAL_SKIN_SILVER; medal_sound = SND_MEDAL_SILVER; break;
 		case 0: prop_skin = PF_MEDAL_SKIN_BRONZE; medal_sound = SND_MEDAL_BRONZE; break;
@@ -265,6 +240,6 @@ const ZONE_COUNT = 8;
 	client.EmitSound(medal_sound);
 	local particle_origin = prop_origin;
 	particle_origin.z += 20;
-	DispatchParticleEffect("outerwall_medal_" + Medals[medal_type], particle_origin, Vector(0,90,0));
+	DispatchParticleEffect("outerwall_medal_" + MedalTypes[medal_type], particle_origin, Vector(0,90,0));
 	EntFireByHandle(medal, "Kill", "", 10.0, client, null);
 }

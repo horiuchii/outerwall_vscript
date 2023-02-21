@@ -4,16 +4,37 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 
 const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 
-//TODO: Refactor this to not use a dipshit table and just use a 2D array
-::PlayerCoinStatusTable <- {}
+// +1 because name increments for every func_instance and the 3d sky is an instance
+::PlayerCoinStatus <- array(MAX_PLAYERS, array(PURPLECOIN_COUNT + 1, false))
 ::PlayerCoinCount <- array(MAX_PLAYERS, 0)
 ::PurpleCoinPlayerHUDStatusArray <- array(MAX_PLAYERS, false)
 
-::ResetArena <- function()
+::CreateBonus6GameText <- function()
+{
+	for(local iArrayIndex = 1 ; iArrayIndex < MAX_PLAYERS ; iArrayIndex++)
+	{
+		local gametext = SpawnEntityFromTable("game_text",
+		{
+			targetname = PURPLECOIN_PLAYERHUDTEXT + iArrayIndex,
+			message = "000",
+			channel = 4,
+			color = "240 255 0",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.5015,
+			y = 0.905
+		})
+		
+		Entities.DispatchSpawn(gametext);
+	}
+}
+
+::ResetPurpleCoinArena <- function()
 {
 	local player_index = activator.GetEntityIndex();
 	
-	ResetPlayerArenaArray(player_index);
+	ResetPlayerPurpleCoinArenaArray(player_index);
 	
 	EntFire(PURPLECOIN_COINPATH + "*", "Enable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
 	//transmit all coins to player
@@ -29,31 +50,23 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	//Reset Player HUD Count
 	EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
 	
-	DebugPrint("Reset Arena for player " + player_index);
+	DebugPrint("Reset Purple Coin Arena for player " + player_index);
 }
 
-::ResetPlayerArenaArray <- function(player_index)
+::ResetPlayerPurpleCoinArenaArray <- function(player_index)
 {
 	PlayerCoinCount[player_index] = 0;
-	// +1 because name increments for every func_instance and the 3d sky is an instance
-	PlayerCoinStatusTable[player_index] <- array(PURPLECOIN_COUNT + 1)
 	
-	local PlayerCoinStatusArray = PlayerCoinStatusTable[player_index];
-	
-	for(local iArrayIndex = 0 ; iArrayIndex < PlayerCoinStatusArray.len() ; iArrayIndex++)
+	for(local iArrayIndex = 0 ; iArrayIndex < PlayerCoinStatus[player_index].len() ; iArrayIndex++)
 	{
-		PlayerCoinStatusArray[iArrayIndex] = true;
-		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatusArray[iArrayIndex]);
+		PlayerCoinStatus[player_index][iArrayIndex] = true;
+		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatus[player_index][iArrayIndex]);
 	}
-	
-	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
 }
 
 ::CoinTouch <- function()
 {	
 	local player_index = activator.GetEntityIndex();
-	
-	local PlayerCoinStatusArray = PlayerCoinStatusTable[player_index];
 
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
 		return;
@@ -61,15 +74,14 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	local strTriggerName = NetProps.GetPropString(caller, "m_iName");
 	local TriggerID = strTriggerName.slice(PURPLECOIN_TRIGGERPATH.len()).tointeger() - 1;
 	
-	if (PlayerCoinStatusArray[TriggerID] == false)
+	if (PlayerCoinStatus[player_index][TriggerID] == false)
 		return;
 	
-	PlayerCoinStatusArray[TriggerID] = false;
-	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatusArray[TriggerID]);
-	PlayerCoinStatusTable[player_index] = PlayerCoinStatusArray;
+	PlayerCoinStatus[player_index][TriggerID] = false;
+	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatus[player_index][TriggerID]);
 	
 	PlayerCoinCount[player_index] += 1;
-	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
+	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinStatus[player_index][TriggerID]);
 	
 	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
 	//local CoinModel = Entities.FindByName(null, PURPLECOIN_COINPATH + (TriggerID + 1));
