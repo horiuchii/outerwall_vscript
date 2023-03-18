@@ -9,9 +9,9 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::MedalTypes <-
 [
-	"Bronze",
-	"Silver",
-	"Gold",
+	"Bronze"
+	"Silver"
+	"Gold"
 	"Iridecent"
 ]
 
@@ -50,18 +50,29 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::ZoneNames <-
 [
-	"Outer Wall's"
-	"Last Cave's"
-	"Balcony's"
-	"Inner Wall's"
-	"Sacred Grounds'"
-	"Wind Fortress'"
-	"Sand Pit's"
-	"Final Cave's"
+	"Outer Wall"
+	"Last Cave"
+	"Balcony"
+	"Inner Wall"
+	"Sacred Grounds"
+	"Wind Fortress"
+	"Sand Pit"
+	"Final Cave"
+]
+
+::ZoneSuffixes <-
+[
+	"'s"
+	"'s"
+	"'s"
+	"'s"
+	"'"
+	"'"
+	"'s"
+	"'s"
 ]
 
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
-::PlayerBestMedalArray <- array(MAX_PLAYERS, array(ZoneNames.len(), -1))
 ::PlayerMedalTimeHUDStatusArray <- array(MAX_PLAYERS, false)
 ::PlayerCheatedCurrentRun <- array(MAX_PLAYERS, false)
 
@@ -88,7 +99,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::CreateMedalTimeText <- function()
 {
-	for(local iArrayIndex = 1 ; iArrayIndex < MAX_PLAYERS ; iArrayIndex++)
+	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
 	{
 		local gametext = SpawnEntityFromTable("game_text",
 		{
@@ -109,7 +120,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::UpdateMedalTimeText <- function(player_index)
 {
-	local MedalTimesText = format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES, player_index), ZoneNames[PlayerZoneList[player_index]]) + "\n" + "------------------------" + "\n";
+	local MedalTimesText = format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES, player_index), ZoneNames[PlayerZoneList[player_index]], ZoneSuffixes[PlayerZoneList[player_index]]) + "\n" + "------------------------" + "\n";
 	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
 	{
 		local Milestone = ZoneTimes[PlayerZoneList[player_index]][medal_index];
@@ -119,8 +130,13 @@ const NO_MEDAL_COLOR = "008B8B";
 		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index) + Min + ":" + SecString + (medal_index >= 1 && PlayerZoneList[player_index] == 7 ? TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAPTWO, player_index) : "") + "\n";
 	}
 	
+	local best_medal = PlayerBestMedalArray[player_index][PlayerZoneList[player_index]] == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[PlayerBestMedalArray[player_index][PlayerZoneList[player_index]]], player_index);
+	local best_time = PlayerBestTimeArray[player_index][PlayerZoneList[player_index]].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestTimeArray[player_index][PlayerZoneList[player_index]];
+	
+	MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + best_medal;
+	MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + best_time; //TODO: FORMAT TIME
+	
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-
 	NetProps.SetPropString(text, "m_iszMessage", MedalTimesText);
 }
 
@@ -160,10 +176,10 @@ const NO_MEDAL_COLOR = "008B8B";
 	DebugPrint("Player " + player_index + "'s time for stage " + iZone + " is " + total_time);
 	
 	local medal = null;
-	local medal_displaytime = null;
+	local best_medal_qualified = null;
 	local medal_times = ZoneTimes[iZone];
 	
-	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
+	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
 		if(total_time < medal_times[medal_index])
 		{
@@ -182,11 +198,15 @@ const NO_MEDAL_COLOR = "008B8B";
 		}
 	}
 	
-	for(local medal_index = 3 ; medal_index > -1 ; medal_index--)
+	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
 		if(total_time < medal_times[medal_index])
 		{
-			medal_displaytime = medal_index;
+			// only allow iri, gold and silver for bonus 7 if lap 2 is active
+			if(iZone == 7 && medal_index >= 1 && PlayerLapTwoStatus[player_index] != true)
+				continue;
+			
+			best_medal_qualified = medal_index;
 			break;
 		}
 	}
@@ -195,18 +215,34 @@ const NO_MEDAL_COLOR = "008B8B";
 	{
 		PlayerBestMedalArray[player_index][iZone] = medal;
 		DebugPrint("Setting player " + player_index + "'s best medal for stage " + iZone + " to " + medal);
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + MedalColors[medal] + TranslateString(OUTERWALL_TIMER_MESSAGE[medal][RandomInt(0, OUTERWALL_TIMER_MESSAGE[medal].len() - 1)], player_index) + TranslateString(OUTERWALL_TIMER_ACHIEVED, player_index) + ZoneNames[iZone] + " " + TranslateString(OUTERWALL_TIMER_MEDAL_ACHIEVED[medal], player_index));
+		
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + MedalColors[medal] + TranslateString(OUTERWALL_TIMER_MESSAGE[medal][RandomInt(0, OUTERWALL_TIMER_MESSAGE[medal].len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_ACHIEVED, player_index), ZoneNames[iZone], ZoneSuffixes[iZone]) + TranslateString(OUTERWALL_TIMER_MEDAL_ACHIEVED[medal], player_index));
+		
 		SpawnPropMedal(medal, iZone, client);
 	}
 	
 	if(medal == null && player_best_medal == -1)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(OUTERWALL_TIMER_MESSAGE_NOMEDAL[RandomInt(0, OUTERWALL_TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_FAILEDTOQUALIFY, player_index), ZoneNames[iZone));
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(OUTERWALL_TIMER_MESSAGE_NOMEDAL[RandomInt(0, OUTERWALL_TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_FAILEDTOQUALIFY, player_index), ZoneNames[iZone], ZoneSuffixes[iZone]));
 	}
 	
 	if(PlayerSettingDisplayTime[player_index] == true)
 	{
-		DisplayTime(activator, false, medal_displaytime);
+		DisplayTime(activator, false, best_medal_qualified);
+	}
+	
+	local bNewTimeRecord = false;
+	
+	//set bNewTimeRecord if we surpass or are equal to our best medal && our time is better than the best time
+	if(best_medal_qualified >= player_best_medal && total_time < PlayerBestTimeArray[player_index][iZone])
+	{
+		bNewTimeRecord = true;
+		PlayerBestTimeArray[player_index][iZone] = total_time;
+	}
+	
+	if(medal != null || bNewTimeRecord)
+	{
+		PlayerSaveGame(client);
 	}
 }
 

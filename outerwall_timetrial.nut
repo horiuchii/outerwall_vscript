@@ -4,7 +4,6 @@ const SUPERPICKUP_ADD_TIME = 45.0;
 const TIME_REDUCE_THINK = 0.1;
 const TIMEPICKUP_COUNT = 6;
 const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
-const TIMETRIAL_PLAYERHUDTEXT = "outerwall_bonus7_gametext_";
 
 ::PlayerTimeTrialTime <- array(MAX_PLAYERS, START_TIME)
 ::PlayerTimeTrialTimeDisplay <- array(MAX_PLAYERS, START_TIME)
@@ -13,27 +12,6 @@ const TIMETRIAL_PLAYERHUDTEXT = "outerwall_bonus7_gametext_";
 ::PlayerTimeTrialActive <- array(MAX_PLAYERS, false)
 ::PlayerLapTwoStatus <- array(MAX_PLAYERS, false)
 ::TimeTrialPlayerHUDStatusArray <- array(MAX_PLAYERS, false)
-
-::CreateBonus7GameText <- function()
-{
-	for(local iArrayIndex = 1 ; iArrayIndex < MAX_PLAYERS ; iArrayIndex++)
-	{
-		local gametext = SpawnEntityFromTable("game_text",
-		{
-			targetname = TIMETRIAL_PLAYERHUDTEXT + iArrayIndex,
-			message = "10.0",
-			channel = 4,
-			color = "240 255 0",
-			fadein = 0,
-			fadeout = 0.05,
-			holdtime = 0.3,
-			x = 0.5015,
-			y = 0.905
-		})
-		
-		Entities.DispatchSpawn(gametext);
-	}
-}
 
 ::IsTimeLerping <- function(player_index)
 {
@@ -57,12 +35,12 @@ const TIMETRIAL_PLAYERHUDTEXT = "outerwall_bonus7_gametext_";
 	}
 	
 	if(IsTimeLerping(player_index))
-		EntFire(TIMETRIAL_PLAYERHUDTEXT + player_index, "addoutput", "color 0 255 0");
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color 0 255 0");
 	else
 	{
 		local time = remap(-0.1, 15.0, 0.0, 1.0, clamp(0.0, 15.0, PlayerTimeTrialTimeDisplay[player_index]));
 		local color = lerpRGB(time, Vector(255, 0, 0), Vector(240, 255, 0));
-		EntFire(TIMETRIAL_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
 	}
 	
 	PlayerTimeTrialTimeDisplay[player_index] = SmoothDamp(PlayerTimeTrialTimeDisplay[player_index], PlayerTimeTrialTime[player_index], 0, 0.03, 999999, DeltaTime());
@@ -86,7 +64,7 @@ const TIMETRIAL_PLAYERHUDTEXT = "outerwall_bonus7_gametext_";
 	local pretime = time < 10 ? "0" : "";
 	local posttime = time == time.tointeger() ? ".0" : "";
 	local lapcount = PlayerLapTwoStatus[player_index] ? "\n" + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + " 2" : "";
-	EntFire(TIMETRIAL_PLAYERHUDTEXT + player_index, "addoutput", "message " + " " + pretime + time.tostring() + posttime + lapcount);
+	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + " " + pretime + time.tostring() + posttime + lapcount);
 	
 	if(round(time - time.tointeger(), 1) == 0.9 && !IsTimeLerping(player_index))
 		EmitSoundOnClient(SND_WARTIMER, PlayerInstanceFromIndex(player_index));
@@ -96,7 +74,7 @@ const TIMETRIAL_PLAYERHUDTEXT = "outerwall_bonus7_gametext_";
 {
 	PlayerTimeTrialTime[player_index] = START_TIME;
 	PlayerTimeTrialTimeDisplay[player_index] = START_TIME;
-	EntFire(TIMETRIAL_PLAYERHUDTEXT + player_index, "addoutput", "color 240 255 0");
+	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color 240 255 0");
 	PlayerLapTwoStatus[player_index] = false;
 	
 	for(local iArrayIndex = 0 ; iArrayIndex < PlayerTimePickupStatus[player_index].len() ; iArrayIndex++)

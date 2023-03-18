@@ -43,6 +43,11 @@
 	"Ye seem t' 'ave hornswaggled, yer time has been invalidated."
 	"Parece que has hecho trampa, tu tiempo ha sido invalidado."
 ]
+::OUTERWALL_TIMER_CHEATED_CRUDE <- [
+	"You cheated. Fuck you!"
+	"You cheated. Fuck you!"
+	"You cheated. Fuck you!"
+]
 ::OUTERWALL_TIMER_LAPTIME <- [
 	"Lap Time: "
 	"Lap Time: "
@@ -53,7 +58,11 @@
 	"Final Time: "
 	"Tiempo final: "
 ]
-
+::OUTERWALL_TIMER_NONE <- [
+	"N/A"
+	"N/A"
+	"N/A"
+]
 ::OUTERWALL_TIMER_MEDAL <- [
 	::BRONZE <- [
 		"Bronze"
@@ -77,42 +86,9 @@
 	]
 ]
 
-::OUTERWALL_TIMER_ACHIEVED <- [
-	" achieved "
-	" achieved "
-	" lograda "
-]
-::OUTERWALL_TIMER_FAILEDTOQUALIFY <- [
-	" failed to qualify for any of %s medals."
-	" failed to qualify for any of %s medals."
-	" failed to qualify for any of %s medals."
-]
-::OUTERWALL_TIMER_MEDAL_ACHIEVED <- [
-	::BRONZE <- [
-		"Bronze medal."
-		"Bronze medal."
-		"Medalla de bronce."
-	]
-	::SILVER <- [
-		"Silver medal!"
-		"Silver medal!"
-		"¡Medalla de plata!"
-	]
-	::GOLD <- [
-		"Gold medal!"
-		"Gold medal!"
-		"¡Medalla de oro!"
-	]
-	::IRIDESCENT <- [
-		"Iridescent medal!"
-		"Iridescent medal!"
-		"¡Medalla de iridiscente!"
-	]
-]
-
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES <- [
-	"%s Medal Times"
-	"%s Medal Times"
+	"%s%s Medal Times"
+	"%s%s Medal Times"
 	"Tiempos de la medalla %s"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_LAPTWO <- [
@@ -140,6 +116,49 @@
 		"Iridescent time: "
 		"Iridescent time: "
 		"Tiempo de iridiscente: "
+	]
+]
+::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
+	"Server personal best medal: "
+	"Server personal best medal: "
+	"Server personal best medal: "
+]
+::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
+	"Server personal best time: "
+	"Server personal best time: "
+	"Server personal best time: "
+]
+
+::OUTERWALL_TIMER_ACHIEVED <- [
+	" achieved %s%s "
+	" achieved %s%s "
+	" lograda &s "
+]
+::OUTERWALL_TIMER_FAILEDTOQUALIFY <- [
+	" failed to qualify for any of %s%s medals."
+	" failed to qualify for any of %s%s medals."
+	" failed to qualify for any of %s%s medals."
+]
+::OUTERWALL_TIMER_MEDAL_ACHIEVED <- [
+	::BRONZE <- [
+		"Bronze medal."
+		"Bronze medal."
+		"Medalla de bronce."
+	]
+	::SILVER <- [
+		"Silver medal!"
+		"Silver medal!"
+		"¡Medalla de plata!"
+	]
+	::GOLD <- [
+		"Gold medal!"
+		"Gold medal!"
+		"¡Medalla de oro!"
+	]
+	::IRIDESCENT <- [
+		"Iridescent medal!"
+		"Iridescent medal!"
+		"¡Medalla de iridiscente!"
 	]
 ]
 ::OUTERWALL_TIMER_MESSAGE <- [
@@ -272,6 +291,11 @@
 			"You can do better than that, right? You"
 			"You can do better than that, right? You"
 		]
+		::MESSAGE_8 <- [
+			"Sucks to suck. You"
+			"Sucks to suck. You"
+			"Sucks to suck. You"
+		]
 	]
 ]
 
@@ -326,6 +350,11 @@
 		"Touchin' lava will actually send ye twice as high as a spike does, while only dealin' half the damage!"
 		"¡Tocar lava en realidad te enviará el doble de alto que un pico, mientras que solo inflige la mitad del daño!"
 	]
+	::TIP_11 <- [
+		"To get better than bronze medal at the Final Cave requires you to run around the course twice in one run by taking a special teleporter at the end. Make sure you have enough time!"
+		"To get better than bronze medal at the Final Cave requires you to run around the course twice in one run by taking a special teleporter at the end. Make sure you have enough time!"
+		"To get better than bronze medal at the Final Cave requires you to run around the course twice in one run by taking a special teleporter at the end. Make sure you have enough time!"
+	]
 ]
 ::OUTERWALL_TIP_CRAP <- [
 	::TIP_1 <- [
@@ -354,9 +383,9 @@
 		"¡Me estás poniendo de los nervios!"
 	]
 	::TIP_6 <- [
-		"That timer isn't going to stop for your dillydallying."
-		"That timer ain't goin' t' stop fer yer dillydallyin'."
-		"Ese cronómetro no va a parar por tu dildo."
+		"That timer isn't going to stop for your dillydallying!"
+		"That timer ain't goin' t' stop fer yer dillydallyin'!"
+		"¡Ese cronómetro no va a parar por tu dildo!"
 	]
 	::TIP_7 <- [
 		"If you see any red flowers, you should eat them!"
@@ -374,19 +403,9 @@
 		"¿Estás buscando una forma rápida de curarte después de recibir daño? ¡Lástima! El daño que te haces a ti mismo es permanente."
 	]
 	::TIP_10 <- [
-		"You are not supposed to be here."
-		"Ye be nah supposed t' be here."
-		"Se supone que no deberías estar aquí."
-	]
-	::TIP_11 <- [
-		"You are going to die on this island."
-		"Ye be goin' t' Davey Jones locker on this island."
-		"Vas a morir en esta isla."
-	]
-	::TIP_12 <- [
-		"You are running out of time."
-		"Yer doom be at hand."
-		"Te estás quedando sin tiempo."
+		"Go to hell!"
+		"Lookin' fer a quick way t' heal aft takin' damage? Too bad! The damage ye deal t' yourself be permanent."
+		"¿Estás buscando una forma rápida de curarte después de recibir daño? ¡Lástima! El daño que te haces a ti mismo es permanente."
 	]
 	::TIP_13 <- [
 		"TIP SERVER UNAVAILABLE TRY AGAIN LATER"

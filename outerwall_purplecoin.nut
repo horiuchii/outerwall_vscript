@@ -2,33 +2,10 @@ const PURPLECOIN_COUNT = 120;
 const PURPLECOIN_TRIGGERPATH = "purplecoin_trigger-InstanceAuto";
 const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 
-const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
-
 // +1 because name increments for every func_instance and the 3d sky is an instance
 ::PlayerCoinStatus <- array(MAX_PLAYERS, array(PURPLECOIN_COUNT + 1, false))
 ::PlayerCoinCount <- array(MAX_PLAYERS, 0)
 ::PurpleCoinPlayerHUDStatusArray <- array(MAX_PLAYERS, false)
-
-::CreateBonus6GameText <- function()
-{
-	for(local iArrayIndex = 1 ; iArrayIndex < MAX_PLAYERS ; iArrayIndex++)
-	{
-		local gametext = SpawnEntityFromTable("game_text",
-		{
-			targetname = PURPLECOIN_PLAYERHUDTEXT + iArrayIndex,
-			message = "000",
-			channel = 4,
-			color = "240 255 0",
-			fadein = 0,
-			fadeout = 0.05,
-			holdtime = 0.3,
-			x = 0.5015,
-			y = 0.905
-		})
-		
-		Entities.DispatchSpawn(gametext);
-	}
-}
 
 ::ResetPurpleCoinArena <- function()
 {
@@ -48,7 +25,7 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	*/
 
 	//Reset Player HUD Count
-	EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
+	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
 	
 	DebugPrint("Reset Purple Coin Arena for player " + player_index);
 }
@@ -57,7 +34,7 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 {
 	PlayerCoinCount[player_index] = 0;
 	
-	for(local iArrayIndex = 0 ; iArrayIndex < PlayerCoinStatus[player_index].len() ; iArrayIndex++)
+	for(local iArrayIndex = 0; iArrayIndex < PlayerCoinStatus[player_index].len(); iArrayIndex++)
 	{
 		PlayerCoinStatus[player_index][iArrayIndex] = true;
 		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatus[player_index][iArrayIndex]);
@@ -89,11 +66,11 @@ const PURPLECOIN_PLAYERHUDTEXT = "outerwall_bonus6_gametext_";
 	
 	//update player HUD
 	if (PlayerCoinCount[player_index] < 10)
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 00" + PlayerCoinCount[player_index]));
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message 00" + PlayerCoinCount[player_index]));
 	else if (PlayerCoinCount[player_index] < 100)
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message 0" + PlayerCoinCount[player_index]));
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message 0" + PlayerCoinCount[player_index]));
 	else
-		EntFire(PURPLECOIN_PLAYERHUDTEXT + player_index, "addoutput", ("message " + PlayerCoinCount[player_index]));
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + PlayerCoinCount[player_index]));
 	
 	//show particle and play sound
 	DispatchParticleEffect("purplecoin_collect", caller.GetOrigin(), Vector(0,90,0));

@@ -1,13 +1,21 @@
 IncludeScript("outerwall_utils.nut", this);
 IncludeScript("outerwall_language.nut", this);
+IncludeScript("outerwall_playerdata.nut", this);
 
 ::PlayerZoneList <- array(MAX_PLAYERS, null)
-::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
 ::PlayerTrackList <- array(MAX_PLAYERS, 2)
 ::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
 ::PlayerLastHurt <- array(MAX_PLAYERS, null)
+::PlayerLastPosition <- array(MAX_PLAYERS, Vector(0,0,0))
 
-::PlayerSettingDisplayTime <- array(MAX_PLAYERS, false)
+const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
+const MAT_TIMETRIALHUD = "outerwall/timetrialhud.vmt";
+const MAT_TIMETRIALHUD_LAPTWO = "outerwall/timetrialhud_laptwo.vmt";
+const MAT_MEDALTIMEHUD = "outerwall/medaltimehud.vmt";
+const MAT_PURPLECOINANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
+const MAT_TIMETRIALANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
+
+const BONUS_PLAYERHUDTEXT = "outerwall_bonus_gametext_"
 
 IncludeScript("outerwall_timer.nut", this);
 IncludeScript("outerwall_tips.nut", this);
@@ -77,15 +85,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 ::OuterwallMain <- function()
 {
-	const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
-	const MAT_TIMETRIALHUD = "outerwall/timetrialhud.vmt";
-	const MAT_TIMETRIALHUD_LAPTWO = "outerwall/timetrialhud_laptwo.vmt";
-	const MAT_MEDALTIMEHUD = "outerwall/medaltimehud.vmt";
-	const MAT_PURPLECOINANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
-	const MAT_TIMETRIALANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
-
-	//Precache soundscript sounds
-	
+	//Precache soundscript sounds	
 	PrecacheSound("outerwall/snd_quote_walk.mp3");
 	
 	PrecacheSound("outerwall/snd_quote_hurt.mp3");
@@ -125,8 +125,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 		EntFire("soldier_statue", "kill");
 	
 	CreateMedalTimeText();
-	CreateBonus6GameText();
-	CreateBonus7GameText();
+	CreateBonusGameText();
 	
 	DebugPrint("OUTERWALL INIT ENDED");
 }
@@ -135,7 +134,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 {
 	//CheckForCheating();
 	
-	return 1.0;
+	return 0.0;
 }
 
 ::OuterwallClientThink <- function()
@@ -188,7 +187,8 @@ IncludeScript("outerwall_timetrial.nut", this);
 	if(PlayerZoneList[player_index] == null) //player's first spawn
 	{
 		PrecachePlayerSounds(client);
-		
+		CalculatePlayerAccountID(client);
+		PlayerLoadGame(player_index);
 		GetPlayerLanguage(client);
 		
 		AddThinkToEnt(client, "OuterwallClientThink");
@@ -262,7 +262,28 @@ IncludeScript("outerwall_timetrial.nut", this);
 		PlayerLanguage[player_index] = player_language;
 }
 
-::TogglePlayerSetting <- function()
+::CreateBonusGameText <- function()
+{
+	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
+	{
+		local gametext = SpawnEntityFromTable("game_text",
+		{
+			targetname = BONUS_PLAYERHUDTEXT + iArrayIndex,
+			message = "",
+			channel = 4,
+			color = "240 255 0",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.5015,
+			y = 0.905
+		})
+		
+		Entities.DispatchSpawn(gametext);
+	}
+}
+
+::TogglePlayerSetting <- function() //TODO: support multiple settings
 {
 	local player_index = activator.GetEntityIndex();
 	
@@ -279,6 +300,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 		setting_toggle += TranslateString(OUTERWALL_SETTING_ON, player_index);
 	}
 	
+	PlayerSaveGame(activator);
 	EmitSoundOnClient(SND_CHECKPOINT, activator);
 	ClientPrint(activator, HUD_PRINTTALK, "\x01" + TranslateString(OUTERWALL_SETTING_FINALTIME, player_index) + setting_toggle);
 }
@@ -293,6 +315,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	PlayerSoundtrackList[player_index] = iTrack;
 	PlayTrack(PlayerTrackList[player_index], activator);
 	activator.EmitSound(SND_CHECKPOINT);
+	PlayerSaveGame(activator);
 	
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
@@ -357,9 +380,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 		{
 			local spectator_target_index = spectator_target.GetEntityIndex();
 			if(TimeTrialPlayerHUDStatusArray[spectator_target_index] == true)
-				TimeTrialHUDGameTextEntity = ("outerwall_bonus7_gametext_" + spectator_target_index);
+				TimeTrialHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + spectator_target_index);
 			if(PurpleCoinPlayerHUDStatusArray[spectator_target_index] == true)
-				PurpleCoinHUDGameTextEntity = ("outerwall_bonus6_gametext_" + spectator_target_index);
+				PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + spectator_target_index);
 			if(PlayerMedalTimeHUDStatusArray[spectator_target_index] == true)
 				MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
 		}
@@ -368,9 +391,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 	else
 	{
 		if(TimeTrialPlayerHUDStatusArray[player_index] == true)
-			TimeTrialHUDGameTextEntity = ("outerwall_bonus7_gametext_" + player_index);
+			TimeTrialHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + player_index);
 		if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
-			PurpleCoinHUDGameTextEntity = ("outerwall_bonus6_gametext_" + player_index);
+			PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + player_index);
 		if(PlayerMedalTimeHUDStatusArray[player_index] == true)
 			MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
 	}
@@ -417,13 +440,22 @@ IncludeScript("outerwall_timetrial.nut", this);
 	for (local i = 1; i <= MAX_PLAYERS; i++)
 	{
 		local player = PlayerInstanceFromIndex(i)
-		if(player)
-		{
-			local player_index = player.GetEntityIndex();
+		if(player && PlayerCheatedCurrentRun[i] == false)
+		{			
 			if(player.IsNoclipping())
 			{
-				PlayerCheatedCurrentRun[player_index] = true;
+				PlayerCheatedCurrentRun[i] = true;
+				return;
 			}
+			
+			local Distance = (player.GetOrigin() - PlayerLastPosition[i]).Length()
+			if(Distance > 128)
+			{
+				PlayerCheatedCurrentRun[i] = true;
+				return;
+			}
+			
+			PlayerLastPosition[i] = player.GetOrigin()
 		}
 	}
 }
@@ -498,7 +530,12 @@ IncludeScript("outerwall_timetrial.nut", this);
 	
 	if(PlayerCheatedCurrentRun[player_index])
 	{
-		ClientPrint(activator, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
+		local chance = RandomInt(1, 100);
+		if(chance <= 1)
+			ClientPrint(activator, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
+		else
+			ClientPrint(activator, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED_CRUDE, player_index));
+		
 		EmitSoundOnClient(SND_MEDAL_NONE, activator);
 		return;
 	}
