@@ -1,14 +1,18 @@
 //shorten constants for sanity
 ::MAX_PLAYERS <- Constants.Server.MAX_PLAYERS
 ::TEAM_UNASSIGNED <- Constants.ETFTeam.TEAM_UNASSIGNED
+::TF_TEAM_RED <- Constants.ETFTeam.TF_TEAM_RED
+::TF_TEAM_BLUE <- Constants.ETFTeam.TF_TEAM_BLUE
 ::TEAM_SPECTATOR <- Constants.ETFTeam.TEAM_SPECTATOR
 ::kHoliday_Soldier <- Constants.EHoliday.kHoliday_Soldier
 ::OBS_MODE_IN_EYE <- Constants.ESpectatorMode.OBS_MODE_IN_EYE
 ::OBS_MODE_CHASE <- Constants.ESpectatorMode.OBS_MODE_CHASE
 ::DMG_BURN <- Constants.FDmgType.DMG_BURN
 ::HUD_PRINTTALK <- Constants.EHudNotify.HUD_PRINTTALK
+::IN_ATTACK <- Constants.FButtons.IN_ATTACK
+::IN_ATTACK2 <- Constants.FButtons.IN_ATTACK2
 
-::DEBUG_OUTPUT <- false
+::DEBUG_OUTPUT <- true
 
 ::DeltaTime <- function()
 {
@@ -116,4 +120,95 @@
 	}
 
 	return output;
+}
+
+::SortTotalTime <- function(a,b)
+{
+	local first = a.total_time;
+	local second = b.total_time;
+
+	if(first>second) return 1
+	else if(first<second) return -1
+	return 0;
+}
+
+::AddEscapeChars <- function(str)
+{
+	local result_str = "";
+	local str_len = str.len();
+	local str_array = array(str_len, "");
+	for(local i = 0; i < str_len; i++)
+	{
+		str_array[i] = str[i].tochar();
+	}
+	
+	foreach(char in str_array)
+	{
+		if(char == "\\" || char == "," || char == ";")
+		{
+			result_str += "\\";
+		}
+		result_str += char;
+	}
+	
+	return result_str;
+}
+
+::IsPlayerEncorable <- function(player_index)
+{
+	foreach(iZone, medal in PlayerBestMedalArray[player_index])
+	{
+		// no medal exists, not encorable
+		if(medal == -1)
+		{
+			return;
+		}
+	}
+}
+
+::IsPlayerAlive <- function(client)
+{
+    return NetProps.GetPropInt(client, "m_lifeState") == 0;
+}
+
+::SwapTeam <- function(client)
+{
+	if (client == null || client.IsPlayer() == false)
+		return;
+
+	if (client.GetTeam() == TEAM_UNASSIGNED || client.GetTeam() == TEAM_SPECTATOR)
+		return;
+	
+	local newTeam = 0
+	if (client.GetTeam() == TF_TEAM_RED) 
+		newTeam = TF_TEAM_BLUE;
+	else
+		newTeam = TF_TEAM_RED;
+
+	client.ForceChangeTeam(newTeam, true);
+	
+	local cosmetic = null;
+	while (cosmetic = Entities.FindByClassname(cosmetic, "tf_wearable"))
+	{
+		if (cosmetic.GetOwner() == client)
+			cosmetic.SetTeam(newTeam);
+	}
+}
+
+::EncoreTeamCheck <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(client.GetTeam() == TF_TEAM_RED && PlayerEncoreStatus[player_index] == true)
+		SwapTeam(client);
+	else if(client.GetTeam() == TF_TEAM_BLUE && PlayerEncoreStatus[player_index] == false)
+		SwapTeam(client);
+}
+
+::RainbowTrail <- function()
+{
+	//int color[3];
+	//color[0] = round(Cosine((GetGameTime() * 1.5) + 6) * 127.5 + 127.5, 0);
+	//color[1] = round(Cosine((GetGameTime() * 1.5) + 4) * 127.5 + 127.5, 0);
+	//color[2] = round(Cosine((GetGameTime() * 1.5) + 2) * 127.5 + 127.5, 0);
 }

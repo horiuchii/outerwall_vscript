@@ -33,7 +33,33 @@ const NO_MEDAL_COLOR = "008B8B";
 	[135, 100, 70, 60], //hell
 	[145, 110, 80, 75], //wind fortress
 	[155, 135, 115, 100], //sand pit
-	[300, 350, 300, 250] //final cave
+	//[300, 350, 300, 250] //final cave
+]
+
+::ZoneTimes_Encore <-
+[
+	// bronze, silver, gold, iridescence
+	[85, 70, 50, 35], //oside
+	[60, 45, 35, 30], //last cave
+	[70, 55, 45, 30], //balcony
+	[65, 45, 35, 25], //inner wall
+	[135, 100, 70, 60], //hell
+	[145, 110, 80, 75], //wind fortress
+	[155, 135, 115, 100], //sand pit
+	//[300, 350, 300, 250] //final cave
+]
+
+::ZoneLaps_Encore <-
+[
+	// bronze, silver, gold, iridescence
+	[0, 0, 0, 0], //oside
+	[0, 0, 0, 0], //last cave
+	[0, 0, 0, 0], //balcony
+	[0, 0, 0, 0], //inner wall
+	[0, 0, 0, 0], //hell
+	[0, 0, 0, 0], //wind fortress
+	[0, 0, 0, 0], //sand pit
+	//[0, 0, 0, 0] //final cave
 ]
 
 ::MedalLocations <-
@@ -45,7 +71,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	Vector(-5696,-1247,12457), //hell
 	Vector(5663,4704,14856), //wind fortress
 	Vector(4928,6944,-13392) //sand pit
-	Vector(4928,6944,-13392) //final cave
+	//Vector(4928,6944,-13392) //final cave
 ]
 
 ::ZoneNames <-
@@ -57,7 +83,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	"Sacred Grounds"
 	"Wind Fortress"
 	"Sand Pit"
-	"Final Cave"
+	//"Final Cave"
 ]
 
 ::ZoneSuffixes <-
@@ -69,7 +95,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	"'"
 	"'"
 	"'s"
-	"'s"
+	//"'s"
 ]
 
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
@@ -104,7 +130,7 @@ const NO_MEDAL_COLOR = "008B8B";
 		local gametext = SpawnEntityFromTable("game_text",
 		{
 			targetname = TIMER_PLAYERHUDTEXT + iArrayIndex,
-			message = "You shouldn't see this message! If you do, let me know!",
+			message = "You're not supposed to see this. How'd you do it?",
 			channel = 5,
 			color = "240 255 0",
 			fadein = 0,
@@ -127,7 +153,7 @@ const NO_MEDAL_COLOR = "008B8B";
 		local Min = Milestone / 60;
 		local Sec = Milestone - (Min * 60);
 		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
-		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index) + Min + ":" + SecString + (medal_index >= 1 && PlayerZoneList[player_index] == 7 ? TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAPTWO, player_index) : "") + "\n";
+		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index) + Min + ":" + SecString + "\n";
 	}
 	
 	local best_medal = PlayerBestMedalArray[player_index][PlayerZoneList[player_index]] == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[PlayerBestMedalArray[player_index][PlayerZoneList[player_index]]], player_index);
@@ -135,6 +161,8 @@ const NO_MEDAL_COLOR = "008B8B";
 	
 	MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + best_medal;
 	MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + best_time; //TODO: FORMAT TIME
+	
+	//TODO: if in encore, show best laps
 	
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", MedalTimesText);
@@ -148,14 +176,6 @@ const NO_MEDAL_COLOR = "008B8B";
 		EmitSoundOnClient(SND_CHECKPOINT, activator);
 	
 	PlayerMedalTimeHUDStatusArray[player_index] = bSetHUD;
-}
-
-::ResetMedalTimes <- function(player_index)
-{
-	for(local iArrayIndex = 0 ; iArrayIndex < ZoneNames.len() ; iArrayIndex++)
-	{
-		PlayerBestMedalArray[player_index][iArrayIndex] = -1;
-	}
 }
 
 ::StartPlayerTimer <- function(client)
@@ -243,6 +263,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	if(medal != null || bNewTimeRecord)
 	{
 		PlayerSaveGame(client);
+		PlayerUpdateLeaderboardTimes(player_index);
 	}
 }
 
@@ -269,7 +290,8 @@ const NO_MEDAL_COLOR = "008B8B";
 		modelscale = 1.0,
 		DefaultAnim = "spin",
 		playbackrate = 0.50,
-		solid = 0
+		solid = 0,
+		DisableBoneFollowers = true
 	})
 	
 	Entities.DispatchSpawn(medal);

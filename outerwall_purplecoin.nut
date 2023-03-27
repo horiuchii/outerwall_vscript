@@ -60,7 +60,7 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	PlayerCoinCount[player_index] += 1;
 	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinStatus[player_index][TriggerID]);
 	
-	EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
+	//EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
 	//local CoinModel = Entities.FindByName(null, PURPLECOIN_COINPATH + (TriggerID + 1));
 	//activator.SetTransmit(CoinModel, false);
 	
