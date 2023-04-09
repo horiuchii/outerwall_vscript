@@ -14,6 +14,28 @@
 
 ::DEBUG_OUTPUT <- true
 
+enum eSettingQuerys{
+	DisplayTime
+	DisplayCheckpoint
+	Soundtrack
+	Encore
+	Achievement
+	Cosmetic
+	SaveSync
+	MAX
+}
+
+enum eCheckpointOptions{
+	Bonuses
+	Always
+	Never
+}
+
+::IsSaveSyncEnabled <- function()
+{
+	return FileToString(OUTERWALL_SAVEPATH + OUTERWALL_KEYPATH + OUTERWALL_KEYFILE + OUTERWALL_SAVETYPE) != null;
+}
+
 ::DeltaTime <- function()
 {
 	return clamp(FrameTime(), 0.0, 1.0);
@@ -27,16 +49,8 @@
 
 ::ToggleDebug <- function()
 {
-	if(DEBUG_OUTPUT)
-	{
-		DEBUG_OUTPUT = false;
-		printl("Debug Output: OFF");
-	}
-	else
-	{
-		DEBUG_OUTPUT = true;
-		printl("Debug Output: ON");
-	}
+	DEBUG_OUTPUT = !DEBUG_OUTPUT;
+	printl("Debug Output: " + DEBUG_OUTPUT ? "ON" : "OFF");
 }
 
 ::max <- function(a, b)
@@ -141,7 +155,7 @@
 	{
 		str_array[i] = str[i].tochar();
 	}
-	
+
 	foreach(char in str_array)
 	{
 		if(char == "\\" || char == "," || char == ";")
@@ -150,7 +164,7 @@
 		}
 		result_str += char;
 	}
-	
+
 	return result_str;
 }
 
@@ -161,14 +175,16 @@
 		// no medal exists, not encorable
 		if(medal == -1)
 		{
-			return;
+			return false;
 		}
 	}
+
+	return true;
 }
 
 ::IsPlayerAlive <- function(client)
 {
-    return NetProps.GetPropInt(client, "m_lifeState") == 0;
+    return NetProps.GetPropInt(client, "m_lifeState") == 0; //thank u ficool
 }
 
 ::SwapTeam <- function(client)
@@ -178,15 +194,15 @@
 
 	if (client.GetTeam() == TEAM_UNASSIGNED || client.GetTeam() == TEAM_SPECTATOR)
 		return;
-	
+
 	local newTeam = 0
-	if (client.GetTeam() == TF_TEAM_RED) 
+	if (client.GetTeam() == TF_TEAM_RED)
 		newTeam = TF_TEAM_BLUE;
 	else
 		newTeam = TF_TEAM_RED;
 
 	client.ForceChangeTeam(newTeam, true);
-	
+
 	local cosmetic = null;
 	while (cosmetic = Entities.FindByClassname(cosmetic, "tf_wearable"))
 	{
@@ -199,11 +215,155 @@
 {
 	local player_index = client.GetEntityIndex();
 
-	if(client.GetTeam() == TF_TEAM_RED && PlayerEncoreStatus[player_index] == true)
+	if (client == null || client.IsPlayer() == false)
+		return;
+
+	if (client.GetTeam() == TEAM_UNASSIGNED || client.GetTeam() == TEAM_SPECTATOR)
+		return;
+
+	if(client.GetTeam() == TF_TEAM_RED && !!PlayerEncoreStatus[player_index] == false)
+		return;
+
+	if(client.GetTeam() == TF_TEAM_BLUE && !!PlayerEncoreStatus[player_index] == true)
+		return;
+
+	if(client.GetTeam() == TF_TEAM_RED && !!PlayerEncoreStatus[player_index] == true)
+	{
 		SwapTeam(client);
-	else if(client.GetTeam() == TF_TEAM_BLUE && PlayerEncoreStatus[player_index] == false)
+		return;
+	}
+
+	else if(client.GetTeam() == TF_TEAM_BLUE && !!PlayerEncoreStatus[player_index] == false)
+	{
 		SwapTeam(client);
+		return;
+	}
+
+	ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to enforce encore status on player " + player_index)
 }
+
+::FormatTime <- function(input_time)
+{
+	local input_time_type = type(input_time);
+
+	if(input_time_type == "integer")
+	{
+		local Min = input_time / 60;
+		local Sec = input_time - (Min * 60);
+		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+		return (Min + ":" + SecString).tostring();
+	}
+
+	if(input_time_type == "float")
+	{
+		local timedecimal = split((round(input_time - input_time.tointeger(), 2)).tostring(), ".");
+		local Min = input_time.tointeger() / 60;
+		local Sec = input_time.tointeger() - (Min * 60);
+		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+		return (Min + ":" + SecString + "." + timedecimal[1]).tostring();
+	}
+
+	return input_time.tostring();
+}
+
+::FormatTimeHours <- function(input_time)
+{
+	local input_time_type = type(input_time);
+
+	if(input_time_type == "integer")
+	{
+		local Hrs = (input_time / 3600);
+		local Min = ((input_time - (Hrs * 3600)) / 60).tointeger();
+		local Sec = input_time - (Hrs * 3600) - (Min * 60).tointeger();
+
+		if(Hrs < 10) {Hrs = "0" + Hrs;}
+		if(Min < 10) {Min = "0" + Min;}
+		if(Sec < 10) {Sec = "0" + Sec;}
+
+		return (Hrs + ":" + Min + ":" + Sec).tostring();
+	}
+
+	if(input_time_type == "float")
+	{
+		local timedecimal = split((round(input_time - input_time.tointeger(), 2)).tostring(), ".");
+		local Min = input_time.tointeger() / 60;
+		local Sec = input_time.tointeger() - (Min * 60);
+		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
+		return (Min + ":" + SecString + "." + timedecimal[1]).tostring();
+	}
+
+	return input_time.tostring();
+}
+
+::StrToArr <- function(string)
+{
+	local str_len = string.len();
+	local arr = array(str_len, "");
+	for(local i = 0; i < str_len; i++)
+	{
+		arr[i] = string[i].tochar();
+	}
+	return arr;
+}
+
+::ArrToStr <- function(arr)
+{
+	local result_str = "";
+	for(local i = 0; i < arr.len(); i++) {
+		result_str += arr[i];
+	}
+
+	return result_str;
+}
+
+::EncryptString <- function(string, key)
+{
+	local key = StrToArr(key);
+	local encrypted_array = StrToArr(string);
+	local result_string = "";
+
+	foreach(i, byte in encrypted_array)
+	{
+		local encrypted_byte = (key[i][0] + encrypted_array[i][0])
+		while(encrypted_byte > 126)
+		{
+			encrypted_byte -= 127;
+		}
+		while(encrypted_byte < 33)
+		{
+			encrypted_byte += 33;
+		}
+
+		result_string += encrypted_byte.tochar();
+	}
+
+	return result_string;
+}
+
+::DecryptString <- function(string, key)
+{
+	local key = StrToArr(key);
+	local decrypted_array = StrToArr(string);
+	local result_string = "";
+
+	foreach(i, byte in decrypted_array)
+	{
+		local decrypted_byte = (decrypted_array[i][0] - key[i][0])
+		while(decrypted_byte > 126)
+		{
+			decrypted_byte -= 127;
+		}
+		while(decrypted_byte < 33)
+		{
+			decrypted_byte += 33;
+		}
+
+		result_string += decrypted_byte.tochar();
+	}
+
+	return result_string;
+}
+
 
 ::RainbowTrail <- function()
 {

@@ -7,7 +7,7 @@
 
 	if(player_index)
 		return message[PlayerLanguage[player_index]];
-		
+
 	return message[0];
 }
 
@@ -23,6 +23,68 @@
 ::OUTERWALL_COLLECTABLE_WARNING <- [
 	"Due to technical limitations, the collectables will not disapear as of right now. You will still collect them however. Sorry!"
 	"Due to technical limitations, the collectables will not disapear as of right now. You will still collect them however. Sorry!"
+]
+
+::OUTERWALL_PVP_CURRENTWEAPON <- [
+	"Current Weapon:"
+	"Current Weapon:"
+]
+::OUTERWALL_PVP_WEAPON_POLARSTAR <- [
+	"Current Weapon:"
+	"Current Weapon:"
+]
+::OUTERWALL_PVP_WEAPON_ROCKETLAUNCHER <- [
+	"Current Weapon:"
+	"Current Weapon:"
+]
+
+::OUTERWALL_SAVE_TRANSFER_TITLE <- [
+	"Outer Wall Server Save Sync"
+	"Outer Wall Server Save Sync"
+]
+::OUTERWALL_SAVE_TRANSFER_UNAVAILABLE <- [
+	"[NOT ENABLED BY SERVER OPERATOR]"
+	"[NOT ENABLED BY SERVER OPERATOR]"
+]
+::OUTERWALL_SAVE_TRANSFER <- [
+	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
+	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
+]
+::OUTERWALL_SAVE_TRANSFER_BUTTON <- [
+	"Press [ATTACK] to generate a key"
+	"Press [ATTACK] to generate a key"
+]
+::OUTERWALL_SAVE_TRANSFER_BUTTON_ALT <- [
+	"Press [ALT-ATTACK] to load from a key"
+	"Press [ALT-ATTACK] to load from a key"
+]
+::OUTERWALL_SAVE_TRANSFER_ERROR_GENERATE_WAIT <- [
+	"You need to wait before generating another key."
+	"You need to wait before generating another key."
+]
+::OUTERWALL_SAVE_TRANSFER_ERROR_LOAD_WAIT <- [
+	"You need to wait before pasting another key."
+	"You need to wait before pasting another key."
+]
+::OUTERWALL_SAVE_TRANSFER_ERROR_LOAD_INVALID <- [
+	"The key you pasted was invalid. You must wait 24 Hours before trying again."
+	"The key you pasted was invalid. You must wait 24 Hours before trying again."
+]
+::OUTERWALL_SAVE_TRANSFER_GENERATE_INFO <- [
+	"You need to paste the four keys when prompted on %s's Outer Wall"
+	"You need to paste the four keys when prompted on %s's Outer Wall"
+]
+::OUTERWALL_SAVE_TRANSFER_GENERATE_KEY <- [
+	"Key %i:"
+	"Key %i:"
+]
+::OUTERWALL_SAVE_TRANSFER_LOAD_KEY <- [
+	"Please paste key %i:"
+	"Please paste key %i:"
+]
+::OUTERWALL_SAVE_TRANSFER_SUCCESS <- [
+	"Successfully loaded your save from %s."
+	"Successfully loaded your save from %s."
 ]
 
 ::OUTERWALL_SETTING_OPTION <- [
@@ -63,21 +125,55 @@
 	"Current Setting: "
 	"Current Setting: "
 ]
-::OUTERWALL_SETTING_FINALTIME_NAME <- [
-	"Final Time Display"
-	"Final Time Display"
+::OUTERWALL_SETTING_NAME <- [
+	::OUTERWALL_SETTING_FINALTIME_NAME <- [
+		"Final Time Display"
+		"Final Time Display"
+	]
+	::OUTERWALL_SETTING_CHECKPOINTTIME_NAME <- [
+		"Checkpoint Time Display"
+		"Checkpoint Time Display"
+	]
+	::OUTERWALL_SETTING_SOUNDTRACK <- [
+		"Soundtrack"
+		"Soundtrack"
+	]
+	::OUTERWALL_SETTING_ENCORE <- [
+		"Encore Mode"
+		"Encore Mode"
+	]
 ]
-::OUTERWALL_SETTING_FINALTIME_DESC <- [
-	"Shows a run's final time,\ncolor representing the medal."
-	"Shows a run's final time,\ncolor representing the medal."
+::OUTERWALL_SETTING_DESC <- [
+	::OUTERWALL_SETTING_FINALTIME_DESC <- [
+		"Shows a run's final time,\ncolor representing the medal."
+		"Shows a run's final time,\ncolor representing the medal."
+	]
+	::OUTERWALL_SETTING_CHECKPOINTTIME_DESC <- [
+		"Display's your checkpoint time\nwhen you reach one."
+		"Display's your checkpoint time\nwhen you reach one."
+	]
+	::OUTERWALL_SETTING_SOUNDTRACK_DESC <- [
+		"The soundtrack variant that\nis currently playing."
+		"The soundtrack variant that\nis currently playing."
+	]
+	::OUTERWALL_SETTING_ENCORE_DESC <- [
+		"Encore Mode remixes every course\nand adds a time limit for an extra challenge!"
+		"Encore Mode remixes every course\nand adds a time limit for an extra challenge!"
+	]
 ]
-::OUTERWALL_SETTING_SOUNDTRACK <- [
-	"Soundtrack"
-	"Soundtrack"
-]
-::OUTERWALL_SETTING_SOUNDTRACK_DESC <- [
-	"The soundtrack variant that\nis currently playing."
-	"The soundtrack variant that\nis currently playing."
+::OUTERWALL_SETTING_CHECKPOINTTIME_OPTION <- [
+	BONUS <- [
+		"BONUSES ONLY"
+		"BONUSES ONLY"
+	]
+	ALWAYS <- [
+		"ALL COURSES"
+		"ALL COURSES"
+	]
+	NEVER <- [
+		"NEVER"
+		"NEVER"
+	]
 ]
 ::OUTERWALL_SETTING_SOUNDTRACK_OPTION <- [
 	::REMASTERED <- [
@@ -92,14 +188,6 @@
 		"ORGANYA (2004)"
 		"ORGANYA (2004)"
 	]
-]
-::OUTERWALL_SETTING_ENCORE <- [
-	"Encore Mode"
-	"Encore Mode"
-]
-::OUTERWALL_SETTING_ENCORE_DESC <- [
-	"Encore Mode remixes every course and adds a time limit for an extra challenge!"
-	"Encore Mode remixes every course and adds a time limit for an extra challenge!"
 ]
 ::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
 	"You do not qualify for Encore Mode yet."
@@ -116,13 +204,17 @@
 	"Achievements"
 ]
 ::OUTERWALL_ACHIEVEMENT_NAME <- [
-	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
+	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
 		"No Booster Required"
 		"No Booster Required"
 	]
-	::OUTERWALL_ACHIEVEMENT_SECRET_01_NAME <- [
-		"Secret Snake"
-		"Secret Snake"
+	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
+		"Heavenly Trip Through Hell"
+		"Heavenly Trip Through Hell"
+	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
+		"Encore, Encore!"
+		"Encore, Encore!"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
 		"Golden Bond"
@@ -132,21 +224,25 @@
 		"Iridescent Bond"
 		"Iridescent Bond"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
-		"Encore, Encore!"
-		"Encore, Encore!"
-	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
 		"Moonside Madness"
 		"Moonside Madness"
 	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_NAME <- [
+		"Clock Block"
+		"Clock Block"
+	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
-		"Ain't Got No Time To Dance"
-		"Ain't Got No Time To Dance"
+		"Nikumaru Masta"
+		"Nikumaru Masta"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_NAME <- [
+		"Overstaying Your Welcome" //Island Collapse Ad Infinitum
 		"Overstaying Your Welcome"
-		"Overstaying Your Welcome"
+	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
+		"Mimiga Death March"
+		"Mimiga Death March"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_NAME <- [
 		"Lapping Hell"
@@ -166,54 +262,66 @@
 	]
 ]
 ::OUTERWALL_ACHIEVEMENT_DESC <- [
-	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
-		"Complete the Sacred Grounds without taking damage."
-		"Complete the Sacred Grounds without taking damage."
+	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
+		"No Booster Required"
+		"No Booster Required"
 	]
-	::OUTERWALL_ACHIEVEMENT_SECRET_01_DESC <- [
-		"An absolute thrill to feel."
-		"An absolute thrill to feel."
+	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
+		"Heavenly Trip Through Hell"
+		"Heavenly Trip Through Hell"
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
-		"Achieve a Gold medal on each course."
-		"Achieve a Gold medal on each course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
+		"Encore, Encore!"
+		"Encore, Encore!"
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
-		"Achieve a Iridescent medal on each course."
-		"Achieve a Iridescent medal on each course."
+	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
+		"Golden Bond"
+		"Golden Bond"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
-		"Unlock Encore mode."
-		"Unlock Encore mode."
+	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
+		"Iridescent Bond"
+		"Iridescent Bond"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
-		"Complete Encore Outer Wall without taking damage."
-		"Complete Encore Outer Wall without taking damage."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
+		"Moonside Madness"
+		"Moonside Madness"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
-		"Complete Encore Sacred Grounds with 1:30 on the clock."
-		"Complete Encore Sacred Grounds with 1:30 on the clock."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_NAME <- [
+		"Clock Block"
+		"Clock Block"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_DESC <- [
-		"Complete 5 Laps on any Encore course."
-		"Complete 5 Laps on any Encore course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
+		"Nikumaru Masta"
+		"Nikumaru Masta"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
-		"Achieve a Gold medal on each Encore course."
-		"Achieve a Gold medal on each Encore course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_NAME <- [
+		"Overstaying Your Welcome" //Island Collapse Ad Infinitum
+		"Overstaying Your Welcome"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
-		"Achieve a Iridescent medal on each Encore course."
-		"Achieve a Iridescent medal on each Encore course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
+		"Mimiga Death March"
+		"Mimiga Death March"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLGOLD_DESC <- [
-		"Achieve an Gold medal on EVERY course."
-		"Achieve an Gold medal on EVERY course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_NAME <- [
+		"Lapping Hell"
+		"Lapping Hell"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLIRI_DESC <- [
-		"Achieve an Iridescent medal on EVERY course."
-		"Achieve an Iridescent medal on EVERY course."
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_NAME <- [
+		"Hedonistic Lapping"
+		"Hedonistic Lapping"
 	]
+	::OUTERWALL_ACHIEVEMENT_ALLGOLD_NAME <- [
+		"Superstar"
+		"Superstar"
+	]
+	::OUTERWALL_ACHIEVEMENT_ALLIRI_NAME <- [
+		"Whimsical Superstar"
+		"Whimsical Superstar"
+	]
+]
+::OUTERWALL_ACHIEVEMENT_ACHIEVED <- [
+	" has earned: "
+	" has earned: "
 ]
 
 ::OUTERWALL_STATS_TITLE <- [
@@ -222,7 +330,7 @@
 ]
 ::OUTERWALL_STATS_TIMEPLAYED <- [
 	"Time Played: "
-	"Time Played: "	
+	"Time Played: "
 ]
 ::OUTERWALL_STATS_ACHIEVEMENTS <- [
 	"Achievements: "
@@ -239,6 +347,10 @@
 ::OUTERWALL_STATS_LAVAHITS <- [
 	"Times burned by lava: "
 	"Times burned by lava: "
+]
+::OUTERWALL_STATS_LAPSRAN <- [
+	"Extra laps ran: "
+	"Extra laps ran: "
 ]
 
 ::OUTERWALL_COSMETIC_TITLE <- [
@@ -292,19 +404,27 @@
 	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_1 <- [
-	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap."
+	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_2 <- [
 	"Higher tiers of medals may require running multiple laps through a course. Good Luck!"
 ]
 
 ::OUTERWALL_TIMETRIAL_LAP <- [
-	"Lap"
-	"Vuelta"
+	"Lap "
+	"Vuelta "
 ]
 ::OUTERWALL_TIMER_CHEATED <- [
 	"You seem to have cheated, your time has been invalidated."
 	"Parece que has hecho trampa, tu tiempo ha sido invalidado."
+]
+::OUTERWALL_TIMER_CHECKPOINT <- [
+	"Checkpoint "
+	"Checkpoint "
+]
+::OUTERWALL_TIMER_CHECKPOINT_PERSONAL <- [
+	" Per. "
+	" Per. "
 ]
 ::OUTERWALL_TIMER_LAPTIME <- [
 	"Lap Time: "
@@ -313,6 +433,10 @@
 ::OUTERWALL_TIMER_FINALTIME <- [
 	"Final Time: "
 	"Tiempo final: "
+]
+::OUTERWALL_TIMER_FINALTIME_LAPCOUNT <- [
+	" + %i Laps"
+	" + %i Laps"
 ]
 ::OUTERWALL_TIMER_NONE <- [
 	"N/A"
@@ -346,8 +470,8 @@
 	"Tiempos de medalla Encore de %s"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_LAP <- [
-	" + Lap %i"
-	" + Vuelta %i"
+	" + Lap "
+	" + Vuelta "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
 	::BRONZE <- [
@@ -374,6 +498,14 @@
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
 	"Best time: "
 	"Best time: "
+]
+::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT <- [
+	"Checkpoint %i: "
+	"Checkpoint %i: "
+]
+::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT_SKIPPED <- [
+	"Gooched!"
+	"Gooched!"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP <- [
 	"Most laps: "
