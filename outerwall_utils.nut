@@ -4,15 +4,44 @@
 ::TF_TEAM_RED <- Constants.ETFTeam.TF_TEAM_RED
 ::TF_TEAM_BLUE <- Constants.ETFTeam.TF_TEAM_BLUE
 ::TEAM_SPECTATOR <- Constants.ETFTeam.TEAM_SPECTATOR
-::kHoliday_Soldier <- Constants.EHoliday.kHoliday_Soldier
+::HOLIDAY_SOLDIER <- Constants.EHoliday.kHoliday_Soldier
 ::OBS_MODE_IN_EYE <- Constants.ESpectatorMode.OBS_MODE_IN_EYE
 ::OBS_MODE_CHASE <- Constants.ESpectatorMode.OBS_MODE_CHASE
 ::DMG_BURN <- Constants.FDmgType.DMG_BURN
 ::HUD_PRINTTALK <- Constants.EHudNotify.HUD_PRINTTALK
 ::IN_ATTACK <- Constants.FButtons.IN_ATTACK
 ::IN_ATTACK2 <- Constants.FButtons.IN_ATTACK2
+::TF_CLASS_SCOUT <- Constants.ETFClass.TF_CLASS_SCOUT
 
-::DEBUG_OUTPUT <- true
+::DEBUG_OUTPUT <- false
+
+::OUTERWALL_MEDAL_BRONZE <- 0
+::OUTERWALL_MEDAL_SILVER <- 1
+::OUTERWALL_MEDAL_GOLD <- 2
+::OUTERWALL_MEDAL_IRI <- 3
+
+enum eAchievements{
+	HurtAlot
+	NormalInnerWallNoBoost
+	NormalHellNoDmg
+	NormalPurpleCoinNoRadar
+	SecretClimb
+	EncoreUnlock
+	NormalGold
+	NormalIri
+	LapsAlot
+	EncoreOsideNoDmg
+	EncoreBalconyClock
+	EncoreHellTime
+	EncorePurpleCoinNoRadar
+	EncoreManyLaps
+	EncoreFinish
+	EncoreGold
+	EncoreIri
+	AllGold
+	AllIri
+	MAX
+}
 
 enum eSettingQuerys{
 	DisplayTime
@@ -215,7 +244,7 @@ enum eCheckpointOptions{
 {
 	local player_index = client.GetEntityIndex();
 
-	if (client == null || client.IsPlayer() == false)
+	if (client == null || client.IsPlayer() == false || !IsPlayerAlive(client))
 		return;
 
 	if (client.GetTeam() == TEAM_UNASSIGNED || client.GetTeam() == TEAM_SPECTATOR)
@@ -260,7 +289,7 @@ enum eCheckpointOptions{
 		local Min = input_time.tointeger() / 60;
 		local Sec = input_time.tointeger() - (Min * 60);
 		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
-		return (Min + ":" + SecString + "." + timedecimal[1]).tostring();
+		return (Min + ":" + SecString + "." + (timedecimal.len() == 1 ? "00" : timedecimal[1])).tostring();
 	}
 
 	return input_time.tostring();
@@ -283,16 +312,14 @@ enum eCheckpointOptions{
 		return (Hrs + ":" + Min + ":" + Sec).tostring();
 	}
 
-	if(input_time_type == "float")
-	{
-		local timedecimal = split((round(input_time - input_time.tointeger(), 2)).tostring(), ".");
-		local Min = input_time.tointeger() / 60;
-		local Sec = input_time.tointeger() - (Min * 60);
-		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
-		return (Min + ":" + SecString + "." + timedecimal[1]).tostring();
-	}
-
 	return input_time.tostring();
+}
+
+::GenerateVisibilityBitfield <- function(player_index)
+{
+	local bitmask = array(31, 0);
+	bitmask[player_index - 1] = 1;
+	return ArrToStr(bitmask);
 }
 
 ::StrToArr <- function(string)
@@ -321,49 +348,32 @@ enum eCheckpointOptions{
 	local key = StrToArr(key);
 	local encrypted_array = StrToArr(string);
 	local result_string = "";
-
 	foreach(i, byte in encrypted_array)
 	{
-		local encrypted_byte = (key[i][0] + encrypted_array[i][0])
-		while(encrypted_byte > 126)
-		{
-			encrypted_byte -= 127;
-		}
-		while(encrypted_byte < 33)
-		{
-			encrypted_byte += 33;
-		}
+		local encrypted_byte = (key[i][0] ^ encrypted_array[i][0])
 
 		result_string += encrypted_byte.tochar();
 	}
-
-	return result_string;
+	printl(result_string)
+	PrintKeysFromEncryptedString(result_string)
 }
 
-::DecryptString <- function(string, key)
+::PrintKeysFromEncryptedString <- function(string)
 {
-	local key = StrToArr(key);
-	local decrypted_array = StrToArr(string);
-	local result_string = "";
+	local save_length = string.len();
+	local i = 0;
+	local savebuffer = "";
 
-	foreach(i, byte in decrypted_array)
+	while(i < save_length)
 	{
-		local decrypted_byte = (decrypted_array[i][0] - key[i][0])
-		while(decrypted_byte > 126)
+		if(i == 100)
 		{
-			decrypted_byte -= 127;
+			ClientPrint(null, HUD_PRINTTALK, "KEYSTART:" + savebuffer + "KEYEND");
 		}
-		while(decrypted_byte < 33)
-		{
-			decrypted_byte += 33;
-		}
-
-		result_string += decrypted_byte.tochar();
+		savebuffer += string[i].tochar();
+		i += 1;
 	}
-
-	return result_string;
 }
-
 
 ::RainbowTrail <- function()
 {

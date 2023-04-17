@@ -2,7 +2,11 @@ const PURPLECOIN_COUNT = 120;
 const PURPLECOIN_TRIGGERPATH = "purplecoin_trigger-InstanceAuto";
 const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 
+const PURPLECOIN_ANNOTATE_RADAR_COOLDOWN = 25;
+
 // +1 because name increments for every func_instance and the 3d sky is an instance
+::PlayerLastUseRadar <- array(MAX_PLAYERS, 0)
+::PlayerRadarReady <- array(MAX_PLAYERS, false)
 ::PlayerCoinStatus <- array(MAX_PLAYERS, array(PURPLECOIN_COUNT + 1, false))
 ::PlayerCoinCount <- array(MAX_PLAYERS, 0)
 ::PurpleCoinPlayerHUDStatusArray <- array(MAX_PLAYERS, false)
@@ -12,17 +16,6 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	local player_index = activator.GetEntityIndex();
 
 	ResetPlayerPurpleCoinArenaArray(player_index);
-
-	EntFire(PURPLECOIN_COINPATH + "*", "Enable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
-	//transmit all coins to player
-	/*
-	local CoinModel = null;
-	for(local iArrayIndex = 0 ; iArrayIndex < PURPLECOIN_COUNT + 1 ; iArrayIndex++)
-	{
-		CoinModel = Entities.FindByName(CoinModel, PURPLECOIN_COINPATH + (iArrayIndex + 1));
-		activator.SetTransmit(CoinModel, true);
-	}
-	*/
 
 	//Reset Player HUD Count
 	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message 000");
@@ -34,16 +27,73 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 {
 	PlayerCoinCount[player_index] = 0;
 
-	for(local iArrayIndex = 0; iArrayIndex < PlayerCoinStatus[player_index].len(); iArrayIndex++)
+	for(local iArrayIndex = 0; iArrayIndex < PURPLECOIN_COUNT; iArrayIndex++)
 	{
 		PlayerCoinStatus[player_index][iArrayIndex] = true;
-		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatus[player_index][iArrayIndex]);
+		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatus[player_index][iArrayIndex]);
 	}
 }
 
-::CoinTouch <- function()
+::CheckPurpleCoinAnnotateButton <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+
+	local buttons = NetProps.GetPropInt(client, "m_nButtons");
+
+	if(!PlayerRadarReady[player_index] && PlayerLastUseRadar[player_index] + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN <= Time())
+	{
+		PlayerRadarReady[player_index] = true;
+		EmitSoundOnClient(SND_PURPLECOIN_RADAR_READY, client);
+		return;
+	}
+
+	//If our previous key capture doesn't contain attack key && new one does.
+	if(PlayerZoneList[player_index] != 6 || !(!(PreviousButtons[player_index] & IN_ATTACK) && buttons & IN_ATTACK))
+		return;
+
+	if(PlayerLastUseRadar[player_index] + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN > Time())
+	{
+		EmitSoundOnClient("Player.DenyWeaponSelection", client);
+		return;
+	}
+
+
+	local bitfield = GenerateVisibilityBitfield(player_index);
+
+	foreach(i, coin in PlayerCoinStatus[player_index])
+	{
+		if(!coin)
+			continue;
+
+		local trigger = Entities.FindByName(null, PURPLECOIN_TRIGGERPATH + (i + 1));
+
+		local trigger_position = trigger.GetOrigin();
+
+		local annotate_data = {
+			worldPosX = trigger_position.x
+			worldPosY = trigger_position.y
+			worldPosZ = trigger_position.z + 16
+			id = (player_index.tostring() + i.tostring()).tointeger()
+			text = "!"
+			lifetime = 6.5
+			visibilityBitfield = bitfield
+			play_sound = "/misc/null.wav"
+		};
+		SendGlobalGameEvent("show_annotation", annotate_data);
+	}
+
+	PlayerLastUseRadar[player_index] = Time();
+	EmitSoundOnClient(SND_PURPLECOIN_RADAR, client);
+	PlayerClocksCollectedDuringRun[player_index] = true;
+	PlayerRadarReady[player_index] = false;
+}
+
+::CoinTouch <- function(bEncoreCoin = false)
 {
 	local player_index = activator.GetEntityIndex();
+
+	if(PlayerEncoreStatus[player_index] != bEncoreCoin.tointeger())
+		return;
 
 	if (PlayerCoinCount[player_index] >= PURPLECOIN_COUNT)
 		return;
@@ -58,11 +108,7 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatus[player_index][TriggerID]);
 
 	PlayerCoinCount[player_index] += 1;
-	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinStatus[player_index][TriggerID]);
-
-	//EntFire(PURPLECOIN_COINPATH + (TriggerID + 1), "Disable"); //TEMPORARY - SETTRANSMIT DOESN'T EXIST - DO NOT SHIP
-	//local CoinModel = Entities.FindByName(null, PURPLECOIN_COINPATH + (TriggerID + 1));
-	//activator.SetTransmit(CoinModel, false);
+	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
 
 	//update player HUD
 	if(PlayerCoinCount[player_index] < 10)
@@ -90,6 +136,11 @@ const PURPLECOIN_COINPATH = "purplecoin_coin-InstanceAuto";
 	{
 		SetPlayerCheckpoint(1);
 	}
+
+	local annotate_data = {
+		id = (player_index.tostring() + TriggerID.tostring()).tointeger()
+	};
+	SendGlobalGameEvent("hide_annotation", annotate_data);
 }
 
 ::SetPurpleCoinHUD <- function(bSetHUD)

@@ -7,7 +7,6 @@
 	UpdateSettingsText(player_index);
 }
 
-::PreviousButtons <- array(MAX_PLAYERS, 0)
 ::AchievementSelection <- array(MAX_PLAYERS, 0)
 ::CosmeticSelection <- array(MAX_PLAYERS, 0)
 
@@ -19,7 +18,6 @@
 
 	if(PlayerCurrentSettingQuery[player_index] == null)
 	{
-		PreviousButtons[player_index] = buttons;
 		NetProps.SetPropFloat(client, "m_flNextAttack", 0);
 		return;
 	}
@@ -34,10 +32,7 @@
 		ButtonPressed = 2;
 
 	if(ButtonPressed == null)
-	{
-		PreviousButtons[player_index] = buttons;
 		return;
-	}
 
 	switch(PlayerCurrentSettingQuery[player_index])
 	{
@@ -47,7 +42,6 @@
 				return;
 
 			PlayerSettingDisplayTime[player_index] = (!!!PlayerSettingDisplayTime[player_index]).tointeger();
-			printl(IsPlayerSpecial(player_index))
 			break;
 		}
 		case eSettingQuerys.DisplayCheckpoint:
@@ -98,7 +92,7 @@
 		{
 			if(ButtonPressed == 1)
 			{
-				if(AchievementSelection[player_index] == OUTERWALL_ACHIEVEMENT_NAME.len() - 1)
+				if(AchievementSelection[player_index] == eAchievements.MAX - 1)
 					AchievementSelection[player_index] = 0;
 				else
 					AchievementSelection[player_index]++;
@@ -106,7 +100,7 @@
 			else if(ButtonPressed == 2)
 			{
 				if(AchievementSelection[player_index] == 0)
-					AchievementSelection[player_index] = OUTERWALL_ACHIEVEMENT_NAME.len() - 1;
+					AchievementSelection[player_index] = eAchievements.MAX - 1;
 				else
 					AchievementSelection[player_index]--;
 			}
@@ -149,8 +143,6 @@
 		UpdateSettingsText(player_index);
 
 	EmitSoundOnClient(SND_MENU_SELECT, client);
-
-	PreviousButtons[player_index] = buttons;
 }
 
 ::UpdateSettingsText <- function(player_index)
@@ -198,7 +190,7 @@
 	if(!IsPlayerEncorable(player_index) && PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
 		SettingsText += TranslateString(OUTERWALL_SETTING_ENCORE_NOQUALIFY, player_index);
 	else
-		SettingsText +=  TranslateString(OUTERWALL_SETTING_BUTTON, player_index);
+		SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_TOGGLE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", SettingsText);
@@ -212,18 +204,18 @@
 	local player_index = activator.GetEntityIndex();
 	local StatsText = "";
 
-	StatsText += TranslateString(OUTERWALL_STATS_TITLE, player_index) + (IsPlayerSpecial(player_index) ? " ★" : "") + "\n"
+	StatsText += TranslateString(OUTERWALL_STATS_TITLE, player_index) + (IsPlayerSpecial(player_index) ? " ★" : "") + "\n";
 
-	StatsText += TranslateString(OUTERWALL_STATS_TIMEPLAYED, player_index) + FormatTimeHours(PlayerSecondsPlayed[player_index]) + "\n"
+	StatsText += TranslateString(OUTERWALL_STATS_TIMEPLAYED, player_index) + FormatTimeHours(PlayerSecondsPlayed[player_index]) + "\n";
 
 	local achievement_count = 0;
-	foreach(playerdata in PlayerAchievements)
-		achievement_count += playerdata[player_index].tointeger();
+	foreach(playerdata in PlayerAchievements[player_index])
+		achievement_count += playerdata.tointeger();
 
-	StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + OUTERWALL_ACHIEVEMENT_NAME.len() + "\n"
-	StatsText += TranslateString(OUTERWALL_STATS_SPIKEHITS, player_index) + PlayerSpikeHits[player_index] + "\n"
-	StatsText += TranslateString(OUTERWALL_STATS_LAVAHITS, player_index) + PlayerLavaHits[player_index] + "\n"
-	StatsText += TranslateString(OUTERWALL_STATS_LAPSRAN, player_index) + 0 + "\n"
+	StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + eAchievements.MAX + "\n";
+	StatsText += TranslateString(OUTERWALL_STATS_SPIKEHITS, player_index) + PlayerSpikeHits[player_index] + "\n";
+	StatsText += TranslateString(OUTERWALL_STATS_LAVAHITS, player_index) + PlayerLavaHits[player_index] + "\n";
+	StatsText += (IsPlayerEncorable(player_index) ? TranslateString(OUTERWALL_STATS_LAPSRAN, player_index) + PlayerLapsRan[player_index] : "") + "\n"
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", StatsText);
@@ -237,13 +229,13 @@
 	local player_index = client.GetEntityIndex();
 	local StatsText = "";
 
-	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + "\n";
+	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + " ";
+	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + eAchievements.MAX + ")" + "\n";
 
-	StatsText += (PlayerAchievements[AchievementSelection[player_index]][player_index] ? TranslateString(OUTERWALL_ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) : "???") + "\n";
-	StatsText += (!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > 4 ? "???" : TranslateString(OUTERWALL_ACHIEVEMENT_DESC[AchievementSelection[player_index]], player_index)) + "\n";
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_NEXTPAGE, player_index) + "\n";
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_PREVPAGE, player_index) + "\n";
-	StatsText += (AchievementSelection[player_index] + 1) + " / " + OUTERWALL_ACHIEVEMENT_NAME.len();
+	StatsText += (!!PlayerAchievements[player_index][AchievementSelection[player_index]] ? TranslateString(OUTERWALL_ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) : "???") + "\n";
+	StatsText += (!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > eAchievements.NormalIri ? "???\n" : AchievementSelection[player_index] == eAchievements.SecretClimb && !!!PlayerAchievements[player_index][eAchievements.SecretClimb] ? "???\n" : TranslateString(OUTERWALL_ACHIEVEMENT_DESC[AchievementSelection[player_index]], player_index)) + "\n";
+	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
+	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", StatsText);
@@ -257,10 +249,10 @@
 	local player_index = client.GetEntityIndex();
 	local EquipText = "";
 
-	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index);
+	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index) + "\n";
 
-	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_NEXTPAGE, player_index) + "\n";
-	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_PREVPAGE, player_index);
+	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
+	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", EquipText);
@@ -279,8 +271,8 @@
 	if(IsSaveSyncEnabled())
 	{
 		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER, player_index) + "\n";
-		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER_BUTTON, player_index) + "\n";
-		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER_BUTTON_ALT, player_index);
+		DisplayText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_KEY_GENERATE, player_index) + "\n";
+		DisplayText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_KEY_LOAD, player_index);
 	}
 	else
 		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER_UNAVAILABLE, player_index);

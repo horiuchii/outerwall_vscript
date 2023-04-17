@@ -5,9 +5,16 @@ IncludeScript("outerwall_playerdata.nut", this);
 ::PlayerZoneList <- array(MAX_PLAYERS, null)
 ::PlayerTrackList <- array(MAX_PLAYERS, 2)
 ::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
-::PlayerLastSpawnTrail <- array(MAX_PLAYERS, null)
-::PlayerLastHurt <- array(MAX_PLAYERS, null)
+::PlayerLastSpawnTrail <- array(MAX_PLAYERS, 0)
+::PlayerLastHurt <- array(MAX_PLAYERS, 0)
 ::PlayerLastPosition <- array(MAX_PLAYERS, Vector(0,0,0))
+
+::PreviousButtons <- array(MAX_PLAYERS, 0)
+
+::PlayerPvPStatus <- array(MAX_PLAYERS, false)
+
+::bRoundOver <- false
+::bGlobalCheated <- false
 
 const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
 const MAT_TIMETRIALHUD = "outerwall/timetrialhud.vmt";
@@ -16,13 +23,16 @@ const MAT_MEDALTIMEHUD = "outerwall/medaltimehud.vmt";
 const MAT_PURPLECOINANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
 const MAT_TIMETRIALANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
 
-const BONUS_PLAYERHUDTEXT = "outerwall_bonus_gametext_"
 const TIMER_PLAYERHUDTEXT = "outerwall_timer_gametext_"
+const BONUS_PLAYERHUDTEXT = "outerwall_bonus_gametext_"
+const ENCORE_PLAYERHUDTEXT = "outerwall_encore_gametext_"
 
+IncludeScript("outerwall_achievements.nut", this);
 IncludeScript("outerwall_timer.nut", this);
 IncludeScript("outerwall_settings.nut", this);
 IncludeScript("outerwall_purplecoin.nut", this);
 IncludeScript("outerwall_timetrial.nut", this);
+IncludeScript("outerwall_entity_io.nut", this);
 
 ::Soundtracks <-
 [
@@ -41,7 +51,8 @@ IncludeScript("outerwall_timetrial.nut", this);
 	"geothermal", //7
 	"hell_inside","hell_outside", //8,9
 	"windfortress_inside","windfortress_outside","windfortress_lava", //10,11,12
-	"lastbattle_inside", "lastbattle_outside", "lastbattle_lava" //13,14,15
+	"meltdown" //13
+	"lastbattle_inside", "lastbattle_outside", "lastbattle_lava" //14,15,16
 ]
 
 ::SoundTestTracks <-
@@ -54,7 +65,21 @@ IncludeScript("outerwall_timetrial.nut", this);
 	"geothermal", //5
 	"hell", //6
 	"windfortress", //7
-	"lastbattle" //8
+	"meltdown", //8
+	"lastbattle" //9
+]
+
+::PrecacheTrackNames <-
+[
+	"white",
+	"kodou",
+	"oside",
+	"lastcave",
+	"balcony",
+	"grand",
+	"hell",
+	"kaze",
+	"mdown2"
 ]
 
 ::ZoneLocations <-
@@ -65,8 +90,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	Vector(-1392,7904,-13788), //inner wall
 	Vector(-704,-10368,13284), //hell
 	Vector(-5408,7616,13412), //wind fortress
-	Vector(3328,-1344,-14044), //Vector(5072,6944,-13436) //sand pit DO NOT SHIP
-	//Vector(3328,-1344,-14044) //final cave
+	Vector(5072,6944,-13436) //sand pit
 ]
 
 ::ZoneAngles <-
@@ -78,7 +102,6 @@ IncludeScript("outerwall_timetrial.nut", this);
 	QAngle(0,90,0), //hell
 	QAngle(0,0,0), //wind fortress
 	QAngle(0,180,0), //sand pit
-	//QAngle(0,180,0) //final cave
 ]
 
 ::OuterwallMain <- function()
@@ -104,6 +127,12 @@ IncludeScript("outerwall_timetrial.nut", this);
 	PrecacheSound("outerwall/snd_purplecometcoin_collect.mp3");
 	const SND_PURPLECOIN_COLLECT = "Outerwall.PurpleCometCoinCollect";
 
+	PrecacheSound("outerwall/radar_ping.mp3");
+	const SND_PURPLECOIN_RADAR = "Outerwall.PurpleCoinRadar";
+
+	PrecacheSound("outerwall/radar_ready.mp3");
+	const SND_PURPLECOIN_RADAR_READY = "Outerwall.PurpleCoinRadarReady";
+
 	PrecacheSound("outerwall/snd_menu_select.mp3");
 	const SND_MENU_SELECT = "Outerwall.MenuSelect";
 
@@ -128,15 +157,22 @@ IncludeScript("outerwall_timetrial.nut", this);
 	//PrecacheSound("ui/itemcrate_smash_ultrarare_short.wav");
 	const SND_MEDAL_IRIDESCENT = "Outerwall.MedalIridescent";
 
-	if (!IsHolidayActive(kHoliday_Soldier))
+	PrecacheSound("misc/achievement_earned.wav");
+	PrecacheSound("misc/halloween/spell_blast_jump.wav");
+
+	foreach(sound in PyroSoundsPrecache)
+		PrecacheSound(sound);
+
+	if (!IsHolidayActive(HOLIDAY_SOLDIER))
 		EntFire("soldier_statue", "kill");
 
 	CreateMedalTimeText();
 	CreateBonusGameText();
+	CreateEncoreGameText();
 	PopulateLeaderboard();
 
-	Convars.SetValue("mp_forceautoteam", 1)
-	Convars.SetValue("mp_teams_unbalance_limit", 0)
+	Convars.SetValue("mp_forceautoteam", 1);
+	Convars.SetValue("mp_teams_unbalance_limit", 0);
 
 	DebugPrint("OUTERWALL INIT ENDED");
 }
@@ -152,17 +188,47 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 	PlayerHUDThink(self);
 
+	CheckPurpleCoinAnnotateButton(self);
+
 	PlayerTimeTrialThink(self);
 
 	CheckSettingButton(self);
 
 	PlayJumpSound(self);
 
+	UpdatePlayerLastButtons(self);
+
 	PlayerSpawnTrail(self);
 
-	//CheckForCheating(self);
+	CheckForCheating(self);
 
 	return 0.0;
+}
+
+::GameEventRoundEnd <- function(eventdata)
+{
+	bRoundOver = true;
+    for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
+    {
+        local player = PlayerInstanceFromIndex(player_index);
+        if (player == null) continue;
+		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, player, player);
+    }
+}
+
+::GameEventPlayerDeath <- function(eventdata)
+{
+	local client = GetPlayerFromUserID(eventdata.userid);
+	EntFireByHandle(client, "RunScriptCode", "activator.ForceRespawn()", 1.0, client, client);
+}
+
+::CheatsCheck <- function(eventdata)
+{
+	if(eventdata.cvarname == "sv_cheats" && !bGlobalCheated)
+	{
+		bGlobalCheated = true;
+		ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "WARNING: \"sv_cheats\" has been toggled. Scoring has been disabled.")
+	}
 }
 
 ::GameEventPlayerConnect <- function(eventdata)
@@ -178,7 +244,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	PlayerTrackList[player_index] = 2;
 	PlayerCheckpointStatus[player_index] = 0;
 	PurpleCoinPlayerHUDStatusArray[player_index] = false;
-	PlayerLastHurt[player_index] = null;
+	PlayerLastHurt[player_index] = 0;
 	PlayerLanguage[player_index] = 0;
 	//reset arena array
 	ResetPlayerPurpleCoinArenaArray(player_index);
@@ -229,6 +295,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	client.PrecacheSoundScript(SND_QUOTE_HURT_LAVA);
 	client.PrecacheSoundScript(SND_CHECKPOINT);
 	client.PrecacheSoundScript(SND_PURPLECOIN_COLLECT);
+	client.PrecacheSoundScript(SND_PURPLECOIN_RADAR);
 	client.PrecacheSoundScript(SND_WARTIMER);
 	client.PrecacheSoundScript(SND_WARTIMER_UP);
 	client.PrecacheSoundScript(SND_MEDAL_NONE);
@@ -237,6 +304,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 	client.PrecacheSoundScript(SND_MEDAL_GOLD);
 	client.PrecacheSoundScript(SND_MEDAL_IRIDESCENT);
 	client.PrecacheSoundScript(SND_MENU_SELECT);
+	client.PrecacheSoundScript("Achievement.Earned");
+	client.PrecacheSoundScript("Player.DenyWeaponSelection");
+	client.PrecacheSoundScript("Halloween.spell_blastjump");
 	//precache soundscapes
 	client.PrecacheScriptSound("ambient/windwinter.wav");
 	client.PrecacheScriptSound("outerwall/wind/wind_hit1.mp3");
@@ -262,7 +332,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 	foreach(soundtrack in Soundtracks)
 	{
-		foreach(song in SoundTestTracks)
+		foreach(song in PrecacheTrackNames)
 		{
 			client.PrecacheScriptSound("outerwall/music/ost_" + soundtrack + "/" + song + ".wav");
 		}
@@ -272,6 +342,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 ::GameEventPlayerChangeTeam <- function(eventdata)
 {
 	local client = GetPlayerFromUserID(eventdata.userid);
+
+	if(!client) return;
+
 	local player_index = client.GetEntityIndex();
 
 	EncoreTeamCheck(client);
@@ -297,6 +370,27 @@ IncludeScript("outerwall_timetrial.nut", this);
 	}
 }
 
+::CreateMedalTimeText <- function()
+{
+	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
+	{
+		local gametext = SpawnEntityFromTable("game_text",
+		{
+			targetname = TIMER_PLAYERHUDTEXT + iArrayIndex,
+			message = "You're not supposed to see this.\nHow'd you do it?",
+			channel = 5,
+			color = "240 255 0",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.025,
+			y = 0.375
+		})
+
+		Entities.DispatchSpawn(gametext);
+	}
+}
+
 ::CreateBonusGameText <- function()
 {
 	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
@@ -304,8 +398,29 @@ IncludeScript("outerwall_timetrial.nut", this);
 		local gametext = SpawnEntityFromTable("game_text",
 		{
 			targetname = BONUS_PLAYERHUDTEXT + iArrayIndex,
-			message = "",
+			message = "000",
 			channel = 4,
+			color = "240 255 0",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.5015,
+			y = 0.905
+		})
+
+		Entities.DispatchSpawn(gametext);
+	}
+}
+
+::CreateEncoreGameText <- function()
+{
+	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
+	{
+		local gametext = SpawnEntityFromTable("game_text",
+		{
+			targetname = ENCORE_PLAYERHUDTEXT + iArrayIndex,
+			message = "15.0",
+			channel = 3,
 			color = "240 255 0",
 			fadein = 0,
 			fadeout = 0.05,
@@ -345,6 +460,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 ::PlayTrack <- function(iTrack, client)
 {
+	if(bRoundOver)
+		return;
+
 	local player_index = client.GetEntityIndex();
 
 	//return if we are lapping
@@ -362,6 +480,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 ::PlaySoundTestTrack <- function(iTrack, client)
 {
+	if(bRoundOver)
+		return;
+
 	local player_index = client.GetEntityIndex();
 
 	PlayerTrackList[player_index] = -1;
@@ -370,6 +491,9 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 ::PlaySpectatorTrackThink <- function(client)
 {
+	if(bRoundOver)
+		return;
+
 	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
 
 	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
@@ -404,31 +528,38 @@ IncludeScript("outerwall_timetrial.nut", this);
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
 		{
 			local spectator_target_index = spectator_target.GetEntityIndex();
-			if(!!PlayerEncoreStatus[spectator_target_index] == true)
-				TimeTrialHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + spectator_target_index);
 			if(PurpleCoinPlayerHUDStatusArray[spectator_target_index] == true)
 				PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + spectator_target_index);
 			if(PlayerMedalTimeHUDStatusArray[spectator_target_index] == true)
 				MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
+			if(!!PlayerEncoreStatus[spectator_target_index] == true)
+				TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + spectator_target_index);
 		}
 	}
 	// we aren't spectating, get our own info
 	else
 	{
-		if(!!PlayerEncoreStatus[player_index] == true)
-			TimeTrialHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + player_index);
 		if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
 			PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + player_index);
 		if(PlayerMedalTimeHUDStatusArray[player_index] == true)
 			MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
+		if(!!PlayerEncoreStatus[player_index] == true)
+			TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + player_index);
 	}
 
 	// alright, we got the info, lets display to us
-	if(TimeTrialHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null) //bonus7 + medal
+	if(TimeTrialHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null) //encore + medal
 	{
 		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
 		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
 		client.SetScriptOverlayMaterial(MAT_TIMETRIALANDMEDALTIMEHUD);
+		return;
+	}
+	else if(TimeTrialHUDGameTextEntity != null && PurpleCoinHUDGameTextEntity != null) //encore + bonus6
+	{
+		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
+		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
+		client.SetScriptOverlayMaterial(MAT_PURPLECOINANDMEDALTIMEHUD);
 		return;
 	}
 	else if(PurpleCoinHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null) //bonus6 + medal
@@ -438,7 +569,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 		client.SetScriptOverlayMaterial(MAT_PURPLECOINANDMEDALTIMEHUD);
 		return;
 	}
-	else if(TimeTrialHUDGameTextEntity != null) //bonus7
+	else if(TimeTrialHUDGameTextEntity != null) //encore
 	{
 		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
 		client.SetScriptOverlayMaterial(MAT_TIMETRIALHUD);
@@ -458,6 +589,13 @@ IncludeScript("outerwall_timetrial.nut", this);
 	}
 
 	client.SetScriptOverlayMaterial(null);
+}
+
+::UpdatePlayerLastButtons <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+	local buttons = NetProps.GetPropInt(client, "m_nButtons");
+	PreviousButtons[player_index] = buttons;
 }
 
 ::DispenseTip <- function(client)
@@ -488,6 +626,18 @@ IncludeScript("outerwall_timetrial.nut", this);
 	if(client == null || PlayerCheatedCurrentRun[player_index] == true)
 		return;
 
+	if(bGlobalCheated)
+	{
+		PlayerCheatedCurrentRun[player_index] = true;
+		return;
+	}
+
+	if(Convars.GetBool("sv_cheats"))
+	{
+		PlayerCheatedCurrentRun[player_index] = true;
+		return;
+	}
+
 	if(client.IsNoclipping())
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
@@ -495,6 +645,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	}
 
 	local Distance = (client.GetOrigin() - PlayerLastPosition[player_index]).Length()
+
 	if(Distance > 96)
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
@@ -502,6 +653,12 @@ IncludeScript("outerwall_timetrial.nut", this);
 	}
 
 	PlayerLastPosition[player_index] = client.GetOrigin()
+
+	if(NetProps.GetPropInt(client, "m_PlayerClass.m_iClass") != TF_CLASS_SCOUT)
+	{
+		PlayerCheatedCurrentRun[player_index] = true;
+		return;
+	}
 
 	//todo: block sm_goto
 }
@@ -521,7 +678,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 		client.EmitSound(SND_QUOTE_JUMP);
 
 	if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1)
-			client.EmitSound(SND_BOOSTER);
+		client.EmitSound(SND_BOOSTER);
 
 	PlayerLastIsJumpingState[player_index] = jump_state;
 	PlayerLastAirDashCount[player_index] = airdash_count;
@@ -532,7 +689,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 	local player_index = client.GetEntityIndex();
 	local MaxSpeed = NetProps.GetPropFloat(client, "m_flMaxspeed");
 	//check if m_flMaxspeed is 420
-	if(MaxSpeed < 419 || client.IsNoclipping() || !IsPlayerAlive(client) || PlayerLastSpawnTrail[player_index] != null && PlayerLastSpawnTrail[player_index] + 0.125 > Time())
+	if(MaxSpeed < 419 || client.IsNoclipping() || !IsPlayerAlive(client) || PlayerLastSpawnTrail[player_index] + 0.125 > Time())
 		return;
 
 	local trail = SpawnEntityFromTable("prop_dynamic",
@@ -580,7 +737,7 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 	local current_checkpoint = PlayerCheckpointStatus[player_index];
 
-	if(iNewCheckpoint != current_checkpoint + 1 && iNewCheckpoint != 0 || activator.IsNoclipping())
+	if(iNewCheckpoint != current_checkpoint + 1 && (iNewCheckpoint != 0 && iNewCheckpoint != 3) || activator.IsNoclipping())
 		return;
 
 	PlayerCheckpointStatus[player_index] = iNewCheckpoint;
@@ -643,12 +800,13 @@ IncludeScript("outerwall_timetrial.nut", this);
 	if(iZone == 0)
 		DoEntFire("start_zone", Action, "", 0.0, activator, activator);
 	else
-		DoEntFire("bonus_" + iZone + "start", Action, "", 0.0, activator, activator);
+		DoEntFire("bonus" + iZone + "_start", Action, "", 0.0, activator, activator);
 
 	if(bTouch)
 	{
 		ResetTimeTrialArena(player_index);
 		PlayerActivateTimeTrial(activator, false);
+		ResetPlayerAchievementArrays(player_index);
 	}
 }
 
@@ -681,20 +839,20 @@ IncludeScript("outerwall_timetrial.nut", this);
 
 	CheckPlayerMedal(iZoneGoal, activator);
 
-	if(PlayerEncoreStatus[player_index] == 1)
-		return;
-
-	if(iZoneGoal == 0)
-		DoEntFire("end_zone", "StartTouch", "", 0.0, client, client);
-	else
-		DoEntFire("bonus_" + iZoneGoal + "end", "StartTouch", "", 0.0, client, client);
+	if(PlayerEncoreStatus[player_index] != 1)
+	{
+		if(iZoneGoal == 0)
+			DoEntFire("end_zone", "StartTouch", "", 0.0, client, client);
+		else
+			DoEntFire("bonus" + iZoneGoal + "_end", "StartTouch", "", 0.0, client, client);
+	}
 }
 
 ::HurtTouch <- function(iSpikeType, client, bEncoreSpike = false)
 {
 	local player_index = client.GetEntityIndex();
 
-	if(client.IsNoclipping() || PlayerLastHurt[player_index] != null && PlayerLastHurt[player_index] + 0.5 > Time())
+	if(client.IsNoclipping() || PlayerLastHurt[player_index] + 0.5 > Time())
 		return;
 
 	if(PlayerEncoreStatus[player_index] != bEncoreSpike.tointeger() && iSpikeType != 2)
@@ -707,13 +865,19 @@ IncludeScript("outerwall_timetrial.nut", this);
 		case 1: //No Launch Spike
 			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 50.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT);
-			PlayerSpikeHits[player_index] += 1;
+
+			if(!PlayerCheatedCurrentRun[player_index])
+				PlayerSpikeHits[player_index] += 1;
+
 			break;
 		case 2: //Lava
 			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,650));
 			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 25.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT_LAVA);
-			PlayerLavaHits[player_index] += 1;
+
+			if(!PlayerCheatedCurrentRun[player_index])
+				PlayerLavaHits[player_index] += 1;
+
 			break;
 		case 3: //Instant Kill
 			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 9999999.0, DMG_BURN);
@@ -723,4 +887,20 @@ IncludeScript("outerwall_timetrial.nut", this);
 	}
 
 	PlayerLastHurt[player_index] = Time();
+	PlayerDamagedDuringRun[player_index] = true;
+	CheckAchievement_HitAlot(player_index);
+}
+
+::BoosterTouch <- function(bEncoreBooster = false)
+{
+	local player_index = activator.GetEntityIndex();
+
+	if(activator.IsNoclipping() || PlayerEncoreStatus[player_index] != bEncoreBooster.tointeger())
+		return;
+
+	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
+	player_velocity.z = 650;
+	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
+	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
+	activator.EmitSound("Halloween.spell_blastjump");
 }

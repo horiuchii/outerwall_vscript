@@ -29,13 +29,77 @@
 	"Current Weapon:"
 	"Current Weapon:"
 ]
-::OUTERWALL_PVP_WEAPON_POLARSTAR <- [
-	"Current Weapon:"
-	"Current Weapon:"
+::OUTERWALL_PVP_AMMO <- [
+	"Rockets:"
+	"Rockets:"
 ]
-::OUTERWALL_PVP_WEAPON_ROCKETLAUNCHER <- [
-	"Current Weapon:"
-	"Current Weapon:"
+::OUTERWALL_PVP_WEAPON <- [
+	::OUTERWALL_PVP_WEAPON_POLARSTAR <- [
+		"Polar Star"
+		"Polar Star"
+	]
+	::OUTERWALL_PVP_WEAPON_ROCKETLAUNCHER <- [
+		"Rocket Launcher"
+		"Rocket Launcher"
+	]
+	::OUTERWALL_PVP_WEAPON_SNAKE <- [
+		"Snake"
+		"Snake"
+	]
+]
+::OUTERWALL_PVP_COMBO_DEATH <- [
+	"That streak was "
+	"That streak was "
+]
+::OUTERWALL_PVP_COMBO_SUFFIX <- [
+	"(%i kills)"
+	"(%i kills)"
+]
+::OUTERWALL_PVP_COMBO <- [
+	TIER_1 <- [
+		"MILD"
+		"MILD"
+	]
+	TIER_2 <- [
+		"ANTSY"
+		"ANTSY"
+	]
+	TIER_3 <- [
+		"MAD"
+		"MAD"
+	]
+	TIER_4 <- [
+		"CRAZY"
+		"CRAZY"
+	]
+	TIER_5 <- [
+		"BRUTAL"
+		"BRUTAL"
+	]
+	TIER_6 <- [
+		"PSYCHOTIC"
+		"PSYCHOTIC"
+	]
+	TIER_7 <- [
+		"CRUSHING"
+		"CRUSHING"
+	]
+	TIER_8 <- [
+		"DELIRLOUS"
+		"DELIRLOUS"
+	]
+	TIER_9 <- [
+		"FUNNY"
+		"FUNNY"
+	]
+	TIER_10 <- [
+		"ENOUGH"
+		"ENOUGH"
+	]
+	TIER_11 <- [
+		"FUCKED UP"
+		"FUCKED UP"
+	]
 ]
 
 ::OUTERWALL_SAVE_TRANSFER_TITLE <- [
@@ -49,14 +113,6 @@
 ::OUTERWALL_SAVE_TRANSFER <- [
 	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
 	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
-]
-::OUTERWALL_SAVE_TRANSFER_BUTTON <- [
-	"Press [ATTACK] to generate a key"
-	"Press [ATTACK] to generate a key"
-]
-::OUTERWALL_SAVE_TRANSFER_BUTTON_ALT <- [
-	"Press [ALT-ATTACK] to load from a key"
-	"Press [ALT-ATTACK] to load from a key"
 ]
 ::OUTERWALL_SAVE_TRANSFER_ERROR_GENERATE_WAIT <- [
 	"You need to wait before generating another key."
@@ -79,8 +135,8 @@
 	"Key %i:"
 ]
 ::OUTERWALL_SAVE_TRANSFER_LOAD_KEY <- [
-	"Please paste key %i:"
-	"Please paste key %i:"
+	"Please paste key %i."
+	"Please paste key %i."
 ]
 ::OUTERWALL_SAVE_TRANSFER_SUCCESS <- [
 	"Successfully loaded your save from %s."
@@ -97,29 +153,37 @@
 		"ENCENDIDA"
 	]
 ]
-::OUTERWALL_SETTING_BUTTON <- [
-	"Press [ATTACK] to toggle"
-	"Press [ATTACK] to toggle"
+::OUTERWALL_SETTING_BUTTON_ATTACK <- [
+	"[ATTACK] - "
+	"[ATTACK] - "
 ]
-::OUTERWALL_SETTING_BUTTON_ALT <- [
-	"Press [ALT-ATTACK] to toggle"
-	"Press [ALT-ATTACK] to toggle"
+::OUTERWALL_SETTING_BUTTON_ALTATTACK <- [
+	"[ALT-ATTACK] - "
+	"[ALT-ATTACK] - "
 ]
-::OUTERWALL_SETTING_BUTTON_NEXTPAGE <- [
-	"Press [ATTACK] to go to the next item"
-	"Press [ATTACK] to go to the next item"
+::OUTERWALL_SETTING_TOGGLE <- [
+	"Toggle"
+	"Toggle"
 ]
-::OUTERWALL_SETTING_BUTTON_NEXTPAGE_ALT <- [
-	"Press [ALT-ATTACK] to go to the next item"
-	"Press [ALT-ATTACK] to go to the next item"
+::OUTERWALL_SETTING_NEXTPAGE <- [
+	"Next"
+	"Next"
 ]
-::OUTERWALL_SETTING_BUTTON_PREVPAGE <- [
-	"Press [ALT-ATTACK] to go to the previous item"
-	"Press [ALT-ATTACK] to go to the previous item"
+::OUTERWALL_SETTING_PREVPAGE <- [
+	"Previous"
+	"Previous"
 ]
-::OUTERWALL_SETTING_BUTTON_ENCORETUTORIAL <- [
-	"Press [ALT-ATTACK] to play Encore's tutorial"
-	"Press [ALT-ATTACK] to play Encore's tutorial"
+::OUTERWALL_SETTING_ENCORETUTORIAL <- [
+	"Tutorial"
+	"Tutorial"
+]
+::OUTERWALL_SETTING_KEY_GENERATE <- [
+	"Generate Key"
+	"Generate Key"
+]
+::OUTERWALL_SETTING_KEY_LOAD <- [
+	"Load Key"
+	"Load Key"
 ]
 ::OUTERWALL_SETTING_CURRENT <- [
 	"Current Setting: "
@@ -175,6 +239,20 @@
 		"NEVER"
 	]
 ]
+::OUTERWALL_SETTING_FINALTIME_OPTION <- [
+	ENCORE <- [
+		"ENCORE ONLY"
+		"ENCORE ONLY"
+	]
+	ALWAYS <- [
+		"ALWAYS"
+		"ALWAYS"
+	]
+	NEVER <- [
+		"NEVER"
+		"NEVER"
+	]
+]
 ::OUTERWALL_SETTING_SOUNDTRACK_OPTION <- [
 	::REMASTERED <- [
 		"REMASTERED (2011)"
@@ -204,6 +282,10 @@
 	"Achievements"
 ]
 ::OUTERWALL_ACHIEVEMENT_NAME <- [
+	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_NAME <- [
+		"Pain O' Plenty"
+		"Pain O' Plenty"
+	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
 		"No Booster Required"
 		"No Booster Required"
@@ -211,6 +293,14 @@
 	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
 		"Heavenly Trip Through Hell"
 		"Heavenly Trip Through Hell"
+	]
+	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_NAME <- [
+		"Non Volatile Memory"
+		"Non Volatile Memory"
+	]
+	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_NAME <- [
+		"Breaking The Fourth (Outer) Wall"
+		"Breaking The Fourth (Outer) Wall"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
 		"Encore, Encore!"
@@ -224,6 +314,10 @@
 		"Iridescent Bond"
 		"Iridescent Bond"
 	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
+		"Island Collapse Ad Infinitum"
+		"Island Collapse Ad Infinitum"
+	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
 		"Moonside Madness"
 		"Moonside Madness"
@@ -236,8 +330,12 @@
 		"Nikumaru Masta"
 		"Nikumaru Masta"
 	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_NAME <- [
+		"Seeing Purple"
+		"Seeing Purple"
+	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_NAME <- [
-		"Overstaying Your Welcome" //Island Collapse Ad Infinitum
+		"Overstaying Your Welcome"
 		"Overstaying Your Welcome"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
@@ -253,75 +351,95 @@
 		"Hedonistic Lapping"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLGOLD_NAME <- [
-		"Superstar"
-		"Superstar"
+		"Whimsical Superstar"
+		"Whimsical Superstar"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLIRI_NAME <- [
-		"Whimsical Superstar"
-		"Whimsical Superstar"
+		"End All Be All Of Outer Wall"
+		"End All Be All Of Outer Wall"
 	]
 ]
 ::OUTERWALL_ACHIEVEMENT_DESC <- [
-	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
-		"No Booster Required"
-		"No Booster Required"
+	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_DESC <- [
+		"Get hurt... alot."
+		"Get hurt... alot."
 	]
-	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
-		"Heavenly Trip Through Hell"
-		"Heavenly Trip Through Hell"
+	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
+		"Don't touch any of the air currents at the Inner Wall."
+		"Don't touch any of the air currents at the Inner Wall."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
-		"Encore, Encore!"
-		"Encore, Encore!"
+	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
+		"Don't take any damage at the Sacred Grounds."
+		"Don't take any damage at the Sacred Grounds."
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
-		"Golden Bond"
-		"Golden Bond"
+	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
+		"Earn atleast a gold medal without using the radar at the Sand Pit."
+		"Earn atleast a gold medal without using the radar at the Sand Pit."
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
-		"Iridescent Bond"
-		"Iridescent Bond"
+	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
+		"not funny"
+		"not funny"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
-		"Moonside Madness"
-		"Moonside Madness"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
+		"Unlock Encore mode."
+		"Unlock Encore mode."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_NAME <- [
-		"Clock Block"
-		"Clock Block"
+	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
+		"Earn a Gold Medal in each course."
+		"Earn a Gold Medal in each course."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
-		"Nikumaru Masta"
-		"Nikumaru Masta"
+	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
+		"Earn a Iridescent Medal in each course."
+		"Earn a Iridescent Medal in each course."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_NAME <- [
-		"Overstaying Your Welcome" //Island Collapse Ad Infinitum
-		"Overstaying Your Welcome"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
+		"Complete 100 extra laps."
+		"Complete 100 extra laps."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
-		"Mimiga Death March"
-		"Mimiga Death March"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
+		"Don't take any damage at Encore Outer Wall."
+		"Don't take any damage at Encore Outer Wall."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_NAME <- [
-		"Lapping Hell"
-		"Lapping Hell"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
+		"Collect only 4 time clocks in a 3 lap run of Encore Balcony."
+		"Collect only 4 time clocks in a 3 lap run of Encore Balcony."
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_NAME <- [
-		"Hedonistic Lapping"
-		"Hedonistic Lapping"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
+		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds."
+		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds."
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLGOLD_NAME <- [
-		"Superstar"
-		"Superstar"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_DESC <- [
+		"Earn atleast a gold medal without using the radar at Encore Sand Pit."
+		"Earn atleast a gold medal without using the radar at Encore Sand Pit."
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLIRI_NAME <- [
-		"Whimsical Superstar"
-		"Whimsical Superstar"
+	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_DESC <- [
+		"Complete a run with 10 laps."
+		"Complete a run with 10 laps."
+	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
+		"Earn a medal in every Encore course."
+		"Earn a medal in every Encore course."
+	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
+		"Earn a Gold Medal in each Encore course."
+		"Earn a Gold Medal in each Encore course."
+	]
+	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
+		"Earn a Iridescent Medal in each Encore course."
+		"Earn a Iridescent Medal in each Encore course."
+	]
+	::OUTERWALL_ACHIEVEMENT_ALLGOLD_DESC <- [
+		"Earn a Gold Medal in every course."
+		"Earn a Gold Medal in every course."
+	]
+	::OUTERWALL_ACHIEVEMENT_ALLIRI_DESC <- [
+		"Earn a Iridescent Medal in every course."
+		"Earn a Iridescent Medal in every course."
 	]
 ]
 ::OUTERWALL_ACHIEVEMENT_ACHIEVED <- [
-	" has earned: "
-	" has earned: "
+	" has achieved: "
+	" has achieved: "
 ]
 
 ::OUTERWALL_STATS_TITLE <- [
@@ -351,6 +469,10 @@
 ::OUTERWALL_STATS_LAPSRAN <- [
 	"Extra laps ran: "
 	"Extra laps ran: "
+]
+::OUTERWALL_STATS_PVPKILLS <- [
+	"PvP kills: "
+	"PvP kills: "
 ]
 
 ::OUTERWALL_COSMETIC_TITLE <- [
@@ -407,12 +529,19 @@
 	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_2 <- [
-	"Higher tiers of medals may require running multiple laps through a course. Good Luck!"
+	"However, reaching the 5th lap will cause Time Clocks to stop giving time."
+]
+::OUTERWALL_ENCORETUTORIAL_LAP_3 <- [
+	"Higher tiers of medals require running multiple laps through a course. Good Luck!"
 ]
 
 ::OUTERWALL_TIMETRIAL_LAP <- [
 	"Lap "
 	"Vuelta "
+]
+::OUTERWALL_TIMER_ENCORE <- [
+	"Encore "
+	"Encore "
 ]
 ::OUTERWALL_TIMER_CHEATED <- [
 	"You seem to have cheated, your time has been invalidated."
@@ -470,25 +599,45 @@
 	"Tiempos de medalla Encore de %s"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_LAP <- [
-	" + Lap "
-	" + Vuelta "
+	"Lap "
+	"Vuelta "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
-	::BRONZE <- [
-		"Bronze time: "
-		"Tiempo de bronce: "
+	::OUTERWALL_TIMER_MEDAL_DISPLAY_REGULAR <- [
+		::BRONZE <- [
+			"Bronze time: "
+			"Tiempo de bronce: "
+		]
+		::SILVER <- [
+			"Silver time: "
+			"Tiempo de plata: "
+		]
+		::GOLD <- [
+			"Gold time: "
+			"Tiempo de oro: "
+		]
+		::IRIDESCENT <- [
+			"Iridescent time: "
+			"Tiempo de iridiscente: "
+		]
 	]
-	::SILVER <- [
-		"Silver time: "
-		"Tiempo de plata: "
-	]
-	::GOLD <- [
-		"Gold time: "
-		"Tiempo de oro: "
-	]
-	::IRIDESCENT <- [
-		"Iridescent time: "
-		"Tiempo de iridiscente: "
+	::OUTERWALL_TIMER_MEDAL_DISPLAY_ENCORE <- [
+		::BRONZE <- [
+			"Bronze: "
+			"Bronce: "
+		]
+		::SILVER <- [
+			"Silver: "
+			"Plata: "
+		]
+		::GOLD <- [
+			"Gold: "
+			"Oro: "
+		]
+		::IRIDESCENT <- [
+			"Iridescent: "
+			"Iridiscente: "
+		]
 	]
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
@@ -514,7 +663,7 @@
 
 ::OUTERWALL_TIMER_ACHIEVED <- [
 	" achieved %s%s "
-	" lograda &s "
+	" lograda %s "
 ]
 ::OUTERWALL_TIMER_FAILEDTOQUALIFY <- [
 	" failed to qualify for any of %s%s medals."
@@ -731,8 +880,8 @@
 		"¿Estás buscando una forma rápida de curarte después de recibir daño? ¡Lástima! El daño que te haces a ti mismo es permanente."
 	]
 	::TIP_10 <- [
-		"Go to hell!"
-		"Go to hell!"
+		"Ever wonder what happens when a teleporter turns off halfway during teleportation?"
+		"Ever wonder what happens when a teleporter turns off halfway during teleportation?"
 	]
 	::TIP_11 <- [
 		"TIP SERVER UNAVAILABLE TRY AGAIN LATER"

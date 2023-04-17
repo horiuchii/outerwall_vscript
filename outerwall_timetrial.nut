@@ -21,7 +21,7 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 {
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerTimeTrialActive[player_index] != true)
+	if(PlayerTimeTrialActive[player_index] != true || !IsPlayerAlive(client))
 		return;
 
 	if(PlayerLastTimeTrialThink[player_index] + TIME_REDUCE_THINK > Time())
@@ -30,7 +30,11 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	PlayerLastTimeTrialThink[player_index] = Time();
 
 	if(PlayerTimeTrialTime[player_index] <= 0)
-		client.TakeDamageEx(null, client, null, Vector(0,0,0), Vector(0,0,0), 2.5, DMG_BURN);
+	{
+		NetProps.SetPropInt(client, "m_iHealth", NetProps.GetPropInt(client, "m_iHealth") - 2);
+		if(NetProps.GetPropInt(client, "m_iHealth") <= 3)
+			client.TakeDamageEx(null, client.GetActiveWeapon(), null, Vector(0,0,0), Vector(0,0,0), 9999.0, DMG_BURN);
+	}
 	else
 	{
 		PlayerTimeTrialTime[player_index] -= TIME_REDUCE_THINK;
@@ -39,12 +43,12 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	}
 
 	if(IsTimeLerping(player_index))
-		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color 0 255 0");
+		EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "color 0 255 0");
 	else
 	{
-		local time = remap(-0.1, 15.0, 0.0, 1.0, clamp(0.0, 15.0, PlayerTimeTrialTimeDisplay[player_index]));
+		local time = remap(-0.1, 100.0, 0.0, 1.0, clamp(0.0, 100.0, PlayerTimeTrialTimeDisplay[player_index]));
 		local color = lerpRGB(time, Vector(255, 0, 0), Vector(240, 255, 0));
-		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
+		EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
 	}
 
 	PlayerTimeTrialTimeDisplay[player_index] = SmoothDamp(PlayerTimeTrialTimeDisplay[player_index], PlayerTimeTrialTime[player_index], 0, 0.03, 999999, DeltaTime());
@@ -66,7 +70,7 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	local pretime = time < 10 ? "0" : "";
 	local posttime = time == time.tointeger() ? ".0" : "";
 	local lapcount = PlayerCurrentLapCount[player_index] > 1? "\n" + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + PlayerCurrentLapCount[player_index] : "";
-	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + " " + pretime + time.tostring() + posttime + lapcount);
+	EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "message " + " " + pretime + time.tostring() + posttime + lapcount);
 
 	if(round(time - time.tointeger(), 1) == 0.9 && !IsTimeLerping(player_index))
 		EmitSoundOnClient(SND_WARTIMER, PlayerInstanceFromIndex(player_index));
@@ -76,11 +80,15 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 {
 	PlayerTimeTrialTime[player_index] = START_TIME;
 	PlayerTimeTrialTimeDisplay[player_index] = START_TIME;
-	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "color 240 255 0");
+
+	local time = remap(-0.1, 45.0, 0.0, 1.0, START_TIME);
+	local color = lerpRGB(time, Vector(255, 0, 0), Vector(240, 255, 0));
+	EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
+
 	PlayerCurrentLapCount[player_index] = 1;
 	PlayerLastTimeTrialThink[player_index] = 0;
 
-	for(local iArrayIndex = 0; iArrayIndex < PlayerTimePickupStatus[player_index].len(); iArrayIndex++)
+	for(local iArrayIndex = 0; iArrayIndex < TIMEPICKUP_COUNT; iArrayIndex++)
 	{
 		PlayerTimePickupStatus[player_index][iArrayIndex] = true;
 		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerTimePickupStatus[player_index][iArrayIndex]);
@@ -112,12 +120,17 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	for(local iArrayIndex = 0; iArrayIndex < PlayerTimePickupStatus[player_index].len(); iArrayIndex++)
 	{
 		PlayerTimePickupStatus[player_index][iArrayIndex] = true;
-		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerTimePickupStatus[player_index][iArrayIndex]);
+		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerTimePickupStatus[player_index][iArrayIndex]);
 	}
 
 	PlayerCurrentLapCount[player_index]++;
 	PlayerTimeTrialTime[player_index] += LAP_ADD_TIME;
+	DisplayTime(activator, true);
 	activator.SetOrigin(TeleportDest.GetOrigin());
+
+	if(!PlayerCheatedCurrentRun[player_index])
+		PlayerLapsRan[player_index] += 1;
+
 	EmitSoundOnClient(SND_WARTIMER_UP, activator);
 }
 
@@ -128,11 +141,11 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	if(PlayerTimeTrialActive[player_index] == false || PlayerEncoreStatus[player_index] != 1)
 		return;
 
+	if(PlayerCurrentLapCount[player_index] >= 5)
+		return;
+
 	local strTriggerName = NetProps.GetPropString(caller, "m_iName");
 	local TriggerID = strTriggerName.slice(TIMETRIAL_TRIGGERPATH.len()).tointeger() - 1;
-
-	if(PlayerCurrentLapCount[player_index] >= 6)
-		return;
 
 	if (PlayerTimePickupStatus[player_index][TriggerID] == false)
 		return;
@@ -144,7 +157,6 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 		time = time / 2;
 
 	PlayerTimeTrialTime[player_index] += time
-	printl(time)
 
 	EmitSoundOnClient(SND_WARTIMER_UP, activator);
 }
