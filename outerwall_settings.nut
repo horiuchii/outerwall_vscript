@@ -85,7 +85,6 @@
 				return;
 
 			EncoreTeamCheck(client);
-
 			break;
 		}
 		case eSettingQuerys.Achievement:
@@ -106,7 +105,6 @@
 			}
 
 			UpdateAchievementStatsText(client);
-
 			break;
 		}
 		case eSettingQuerys.Cosmetic:
@@ -127,22 +125,18 @@
 			}
 
 			UpdateCosmeticEquipText(client);
-
-			break;
-		}
-		case eSettingQuerys.SaveSync:
-		{
-			if(!IsSaveSyncEnabled())
-				return;
-
 			break;
 		}
 		default: break;
 	}
+
+	if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Achievement)
+		EmitSoundOnClient(SND_MENU_MOVE, client);
+	else
+		EmitSoundOnClient(SND_MENU_SELECT, client);
+
 	if(PlayerCurrentSettingQuery[player_index] <= eSettingQuerys.Encore)
 		UpdateSettingsText(player_index);
-
-	EmitSoundOnClient(SND_MENU_SELECT, client);
 }
 
 ::UpdateSettingsText <- function(player_index)
@@ -256,27 +250,4 @@
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", EquipText);
-}
-
-::UpdateSaveSyncText <- function(client = null)
-{
-	if(client == null)
-		client = activator;
-
-	local player_index = client.GetEntityIndex();
-	local DisplayText = "";
-
-	DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER_TITLE, player_index) + "\n\n";
-
-	if(IsSaveSyncEnabled())
-	{
-		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER, player_index) + "\n";
-		DisplayText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_KEY_GENERATE, player_index) + "\n";
-		DisplayText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_KEY_LOAD, player_index);
-	}
-	else
-		DisplayText += TranslateString(OUTERWALL_SAVE_TRANSFER_UNAVAILABLE, player_index);
-
-	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", DisplayText);
 }

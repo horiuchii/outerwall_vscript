@@ -3,7 +3,8 @@ const PICKUP_ADD_TIME = 15.0;
 const LAP_ADD_TIME = 30.0;
 const TIME_REDUCE_THINK = 0.1;
 const TIMEPICKUP_COUNT = 15;
-const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
+const TIMETRIAL_TRIGGERPATH = "timetrial_pickup_";
+const TIMEPICKUPTOUCHRADIUS = 64;
 
 ::PlayerTimeTrialTime <- array(MAX_PLAYERS, START_TIME)
 ::PlayerTimeTrialTimeDisplay <- array(MAX_PLAYERS, START_TIME)
@@ -32,7 +33,7 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	if(PlayerTimeTrialTime[player_index] <= 0)
 	{
 		NetProps.SetPropInt(client, "m_iHealth", NetProps.GetPropInt(client, "m_iHealth") - 2);
-		if(NetProps.GetPropInt(client, "m_iHealth") <= 3)
+		if(NetProps.GetPropInt(client, "m_iHealth") <= 0)
 			client.TakeDamageEx(null, client.GetActiveWeapon(), null, Vector(0,0,0), Vector(0,0,0), 9999.0, DMG_BURN);
 	}
 	else
@@ -67,10 +68,15 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 ::UpdatePlayerTimeDisplay <- function(player_index)
 {
 	local time = round(PlayerTimeTrialTimeDisplay[player_index], 1);
-	local pretime = time < 10 ? "0" : "";
+	local pretime = time < 10 ? "00" : time < 100 ? "0" : "";
 	local posttime = time == time.tointeger() ? ".0" : "";
-	local lapcount = PlayerCurrentLapCount[player_index] > 1? "\n" + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + PlayerCurrentLapCount[player_index] : "";
-	EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "message " + " " + pretime + time.tostring() + posttime + lapcount);
+	EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "message " + pretime + time.tostring() + posttime);
+
+	if(PlayerZoneList[player_index] != 6)
+	{
+		local lapcount = " " + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + "\n  " + PlayerCurrentLapCount[player_index];
+		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + lapcount);
+	}
 
 	if(round(time - time.tointeger(), 1) == 0.9 && !IsTimeLerping(player_index))
 		EmitSoundOnClient(SND_WARTIMER, PlayerInstanceFromIndex(player_index));
@@ -99,7 +105,7 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 {
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerEncoreStatus[player_index] != 1)
+	if(PlayerEncoreStatus[player_index] != 1 || PlayerCheckpointStatus[player_index] == 3)
 		return;
 
 	PlayerTimeTrialActive[player_index] = bSetTimeTrial;
@@ -141,10 +147,25 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	if(PlayerTimeTrialActive[player_index] == false || PlayerEncoreStatus[player_index] != 1)
 		return;
 
-	if(PlayerCurrentLapCount[player_index] >= 5)
+	if(PlayerCurrentLapCount[player_index] >= 4)
 		return;
 
-	local strTriggerName = NetProps.GetPropString(caller, "m_iName");
+	//get closest timepickup prop_dynamic and get its name
+	local player_origin = activator.GetOrigin();
+	local TimePickupHandle = Entities.FindByNameWithin(null, TIMETRIAL_TRIGGERPATH + "*", player_origin, TIMEPICKUPTOUCHRADIUS);
+	//DebugDrawBox(player_origin, Vector(-TIMEPICKUPTOUCHRADIUS, -TIMEPICKUPTOUCHRADIUS, -TIMEPICKUPTOUCHRADIUS), Vector(TIMEPICKUPTOUCHRADIUS, TIMEPICKUPTOUCHRADIUS, TIMEPICKUPTOUCHRADIUS), 255, 0, 0, 155, 10)
+
+	if(!TimePickupHandle)
+	{
+		player_origin.z += 96;
+		TimePickupHandle = Entities.FindByNameWithin(null, TIMETRIAL_TRIGGERPATH + "*", player_origin, TIMEPICKUPTOUCHRADIUS);
+		//DebugDrawBox(player_origin, Vector(-TIMEPICKUPTOUCHRADIUS, -TIMEPICKUPTOUCHRADIUS, -TIMEPICKUPTOUCHRADIUS), Vector(TIMEPICKUPTOUCHRADIUS, TIMEPICKUPTOUCHRADIUS, TIMEPICKUPTOUCHRADIUS), 0, 255, 0, 155, 10)
+	}
+
+	if(!TimePickupHandle)
+		return;
+
+	local strTriggerName = NetProps.GetPropString(TimePickupHandle, "m_iName");
 	local TriggerID = strTriggerName.slice(TIMETRIAL_TRIGGERPATH.len()).tointeger() - 1;
 
 	if (PlayerTimePickupStatus[player_index][TriggerID] == false)
@@ -156,7 +177,7 @@ const TIMETRIAL_TRIGGERPATH = "timetrial_trigger_";
 	for (local i = 0; i < PlayerCurrentLapCount[player_index] - 1; i++)
 		time = time / 2;
 
-	PlayerTimeTrialTime[player_index] += time
-
+	PlayerTimeTrialTime[player_index] += time;
+	PlayerClocksCollectedDuringRun[player_index]++;
 	EmitSoundOnClient(SND_WARTIMER_UP, activator);
 }

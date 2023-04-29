@@ -20,6 +20,34 @@
 ::OUTERWALL_MEDAL_GOLD <- 2
 ::OUTERWALL_MEDAL_IRI <- 3
 
+::MAT_MENU_MEDALTIMES <- "outerwall/hud/hud_menu1.vmt"
+::MAT_MENU_SETTINGS <- "outerwall/hud/hud_menu2.vmt"
+
+::MAT_ENCOREHUD <- "outerwall/hud/hud_encore.vmt"
+::MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE <- "outerwall/hud/hud_encore_menu1.vmt"
+::MAT_ENCOREHUD_MENU_SETTINGS_ENCORE <- "outerwall/hud/hud_encore_menu2.vmt"
+::MAT_ENCOREHUD_ACTIVE_TIMELERPING <- "outerwall/hud/hud_encore_timelerping.vmt"
+
+::MAT_ENCOREHUD_ACTIVE_NOMEDAL <- "outerwall/hud/hud_encore_active.vmt"
+::MAT_ENCOREHUD_ACTIVE_BRONZE <- "outerwall/hud/hud_encore_active_bronze.vmt"
+::MAT_ENCOREHUD_ACTIVE_SILVER <- "outerwall/hud/hud_encore_active_silver.vmt"
+::MAT_ENCOREHUD_ACTIVE_GOLD <- "outerwall/hud/hud_encore_active_gold.vmt"
+::MAT_ENCOREHUD_ACTIVE_IRI <- "outerwall/hud/hud_encore_active_iri.vmt"
+
+::TIMER_PLAYERHUDTEXT <- "outerwall_timer_gametext_"
+::BONUS_PLAYERHUDTEXT <- "outerwall_bonus_gametext_"
+::ENCORE_PLAYERHUDTEXT <- "outerwall_encore_gametext_"
+
+::OUTERWALL_SAVEPATH <- "pf_outerwall/"
+::OUTERWALL_SAVETYPE <- ".sav"
+::OUTERWALL_SAVELEADERBOARDSUFFIX <- "_leaderboarddata"
+::OUTERWALL_SAVELEADERBOARD <- "leaderboard_entries"
+
+::OUTERWALL_SERVERPATH <- "server/"
+::OUTERWALL_BANNEDACCOUNTS <- "account_bans"
+
+::OUTERWALL_MAPNAME <- "pf_outerwall_"
+
 enum eAchievements{
 	HurtAlot
 	NormalInnerWallNoBoost
@@ -50,7 +78,6 @@ enum eSettingQuerys{
 	Encore
 	Achievement
 	Cosmetic
-	SaveSync
 	MAX
 }
 
@@ -60,10 +87,16 @@ enum eCheckpointOptions{
 	Never
 }
 
-::IsSaveSyncEnabled <- function()
-{
-	return FileToString(OUTERWALL_SAVEPATH + OUTERWALL_KEYPATH + OUTERWALL_KEYFILE + OUTERWALL_SAVETYPE) != null;
+enum eMapVersions{
+	v4a
 }
+
+::MapVersionArray <-
+[
+	"v4a"
+]
+
+::CURRENT_VERSION <- eMapVersions.v4a;
 
 ::DeltaTime <- function()
 {
@@ -165,6 +198,25 @@ enum eCheckpointOptions{
 	return output;
 }
 
+::GetPlayerBestMedal <- function(player_index, iZone, bEncore)
+{
+	local medal_times = ZoneTimes[iZone];
+	local medal_laps = ZoneLaps_Encore[iZone];
+
+	local total_time = PlayerBestTimeArray[player_index][iZone];
+	local laps_ran = PlayerBestLapCountEncoreArray[player_index][iZone];
+
+	for(local medal_index = 3; medal_index > -1; medal_index--)
+	{
+		if((!bEncore && total_time < medal_times[medal_index]) || (bEncore && laps_ran >= medal_laps[medal_index]))
+		{
+			return medal_index;
+		}
+	}
+
+	return -1;
+}
+
 ::SortTotalTime <- function(a,b)
 {
 	local first = a.total_time;
@@ -199,10 +251,10 @@ enum eCheckpointOptions{
 
 ::IsPlayerEncorable <- function(player_index)
 {
-	foreach(iZone, medal in PlayerBestMedalArray[player_index])
+	for (local i = 0; i < ZONE_COUNT; i++)
 	{
 		// no medal exists, not encorable
-		if(medal == -1)
+		if(GetPlayerBestMedal(player_index, i, false) == -1)
 		{
 			return false;
 		}
@@ -271,6 +323,33 @@ enum eCheckpointOptions{
 	ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to enforce encore status on player " + player_index)
 }
 
+::PrintToPlayerAndSpectators <- function(main_player_index, message)
+{
+	local main_player = PlayerInstanceFromIndex(main_player_index);
+
+	for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
+	{
+		if(player_index == main_player_index)
+		{
+			ClientPrint(main_player, HUD_PRINTTALK, message);
+			continue;
+		}
+
+		local player = PlayerInstanceFromIndex(player_index);
+		if (!player)
+			continue;
+
+		if(player.GetTeam() != TEAM_SPECTATOR)
+			continue;
+
+		local obsmode = NetProps.GetPropInt(main_player, "m_iObserverMode");
+		local spectator_target = NetProps.GetPropEntity(main_player, "m_hObserverTarget");
+
+		if((obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE) && spectator_target == main_player)
+			ClientPrint(player, HUD_PRINTTALK, message);
+	}
+}
+
 ::FormatTime <- function(input_time)
 {
 	local input_time_type = type(input_time);
@@ -289,7 +368,7 @@ enum eCheckpointOptions{
 		local Min = input_time.tointeger() / 60;
 		local Sec = input_time.tointeger() - (Min * 60);
 		local SecString = format("%s%i", Sec < 10 ? "0" : "", Sec);
-		return (Min + ":" + SecString + "." + (timedecimal.len() == 1 ? "00" : timedecimal[1])).tostring();
+		return (Min + ":" + SecString + "." + (timedecimal.len() == 1 ? "00" : timedecimal[1].len() == 1 ? timedecimal[1].tostring() + "0" : timedecimal[1].tostring())).tostring();
 	}
 
 	return input_time.tostring();
@@ -313,66 +392,6 @@ enum eCheckpointOptions{
 	}
 
 	return input_time.tostring();
-}
-
-::GenerateVisibilityBitfield <- function(player_index)
-{
-	local bitmask = array(31, 0);
-	bitmask[player_index - 1] = 1;
-	return ArrToStr(bitmask);
-}
-
-::StrToArr <- function(string)
-{
-	local str_len = string.len();
-	local arr = array(str_len, "");
-	for(local i = 0; i < str_len; i++)
-	{
-		arr[i] = string[i].tochar();
-	}
-	return arr;
-}
-
-::ArrToStr <- function(arr)
-{
-	local result_str = "";
-	for(local i = 0; i < arr.len(); i++) {
-		result_str += arr[i];
-	}
-
-	return result_str;
-}
-
-::EncryptString <- function(string, key)
-{
-	local key = StrToArr(key);
-	local encrypted_array = StrToArr(string);
-	local result_string = "";
-	foreach(i, byte in encrypted_array)
-	{
-		local encrypted_byte = (key[i][0] ^ encrypted_array[i][0])
-
-		result_string += encrypted_byte.tochar();
-	}
-	printl(result_string)
-	PrintKeysFromEncryptedString(result_string)
-}
-
-::PrintKeysFromEncryptedString <- function(string)
-{
-	local save_length = string.len();
-	local i = 0;
-	local savebuffer = "";
-
-	while(i < save_length)
-	{
-		if(i == 100)
-		{
-			ClientPrint(null, HUD_PRINTTALK, "KEYSTART:" + savebuffer + "KEYEND");
-		}
-		savebuffer += string[i].tochar();
-		i += 1;
-	}
 }
 
 ::RainbowTrail <- function()

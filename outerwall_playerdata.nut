@@ -1,16 +1,3 @@
-const OUTERWALL_SAVEPATH = "pf_outerwall/"
-const OUTERWALL_SAVETYPE = ".sav"
-const OUTERWALL_SAVELEADERBOARDSUFFIX = "_leaderboarddata"
-const OUTERWALL_SAVELEADERBOARD = "leaderboard_entries"
-
-const OUTERWALL_KEYPATH = "server/"
-const OUTERWALL_KEYFILE = "encrypt_key"
-const OUTERWALL_CHECKSUMKEYFILE = "checksum_key"
-const OUTERWALL_SERVERNAMEFILE = "transfer_server"
-const OUTERWALL_BANNEDACCOUNTS = "ban"
-
-const OUTERWALL_MAPNAME = "pf_outerwall_"
-
 ::PlayerAccountID <- array(MAX_PLAYERS, null)
 ::BannedAccountID <- array(128, null)
 
@@ -39,11 +26,9 @@ const CHECKPOINT_COUNT = 2;
 
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
 
-::PlayerBestMedalArray <- array(MAX_PLAYERS, array(ZONE_COUNT, -1))
 ::PlayerBestTimeArray <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
 ::PlayerBestCheckpointTimeArrayOne <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
 ::PlayerBestCheckpointTimeArrayTwo <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
-::PlayerBestMedalEncoreArray <- array(MAX_PLAYERS, array(ZONE_COUNT_ENCORE, -1))
 ::PlayerBestLapCountEncoreArray <- array(MAX_PLAYERS, array(ZONE_COUNT_ENCORE, 0))
 ::PlayerBestSandPitTimeEncoreArray <- array(MAX_PLAYERS, 5000)
 
@@ -70,18 +55,14 @@ const CHECKPOINT_COUNT = 2;
 enum PlayerDataTypes
 {
 	map_version
-	account_id
-	best_medal
 	best_time
 	best_checkpoint_time_one
 	best_checkpoint_time_two
-	best_medal_encore
 	best_lapcount_encore
 	best_sandpit_time_encore
 	achievements
 	misc_stats
 	settings
-	checksum
 	MAX
 }
 
@@ -104,9 +85,6 @@ enum PlayerDataTypes
 {
 	PlayerPreventSaving[player_index] = false;
 
-	foreach(medal in PlayerBestMedalArray[player_index])
-		medal = -1;
-
 	foreach(time in PlayerBestTimeArray[player_index])
 		time = 5000;
 
@@ -115,9 +93,6 @@ enum PlayerDataTypes
 
 	foreach(zone in PlayerBestCheckpointTimeArrayTwo[player_index])
 		zone = 5000;
-
-	foreach(medal in PlayerBestMedalEncoreArray[player_index])
-		medal = -1;
 
 	foreach(laps in PlayerBestLapCountEncoreArray[player_index])
 		laps = 0;
@@ -162,39 +137,6 @@ enum PlayerDataTypes
 	DebugPrint("Player " + player_index + "'s AccountID is " + PlayerAccountID[player_index]);
 }
 
-::GenerateSaveTransferKey <- function(player_index)
-{
-	local key = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_KEYPATH + OUTERWALL_KEYFILE + OUTERWALL_SAVETYPE);
-	if(key == null)
-	{
-		ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x07" + "FF0000" + "Key cannot be generated.");
-		return;
-	}
-
-	PlayerSaveGame(PlayerInstanceFromIndex(player_index));
-
-	local hash = EncryptString(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE), key);
-	//printl(hash)
-	ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x07" + "FF0000" + "key");
-	//have it so user cannot generate a key for 24h
-}
-
-::ProcessSaveTransferKey <- function()
-{
-	ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "type key please");
-	local key = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_KEYPATH + OUTERWALL_KEYFILE + OUTERWALL_SAVETYPE);
-	local save = FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[1] + OUTERWALL_SAVETYPE);
-	printl(save)
-	local hash = EncryptString(save, key);
-	printl(hash)
-	local resulting_save = DecryptString(hash, key);
-	printl(resulting_save)
-	//set bool to grab player key from chat event
-	//grab three messages with key and combine? them
-	//load them into player arrays and then save and load the game, respawn the player if needed
-	//have it so user cannot load a key for 24h
-}
-
 ::PlayerSaveGame <- function(client)
 {
 	local player_index = client.GetEntityIndex();
@@ -234,13 +176,6 @@ enum PlayerDataTypes
 
 	save += mapversion[2] + ",;,";
 
-	save += PlayerAccountID[player_index] + ",;,";
-
-	foreach(playerdata in PlayerBestMedalArray[player_index])
-		save += playerdata + ",";
-
-	save += ";,";
-
 	foreach(playerdata in PlayerBestTimeArray[player_index])
 		save += playerdata + ",";
 
@@ -252,11 +187,6 @@ enum PlayerDataTypes
 	save += ";,";
 
 	foreach(playerdata in PlayerBestCheckpointTimeArrayTwo[player_index])
-		save += playerdata + ",";
-
-	save += ";,";
-
-	foreach(playerdata in PlayerBestMedalEncoreArray[player_index])
 		save += playerdata + ",";
 
 	save += ";,";
@@ -281,10 +211,7 @@ enum PlayerDataTypes
 	foreach(i, setting in PlayerSettings)
 		save += setting[player_index].tointeger() + ",";
 
-	save += ";,";
-
-	save += "0000000000000000"//GenerateHash(save)
-	save += ",;";
+	save += ";,;";
 
 	StringToFile(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE, save);
 	DebugPrint("GAME SAVED FOR " + player_index)
@@ -334,21 +261,6 @@ enum PlayerDataTypes
 					{
 						break;
 					}
-					case PlayerDataTypes.account_id:
-					{
-						if(savebuffer != PlayerAccountID[player_index])
-						{
-							ResetPlayerDataArrays(player_index);
-							PlayerPreventSaving[player_index] = true;
-							ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to load save, save does not belong to you.");
-						}
-						break;
-					}
-					case PlayerDataTypes.best_medal:
-					{
-						PlayerBestMedalArray[player_index][load_data] = savebuffer.tointeger();
-						break;
-					}
 					case PlayerDataTypes.best_time:
 					{
 						PlayerBestTimeArray[player_index][load_data] = savebuffer.tofloat();
@@ -362,11 +274,6 @@ enum PlayerDataTypes
 					case PlayerDataTypes.best_checkpoint_time_two:
 					{
 						PlayerBestCheckpointTimeArrayTwo[player_index][load_data] = savebuffer.tofloat();
-						break;
-					}
-					case PlayerDataTypes.best_medal_encore:
-					{
-						PlayerBestMedalEncoreArray[player_index][load_data] = savebuffer.tointeger();
 						break;
 					}
 					case PlayerDataTypes.best_lapcount_encore:
@@ -392,17 +299,6 @@ enum PlayerDataTypes
 					case PlayerDataTypes.settings:
 					{
 						PlayerSettings[load_data][player_index] = savebuffer.tointeger();
-						break;
-					}
-					case PlayerDataTypes.checksum:
-					{
-						if(savebuffer != "0000000000000000")//GenerateHash(save)
-						{
-							ResetPlayerDataArrays(player_index);
-							PlayerPreventSaving[player_index] = true;
-							ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to load save, checksum invalid.");
-						}
-
 						break;
 					}
 				}
@@ -438,10 +334,10 @@ enum PlayerDataTypes
 	local player = PlayerInstanceFromIndex(player_index);
 	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null)
 	{
-		foreach(iZone, medal in PlayerBestMedalArray[player_index])
+		for (local i = 0; i < ZONE_COUNT; i++)
 		{
-			// no medal exists, dont make leaderboard entry
-			if(medal == -1)
+			//no medal exists, dont make leaderboard entry
+			if(GetPlayerBestMedal(player_index, i, false) == -1)
 			{
 				return;
 			}

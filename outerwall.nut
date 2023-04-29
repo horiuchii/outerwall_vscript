@@ -16,17 +16,6 @@ IncludeScript("outerwall_playerdata.nut", this);
 ::bRoundOver <- false
 ::bGlobalCheated <- false
 
-const MAT_PURPLECOINHUD = "outerwall/purplecoinhud.vmt";
-const MAT_TIMETRIALHUD = "outerwall/timetrialhud.vmt";
-const MAT_TIMETRIALHUD_LAPTWO = "outerwall/timetrialhud_laptwo.vmt";
-const MAT_MEDALTIMEHUD = "outerwall/medaltimehud.vmt";
-const MAT_PURPLECOINANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
-const MAT_TIMETRIALANDMEDALTIMEHUD = "outerwall/purplecoinandmedaltimehud.vmt";
-
-const TIMER_PLAYERHUDTEXT = "outerwall_timer_gametext_"
-const BONUS_PLAYERHUDTEXT = "outerwall_bonus_gametext_"
-const ENCORE_PLAYERHUDTEXT = "outerwall_encore_gametext_"
-
 IncludeScript("outerwall_achievements.nut", this);
 IncludeScript("outerwall_timer.nut", this);
 IncludeScript("outerwall_settings.nut", this);
@@ -82,28 +71,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	"mdown2"
 ]
 
-::ZoneLocations <-
-[
-	Vector(3328,-1344,-14044), //oside
-	Vector(7024,-4256,12036), //lastcave
-	Vector(4616,-2208,12020), //balcony
-	Vector(-1392,7904,-13788), //inner wall
-	Vector(-704,-10368,13284), //hell
-	Vector(-5408,7616,13412), //wind fortress
-	Vector(5072,6944,-13436) //sand pit
-]
-
-::ZoneAngles <-
-[
-	QAngle(0,180,0), //oside
-	QAngle(0,90,0), //lastcave
-	QAngle(0,90,0), //balcony
-	QAngle(0,270,0), //inner wall
-	QAngle(0,90,0), //hell
-	QAngle(0,0,0), //wind fortress
-	QAngle(0,180,0), //sand pit
-]
-
 ::OuterwallMain <- function()
 {
 	//Precache soundscript sounds
@@ -136,6 +103,12 @@ IncludeScript("outerwall_entity_io.nut", this);
 	PrecacheSound("outerwall/snd_menu_select.mp3");
 	const SND_MENU_SELECT = "Outerwall.MenuSelect";
 
+	PrecacheSound("outerwall/snd_menu_prompt.mp3");
+	const SND_MENU_PROMPT = "Outerwall.MenuPrompt";
+
+	PrecacheSound("outerwall/snd_menu_move.mp3");
+	const SND_MENU_MOVE = "Outerwall.MenuMove";
+
 	PrecacheSound("outerwall/wartimer.mp3");
 	const SND_WARTIMER = "Outerwall.WarTimer";
 
@@ -166,15 +139,60 @@ IncludeScript("outerwall_entity_io.nut", this);
 	if (!IsHolidayActive(HOLIDAY_SOLDIER))
 		EntFire("soldier_statue", "kill");
 
-	CreateMedalTimeText();
-	CreateBonusGameText();
-	CreateEncoreGameText();
+	CreateGameText();
 	PopulateLeaderboard();
 
 	Convars.SetValue("mp_forceautoteam", 1);
 	Convars.SetValue("mp_teams_unbalance_limit", 0);
 
 	DebugPrint("OUTERWALL INIT ENDED");
+}
+
+::CreateGameText <- function()
+{
+	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
+	{
+		local gametext_menu = SpawnEntityFromTable("game_text",
+		{
+			targetname = TIMER_PLAYERHUDTEXT + iArrayIndex,
+			message = "You're not supposed to see this.\nHow'd you do it?",
+			channel = 5,
+			color = "240 255 0 155",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.025,
+			y = 0.375
+		})
+
+		local gametext_bonus = SpawnEntityFromTable("game_text",
+		{
+			targetname = BONUS_PLAYERHUDTEXT + iArrayIndex,
+			channel = 4,
+			color = "115 95 255 155",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.44,
+			y = 0.795
+		})
+
+		local gametext_encore = SpawnEntityFromTable("game_text",
+		{
+			targetname = ENCORE_PLAYERHUDTEXT + iArrayIndex,
+			channel = 3,
+			color = "115 95 255 155",
+			fadein = 0,
+			fadeout = 0.05,
+			holdtime = 0.3,
+			x = 0.475,
+			y = 0.895
+		})
+
+		Entities.DispatchSpawn(gametext_menu);
+		Entities.DispatchSpawn(gametext_bonus);
+		Entities.DispatchSpawn(gametext_encore);
+	}
 }
 
 ::OuterwallServerThink <- function()
@@ -200,7 +218,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 	PlayerSpawnTrail(self);
 
-	CheckForCheating(self);
+	//CheckForCheating(self);
 
 	return 0.0;
 }
@@ -243,7 +261,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	PlayerZoneList[player_index] = null;
 	PlayerTrackList[player_index] = 2;
 	PlayerCheckpointStatus[player_index] = 0;
-	PurpleCoinPlayerHUDStatusArray[player_index] = false;
 	PlayerLastHurt[player_index] = 0;
 	PlayerLanguage[player_index] = 0;
 	//reset arena array
@@ -304,6 +321,8 @@ IncludeScript("outerwall_entity_io.nut", this);
 	client.PrecacheSoundScript(SND_MEDAL_GOLD);
 	client.PrecacheSoundScript(SND_MEDAL_IRIDESCENT);
 	client.PrecacheSoundScript(SND_MENU_SELECT);
+	client.PrecacheSoundScript(SND_MENU_PROMPT);
+	client.PrecacheSoundScript(SND_MENU_MOVE);
 	client.PrecacheSoundScript("Achievement.Earned");
 	client.PrecacheSoundScript("Player.DenyWeaponSelection");
 	client.PrecacheSoundScript("Halloween.spell_blastjump");
@@ -353,7 +372,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 ::GetPlayerLanguage <- function(client)
 {
 	local player_index = client.GetEntityIndex();
-	local language = Convars.GetClientConvarValue("cl_language", player_index)
+	local language = Convars.GetClientConvarValue("cl_language", player_index);
 	local player_language = Languages.find(language);
 
 	if(player_language == null)
@@ -370,69 +389,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	}
 }
 
-::CreateMedalTimeText <- function()
-{
-	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
-	{
-		local gametext = SpawnEntityFromTable("game_text",
-		{
-			targetname = TIMER_PLAYERHUDTEXT + iArrayIndex,
-			message = "You're not supposed to see this.\nHow'd you do it?",
-			channel = 5,
-			color = "240 255 0",
-			fadein = 0,
-			fadeout = 0.05,
-			holdtime = 0.3,
-			x = 0.025,
-			y = 0.375
-		})
-
-		Entities.DispatchSpawn(gametext);
-	}
-}
-
-::CreateBonusGameText <- function()
-{
-	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
-	{
-		local gametext = SpawnEntityFromTable("game_text",
-		{
-			targetname = BONUS_PLAYERHUDTEXT + iArrayIndex,
-			message = "000",
-			channel = 4,
-			color = "240 255 0",
-			fadein = 0,
-			fadeout = 0.05,
-			holdtime = 0.3,
-			x = 0.5015,
-			y = 0.905
-		})
-
-		Entities.DispatchSpawn(gametext);
-	}
-}
-
-::CreateEncoreGameText <- function()
-{
-	for(local iArrayIndex = 1; iArrayIndex < MAX_PLAYERS; iArrayIndex++)
-	{
-		local gametext = SpawnEntityFromTable("game_text",
-		{
-			targetname = ENCORE_PLAYERHUDTEXT + iArrayIndex,
-			message = "15.0",
-			channel = 3,
-			color = "240 255 0",
-			fadein = 0,
-			fadeout = 0.05,
-			holdtime = 0.3,
-			x = 0.5015,
-			y = 0.905
-		})
-
-		Entities.DispatchSpawn(gametext);
-	}
-}
-
 ::IncrementTimePlayed <- function()
 {
 	foreach(i, time in PlayerSecondsPlayed)
@@ -443,7 +399,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 ::SetPlayerSoundtrack <- function(iTrack, client = null)
 {
-	if(client == null)
+	if(!client)
 		client = activator;
 
 	local player_index = client.GetEntityIndex();
@@ -465,7 +421,11 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 	local player_index = client.GetEntityIndex();
 
-	//return if we are lapping
+	if(PlayerTimeTrialActive && PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD])
+	{
+		//todo: play lapping theme based on location, outside, lava, inside, etc..
+		return;
+	}
 
 	PlayerTrackList[player_index] = iTrack;
 
@@ -514,78 +474,113 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 ::PlayerHUDThink <- function(client)
 {
-	local player_index = client.GetEntityIndex();
+	local target_index = client.GetEntityIndex();
 
 	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
 	local TimeTrialHUDGameTextEntity = null;
 	local PurpleCoinHUDGameTextEntity = null;
 	local MedalTimeHUDGameTextEntity = null;
 
-	// if we're spectating, get our spec target info
+	// if we're spectating, get our spec target index
 	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
 	{
 		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
 		{
-			local spectator_target_index = spectator_target.GetEntityIndex();
-			if(PurpleCoinPlayerHUDStatusArray[spectator_target_index] == true)
-				PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + spectator_target_index);
-			if(PlayerMedalTimeHUDStatusArray[spectator_target_index] == true)
-				MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
-			if(!!PlayerEncoreStatus[spectator_target_index] == true)
-				TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + spectator_target_index);
+			target_index = spectator_target.GetEntityIndex();
 		}
 	}
-	// we aren't spectating, get our own info
-	else
+
+	if(!!PlayerEncoreStatus[target_index] == true)
 	{
-		if(PurpleCoinPlayerHUDStatusArray[player_index] == true)
-			PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + player_index);
-		if(PlayerMedalTimeHUDStatusArray[player_index] == true)
-			MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + player_index);
-		if(!!PlayerEncoreStatus[player_index] == true)
-			TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + player_index);
+		TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + target_index);
+		PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + target_index);
 	}
+	else if(PlayerZoneList[target_index] == 6)
+		PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + target_index);
+
+	if(PlayerMedalTimeHUDStatusArray[target_index] == true)
+		MedalTimeHUDGameTextEntity = (TIMER_PLAYERHUDTEXT + target_index);
 
 	// alright, we got the info, lets display to us
-	if(TimeTrialHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null) //encore + medal
-	{
+	if(TimeTrialHUDGameTextEntity)
 		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
+
+	if(MedalTimeHUDGameTextEntity)
 		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_TIMETRIALANDMEDALTIMEHUD);
-		return;
-	}
-	else if(TimeTrialHUDGameTextEntity != null && PurpleCoinHUDGameTextEntity != null) //encore + bonus6
-	{
+
+	if(PurpleCoinHUDGameTextEntity)
 		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
-		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_PURPLECOINANDMEDALTIMEHUD);
-		return;
-	}
-	else if(PurpleCoinHUDGameTextEntity != null && MedalTimeHUDGameTextEntity != null) //bonus6 + medal
+
+	local encore_hud_active = (TimeTrialHUDGameTextEntity || PurpleCoinHUDGameTextEntity)
+
+	// display overlay hud
+	if(encore_hud_active) // encore / normal bonus6
 	{
-		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
-		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_PURPLECOINANDMEDALTIMEHUD);
-		return;
+		if(PlayerTimeTrialActive[target_index]) // blinking timer
+		{
+			if(IsTimeLerping(target_index)) // time going up
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_TIMELERPING);
+				return;
+			}
+			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_IRI]) // iri medal active
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_IRI);
+				return;
+			}
+			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_GOLD]) // gold medal active
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_GOLD);
+				return;
+			}
+			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_SILVER]) // silver medal active
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_SILVER);
+				return;
+			}
+			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_BRONZE]) // bronze medal active
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_BRONZE);
+				return;
+			}
+			else // no medal active
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_NOMEDAL);
+				return;
+			}
+		}
+		else if(MedalTimeHUDGameTextEntity) // encore medal times / settings menu
+		{
+			if(PlayerCurrentSettingQuery[target_index] != null)
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_SETTINGS_ENCORE);
+				return;
+			}
+			else
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE);
+				return;
+			}
+		}
+		else // regular encore
+		{
+			client.SetScriptOverlayMaterial(MAT_ENCOREHUD);
+			return;
+		}
 	}
-	else if(TimeTrialHUDGameTextEntity != null) //encore
+	else if(MedalTimeHUDGameTextEntity) // regular medal times / settings menu
 	{
-		EntFire(TimeTrialHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_TIMETRIALHUD);
-		return;
-	}
-	else if(PurpleCoinHUDGameTextEntity != null) //bonus6
-	{
-		EntFire(PurpleCoinHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_PURPLECOINHUD);
-		return;
-	}
-	else if(MedalTimeHUDGameTextEntity != null) //medal
-	{
-		EntFire(MedalTimeHUDGameTextEntity, "Display", "", 0.0, client);
-		client.SetScriptOverlayMaterial(MAT_MEDALTIMEHUD);
-		return;
+		if(PlayerCurrentSettingQuery[target_index] != null)
+		{
+			client.SetScriptOverlayMaterial(MAT_MENU_SETTINGS);
+			return;
+		}
+		else
+		{
+			client.SetScriptOverlayMaterial(MAT_MENU_MEDALTIMES);
+			return;
+		}
 	}
 
 	client.SetScriptOverlayMaterial(null);
@@ -732,7 +727,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 {
 	local player_index = activator.GetEntityIndex();
 
-	if(PlayerEncoreStatus[player_index] == 1)
+	if(PlayerEncoreStatus[player_index] == 1 && (iNewCheckpoint == 1 || iNewCheckpoint == 2))
 		return;
 
 	local current_checkpoint = PlayerCheckpointStatus[player_index];
@@ -787,8 +782,13 @@ IncludeScript("outerwall_entity_io.nut", this);
 	if(bPlayHurtSound)
 		client.EmitSound(SND_QUOTE_HURT);
 
-	client.SetOrigin(ZoneLocations[PlayerZoneList[player_index]]);
-	client.SnapEyeAngles(ZoneAngles[PlayerZoneList[player_index]]);
+	local TeleportDest = Entities.FindByName(null, "teleport_encore_" + PlayerZoneList[player_index].tostring());
+
+	if(TeleportDest == null)
+		return;
+
+	client.SetOrigin(TeleportDest.GetOrigin());
+	client.SnapEyeAngles(TeleportDest.GetAngles());
 }
 
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
@@ -812,7 +812,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 ::DoGoal <- function(iZoneGoal, client = null)
 {
-	if(client == null)
+	if(!client)
 		client = activator;
 
 	local player_index = activator.GetEntityIndex();
@@ -891,7 +891,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 	CheckAchievement_HitAlot(player_index);
 }
 
-::BoosterTouch <- function(bEncoreBooster = false)
+::BoosterTouch <- function(iBoosterType = 0, bEncoreBooster = false)
 {
 	local player_index = activator.GetEntityIndex();
 
@@ -899,8 +899,16 @@ IncludeScript("outerwall_entity_io.nut", this);
 		return;
 
 	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
-	player_velocity.z = 650;
+
+	switch(iBoosterType)
+	{
+		case 0: player_velocity.z = 650; break;
+		case 1: player_velocity.y = 650; break;
+		default: break;
+	}
+
 	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
 	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
 	activator.EmitSound("Halloween.spell_blastjump");
+	PlayerUseInnerWallBoosterDuringRun[player_index] = 1;
 }

@@ -2,8 +2,11 @@
 
 ::TranslateString <- function(message, player_index = null)
 {
+	if(type(message) != "array")
+		return "[ERROR:1]"
+
 	if(message.len() != Languages.len())
-		return "ERROR";
+		return "[ERROR:2]";
 
 	if(player_index)
 		return message[PlayerLanguage[player_index]];
@@ -18,11 +21,6 @@
 
 ::LanguagesPoorWarning <- [
 	"spanish"
-]
-
-::OUTERWALL_COLLECTABLE_WARNING <- [
-	"Due to technical limitations, the collectables will not disapear as of right now. You will still collect them however. Sorry!"
-	"Due to technical limitations, the collectables will not disapear as of right now. You will still collect them however. Sorry!"
 ]
 
 ::OUTERWALL_PVP_CURRENTWEAPON <- [
@@ -52,8 +50,8 @@
 	"That streak was "
 ]
 ::OUTERWALL_PVP_COMBO_SUFFIX <- [
-	"(%i kills)"
-	"(%i kills)"
+	" (%i kills)"
+	" (%i kills)"
 ]
 ::OUTERWALL_PVP_COMBO <- [
 	TIER_1 <- [
@@ -69,78 +67,88 @@
 		"MAD"
 	]
 	TIER_4 <- [
-		"CRAZY"
-		"CRAZY"
+		"UNSANITARY"
+		"UNSANITARY"
 	]
 	TIER_5 <- [
-		"BRUTAL"
-		"BRUTAL"
+		"WHIMSICAL"
+		"WHIMSICAL"
 	]
 	TIER_6 <- [
-		"PSYCHOTIC"
-		"PSYCHOTIC"
+		"HORRIFIC"
+		"HORRIFIC"
 	]
 	TIER_7 <- [
-		"CRUSHING"
-		"CRUSHING"
+		"BALLING"
+		"BALLING"
 	]
 	TIER_8 <- [
-		"DELIRLOUS"
-		"DELIRLOUS"
+		"NEMESIS INDUCING"
+		"NEMESIS INDUCING"
 	]
 	TIER_9 <- [
-		"FUNNY"
-		"FUNNY"
+		"UNFUNNY"
+		"UNFUNNY"
 	]
 	TIER_10 <- [
+		"NOT UNFUNNY BUT NOT FUNNY EITHER"
+		"NOT UNFUNNY BUT NOT FUNNY EITHER"
+	]
+	TIER_11 <- [
+		"FUNNY"
+		"FUNNY"
+	]
+	TIER_12 <- [
 		"ENOUGH"
 		"ENOUGH"
 	]
-	TIER_11 <- [
+	TIER_13 <- [
 		"FUCKED UP"
 		"FUCKED UP"
 	]
 ]
 
-::OUTERWALL_SAVE_TRANSFER_TITLE <- [
-	"Outer Wall Server Save Sync"
-	"Outer Wall Server Save Sync"
+::OUTERWALL_RESET_PROFILE_QUESTIONS <- [
+	::QUESTION_1 <- [
+		"You got some busniness with me?"
+		"You got some busniness with me?"
+	]
+	::QUESTION_2 <- [
+		"Well, then. Do you want to reset your save?"
+		"Well, then. Do you want to reset your save?"
+	]
+	::QUESTION_3 <- [
+		"But in reality, you don't really want to, right?"
+		"But in reality, you don't really want to, right?"
+	]
+	::QUESTION_4 <- [
+		"You really want to that much?"
+		"You really want to that much?"
+	]
+	::QUESTION_5 <- [
+		"You want to absolutely positively reset your save no matter what?"
+		"You want to absolutely positively reset your save no matter what?"
+	]
+	::QUESTION_6 <- [
+		"But really you don't want to, right?"
+		"But really you don't want to, right?"
+	]
+	::QUESTION_7 <- [
+		"Are you absolutely sure you're sure? Save data doesn't grow like red flowers, you know!"
+		"Are you absolutely sure you're sure? Save data doesn't grow like red flowers, you know!"
+	]
+	::QUESTION_8 <- [
+		"Pressing yes will irreversably delete all your save data! This is your final warning!"
+		"Pressing yes will irreversably delete all your save data! This is your final warning!"
+	]
 ]
-::OUTERWALL_SAVE_TRANSFER_UNAVAILABLE <- [
-	"[NOT ENABLED BY SERVER OPERATOR]"
-	"[NOT ENABLED BY SERVER OPERATOR]"
+::OUTERWALL_RESET_PROFILE_NORESET <- [
+	"Now scram!"
+	"Now scram!"
 ]
-::OUTERWALL_SAVE_TRANSFER <- [
-	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
-	"You can sync your save with %s.\nYou can attempt to load/generate a key on this server every 24 Hours."
-]
-::OUTERWALL_SAVE_TRANSFER_ERROR_GENERATE_WAIT <- [
-	"You need to wait before generating another key."
-	"You need to wait before generating another key."
-]
-::OUTERWALL_SAVE_TRANSFER_ERROR_LOAD_WAIT <- [
-	"You need to wait before pasting another key."
-	"You need to wait before pasting another key."
-]
-::OUTERWALL_SAVE_TRANSFER_ERROR_LOAD_INVALID <- [
-	"The key you pasted was invalid. You must wait 24 Hours before trying again."
-	"The key you pasted was invalid. You must wait 24 Hours before trying again."
-]
-::OUTERWALL_SAVE_TRANSFER_GENERATE_INFO <- [
-	"You need to paste the four keys when prompted on %s's Outer Wall"
-	"You need to paste the four keys when prompted on %s's Outer Wall"
-]
-::OUTERWALL_SAVE_TRANSFER_GENERATE_KEY <- [
-	"Key %i:"
-	"Key %i:"
-]
-::OUTERWALL_SAVE_TRANSFER_LOAD_KEY <- [
-	"Please paste key %i."
-	"Please paste key %i."
-]
-::OUTERWALL_SAVE_TRANSFER_SUCCESS <- [
-	"Successfully loaded your save from %s."
-	"Successfully loaded your save from %s."
+::OUTERWALL_RESET_PROFILE_RESET <- [
+	"The deed has been done."
+	"The deed has been done."
 ]
 
 ::OUTERWALL_SETTING_OPTION <- [
@@ -173,17 +181,17 @@
 	"Previous"
 	"Previous"
 ]
+::OUTERWALL_SETTING_YES <- [
+	"Yes"
+	"Yes"
+]
+::OUTERWALL_SETTING_NO <- [
+	"No"
+	"No"
+]
 ::OUTERWALL_SETTING_ENCORETUTORIAL <- [
 	"Tutorial"
 	"Tutorial"
-]
-::OUTERWALL_SETTING_KEY_GENERATE <- [
-	"Generate Key"
-	"Generate Key"
-]
-::OUTERWALL_SETTING_KEY_LOAD <- [
-	"Load Key"
-	"Load Key"
 ]
 ::OUTERWALL_SETTING_CURRENT <- [
 	"Current Setting: "
@@ -266,6 +274,10 @@
 		"ORGANYA (2004)"
 		"ORGANYA (2004)"
 	]
+	// ::REMIXED <- [
+	// 	"REMIXED (2023)"
+	// 	"REMIXED (2023)"
+	// ]
 ]
 ::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
 	"You do not qualify for Encore Mode yet."
@@ -361,80 +373,80 @@
 ]
 ::OUTERWALL_ACHIEVEMENT_DESC <- [
 	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_DESC <- [
-		"Get hurt... alot."
-		"Get hurt... alot."
+		"Get hurt... alot.\n"
+		"Get hurt... alot.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
-		"Don't touch any of the air currents at the Inner Wall."
-		"Don't touch any of the air currents at the Inner Wall."
+		"Don't touch any of the air currents at the Inner Wall.\n"
+		"Don't touch any of the air currents at the Inner Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
-		"Don't take any damage at the Sacred Grounds."
-		"Don't take any damage at the Sacred Grounds."
+		"Don't take any damage at the Sacred Grounds.\n"
+		"Don't take any damage at the Sacred Grounds.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
-		"Earn atleast a gold medal without using the radar at the Sand Pit."
-		"Earn atleast a gold medal without using the radar at the Sand Pit."
+		"Earn atleast a gold medal without using the radar at the Sand Pit.\n"
+		"Earn atleast a gold medal without using the radar at the Sand Pit.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
-		"not funny"
-		"not funny"
+		"not funny\n"
+		"not funny\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
-		"Unlock Encore mode."
-		"Unlock Encore mode."
+		"Unlock Encore mode.\n"
+		"Unlock Encore mode.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in each course."
-		"Earn a Gold Medal in each course."
+		"Earn a Gold Medal in each course.\n"
+		"Earn a Gold Medal in each course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in each course."
-		"Earn a Iridescent Medal in each course."
+		"Earn a Iridescent Medal in each course.\n"
+		"Earn a Iridescent Medal in each course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
-		"Complete 100 extra laps."
-		"Complete 100 extra laps."
+		"Complete 100 extra laps.\n"
+		"Complete 100 extra laps.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
-		"Don't take any damage at Encore Outer Wall."
-		"Don't take any damage at Encore Outer Wall."
+		"Don't take any damage at Encore Outer Wall.\n"
+		"Don't take any damage at Encore Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
-		"Collect only 4 time clocks in a 3 lap run of Encore Balcony."
-		"Collect only 4 time clocks in a 3 lap run of Encore Balcony."
+		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
+		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
-		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds."
-		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds."
+		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
+		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_DESC <- [
-		"Earn atleast a gold medal without using the radar at Encore Sand Pit."
-		"Earn atleast a gold medal without using the radar at Encore Sand Pit."
+		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
+		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_DESC <- [
-		"Complete a run with 10 laps."
-		"Complete a run with 10 laps."
+		"Complete a run with 10 laps.\n"
+		"Complete a run with 10 laps.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
-		"Earn a medal in every Encore course."
-		"Earn a medal in every Encore course."
+		"Earn a medal in every Encore course.\n"
+		"Earn a medal in every Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in each Encore course."
-		"Earn a Gold Medal in each Encore course."
+		"Earn a Gold Medal in each Encore course.\n"
+		"Earn a Gold Medal in each Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in each Encore course."
-		"Earn a Iridescent Medal in each Encore course."
+		"Earn a Iridescent Medal in each Encore course.\n"
+		"Earn a Iridescent Medal in each Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in every course."
-		"Earn a Gold Medal in every course."
+		"Earn a Gold Medal in every course.\n"
+		"Earn a Gold Medal in every course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in every course."
-		"Earn a Iridescent Medal in every course."
+		"Earn a Iridescent Medal in every course.\n"
+		"Earn a Iridescent Medal in every course.\n"
 	]
 ]
 ::OUTERWALL_ACHIEVEMENT_ACHIEVED <- [
@@ -496,6 +508,10 @@
 		"Rainbow Trail"
 		"Rainbow Trail"
 	]
+	::OUTERWALL_COSMETIC_WHIMSICALSTAR_NAME <- [
+		"Whimsical Star"
+		"Whimsical Star"
+	]
 ]
 ::OUTERWALL_COSMETIC_DESC <- [
 	::OUTERWALL_COSMETIC_NONEEQUIPPED_DESC <- [
@@ -507,8 +523,12 @@
 		"Who knew breaking the sound barrier was this easy?"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
-		"Rainbow Trail DESC"
-		"Rainbow Trail DESC"
+		"Perfect for the aftermath of a stormy night."
+		"Perfect for the aftermath of a stormy night."
+	]
+	::OUTERWALL_COSMETIC_WHIMSICALSTAR_DESC <- [
+		"A special reward for zealous challengers."
+		"A special reward for zealous challengers."
 	]
 ]
 ::OUTERWALL_COSMETIC_REQUIREMENT <- [
@@ -518,23 +538,33 @@
 
 ::OUTERWALL_ENCORETUTORIAL_INTRO <- [
 	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
+	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
 ]
 ::OUTERWALL_ENCORETUTORIAL_TIMER_1 <- [
+	"You will start with 15 seconds to complete the course. You can get more time by collecting the Time Clocks."
 	"You will start with 15 seconds to complete the course. You can get more time by collecting the Time Clocks."
 ]
 ::OUTERWALL_ENCORETUTORIAL_TIMER_2 <- [
 	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
+	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_1 <- [
 	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
+	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_2 <- [
-	"However, reaching the 5th lap will cause Time Clocks to stop giving time."
+	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
+	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_3 <- [
 	"Higher tiers of medals require running multiple laps through a course. Good Luck!"
+	"Higher tiers of medals require running multiple laps through a course. Good Luck!"
 ]
 
+::OUTERWALL_HUD_COIN <- [
+	"Coin\nx"
+	"Coin\nx"
+]
 ::OUTERWALL_TIMETRIAL_LAP <- [
 	"Lap "
 	"Vuelta "
@@ -765,37 +795,49 @@
 		]
 	]
 	::OUTERWALL_TIMER_MESSAGE_NOMEDAL <- [
-		::MESSAGE_1 <- [
-			"That was REALLY slow, you"
-			"That was REALLY slow, you"
+		::REGULAR <- [
+			::MESSAGE_1 <- [
+				"That was REALLY slow, you"
+				"That was REALLY slow, you"
+			]
+			::MESSAGE_2 <- [
+				"WOW, could you have gone any slower? You"
+				"WOW, could you have gone any slower? You"
+			]
+			::MESSAGE_3 <- [
+				"That was pretty bad, you"
+				"That was pretty bad, you"
+			]
+			::MESSAGE_4 <- [
+				"Tough luck pal, you"
+				"Tough luck pal, you"
+			]
+			::MESSAGE_5 <- [
+				"Lame, you"
+				"Lame, you"
+			]
+			::MESSAGE_6 <- [
+				"Too bad! You"
+				"Too bad! You"
+			]
+			::MESSAGE_7 <- [
+				"You can do better than that, right? You"
+				"You can do better than that, right? You"
+			]
+			::MESSAGE_8 <- [
+				"Sucks to suck. You"
+				"Sucks to suck. You"
+			]
 		]
-		::MESSAGE_2 <- [
-			"WOW, could you have gone any slower? You"
-			"WOW, could you have gone any slower? You"
-		]
-		::MESSAGE_3 <- [
-			"That was pretty bad, you"
-			"That was pretty bad, you"
-		]
-		::MESSAGE_4 <- [
-			"Tough luck pal, you"
-			"Tough luck pal, you"
-		]
-		::MESSAGE_5 <- [
-			"Lame, you"
-			"Lame, you"
-		]
-		::MESSAGE_6 <- [
-			"Too bad! You"
-			"Too bad! You"
-		]
-		::MESSAGE_7 <- [
-			"You can do better than that, right? You"
-			"You can do better than that, right? You"
-		]
-		::MESSAGE_8 <- [
-			"Sucks to suck. You"
-			"Sucks to suck. You"
+		::ENCORE <- [
+			::MESSAGE_1 <- [
+				"You do know you need to run multiple laps, right? You"
+				"You do know you need to run multiple laps, right? You"
+			]
+			::MESSAGE_2 <- [
+				"Giving up already? You"
+				"Giving up already? You"
+			]
 		]
 	]
 ]
@@ -884,6 +926,10 @@
 		"Ever wonder what happens when a teleporter turns off halfway during teleportation?"
 	]
 	::TIP_11 <- [
+		"The mystery is of Story or Cave. And where does the solution lie? The island welcomes visitors for the depth they bring as they enter."
+		"The mystery is of Story or Cave. And where does the solution lie? The island welcomes visitors for the depth they bring as they enter."
+	]
+	::TIP_12 <- [
 		"TIP SERVER UNAVAILABLE TRY AGAIN LATER"
 		"SERVIDOR DE CONSEJOS NO DISPONIBLE INTÉNTELO DE NUEVO MÁS TARDE"
 	]
@@ -930,6 +976,12 @@
 	::TIP_1 <- [
 		"Fuck you!"
 		"Vete a la mierda!"
+	]
+]
+::OUTERWALL_TIP_ENCORE <- [
+	::TIP_1 <- [
+		"GET OUT NOW!!!"
+		"GET OUT NOW!!!"
 	]
 ]
 ::OUTERWALL_TIP_PREFIX <- [
