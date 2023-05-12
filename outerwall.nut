@@ -1,3 +1,4 @@
+IncludeScript("outerwall_const.nut", this);
 IncludeScript("outerwall_utils.nut", this);
 IncludeScript("outerwall_language.nut", this);
 IncludeScript("outerwall_playerdata.nut", this);
@@ -5,7 +6,6 @@ IncludeScript("outerwall_playerdata.nut", this);
 ::PlayerZoneList <- array(MAX_PLAYERS, null)
 ::PlayerTrackList <- array(MAX_PLAYERS, 2)
 ::PlayerCheckpointStatus <- array(MAX_PLAYERS, 0)
-::PlayerLastSpawnTrail <- array(MAX_PLAYERS, 0)
 ::PlayerLastHurt <- array(MAX_PLAYERS, 0)
 ::PlayerLastPosition <- array(MAX_PLAYERS, Vector(0,0,0))
 
@@ -22,6 +22,7 @@ IncludeScript("outerwall_settings.nut", this);
 IncludeScript("outerwall_purplecoin.nut", this);
 IncludeScript("outerwall_timetrial.nut", this);
 IncludeScript("outerwall_entity_io.nut", this);
+IncludeScript("outerwall_gameevents.nut", this);
 
 ::Soundtracks <-
 [
@@ -73,11 +74,16 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 ::OuterwallMain <- function()
 {
+	DebugPrint("OUTERWALL INIT STARTED");
+
 	//Precache soundscript sounds
 	PrecacheSound("outerwall/snd_quote_walk.mp3");
 
 	PrecacheSound("outerwall/snd_quote_jump.mp3");
 	const SND_QUOTE_JUMP = "Outerwall.Jump";
+
+	PrecacheSound("outerwall/snd_quote_thud.mp3");
+	const SND_QUOTE_THUD = "Outerwall.Thud";
 
 	PrecacheSound("outerwall/snd_booster.mp3")
 	const SND_BOOSTER = "Outerwall.Booster";
@@ -216,43 +222,11 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 	UpdatePlayerLastButtons(self);
 
-	PlayerSpawnTrail(self);
+	PlayerCosmeticThink(self);
 
 	//CheckForCheating(self);
 
 	return 0.0;
-}
-
-::GameEventRoundEnd <- function(eventdata)
-{
-	bRoundOver = true;
-    for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
-    {
-        local player = PlayerInstanceFromIndex(player_index);
-        if (player == null) continue;
-		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, player, player);
-    }
-}
-
-::GameEventPlayerDeath <- function(eventdata)
-{
-	local client = GetPlayerFromUserID(eventdata.userid);
-	EntFireByHandle(client, "RunScriptCode", "activator.ForceRespawn()", 1.0, client, client);
-}
-
-::CheatsCheck <- function(eventdata)
-{
-	if(eventdata.cvarname == "sv_cheats" && !bGlobalCheated)
-	{
-		bGlobalCheated = true;
-		ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "WARNING: \"sv_cheats\" has been toggled. Scoring has been disabled.")
-	}
-}
-
-::GameEventPlayerConnect <- function(eventdata)
-{
-	local player_index = eventdata.index + 1;
-	ResetPlayerGlobalArrays(player_index);
 }
 
 ::ResetPlayerGlobalArrays <- function(player_index)
@@ -261,7 +235,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	PlayerZoneList[player_index] = null;
 	PlayerTrackList[player_index] = 2;
 	PlayerCheckpointStatus[player_index] = 0;
-	PlayerLastHurt[player_index] = 0;
 	PlayerLanguage[player_index] = 0;
 	//reset arena array
 	ResetPlayerPurpleCoinArenaArray(player_index);
@@ -270,37 +243,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	ResetPlayerDataArrays(player_index);
 
 	DebugPrint("Reset global arrays for player " + player_index);
-}
-
-::GameEventPlayerSpawn <- function(eventdata)
-{
-	local client = GetPlayerFromUserID(eventdata.userid);
-
-	if(!client || !client.IsPlayer() || client.GetTeam() == (TEAM_UNASSIGNED || TEAM_SPECTATOR))
-		return;
-
-	local player_index = client.GetEntityIndex();
-
-	ResetPlayerPurpleCoinArenaArray(player_index);
-	ResetPlayerTimeTrialArenaArray(player_index);
-	EncoreTeamCheck(client);
-
-	if(PlayerZoneList[player_index] == null) //player's first spawn
-	{
-		PrecachePlayerSounds(client);
-		ResetPlayerGlobalArrays(player_index);
-		CalculatePlayerAccountID(client);
-		PlayerLoadGame(player_index);
-		PlayerUpdateLeaderboardTimes(player_index);
-		GetPlayerLanguage(client);
-		AddThinkToEnt(client, "OuterwallClientThink");
-		DebugPrint("Player " + player_index + " had their first spawn");
-		return;
-	}
-
-	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false, false);
-
-	DebugPrint("Player " + player_index + " was respawned at " + PlayerZoneList[player_index]);
 }
 
 ::PrecachePlayerSounds <- function(client)
@@ -358,17 +300,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 	}
 }
 
-::GameEventPlayerChangeTeam <- function(eventdata)
-{
-	local client = GetPlayerFromUserID(eventdata.userid);
-
-	if(!client) return;
-
-	local player_index = client.GetEntityIndex();
-
-	EncoreTeamCheck(client);
-}
-
 ::GetPlayerLanguage <- function(client)
 {
 	local player_index = client.GetEntityIndex();
@@ -409,7 +340,6 @@ IncludeScript("outerwall_entity_io.nut", this);
 
 	PlayerSoundtrackList[player_index] = iTrack;
 	PlayTrack(PlayerTrackList[player_index], client);
-	PlayerSaveGame(client);
 
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
@@ -427,15 +357,20 @@ IncludeScript("outerwall_entity_io.nut", this);
 		return;
 	}
 
+	if(PlayerTrackList[player_index] == iTrack)
+		return;
+
 	PlayerTrackList[player_index] = iTrack;
 
-	if(iTrack != -1)
+	if(iTrack == -1)
 	{
-		DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
-		DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
-	}
-	else
 		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, client, client);
+		DebugPrint("Player " + player_index + " is now listening to nothing");
+		return;
+	}
+
+	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
+	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
 }
 
 ::PlaySoundTestTrack <- function(iTrack, client)
@@ -521,8 +456,16 @@ IncludeScript("outerwall_entity_io.nut", this);
 		{
 			if(IsTimeLerping(target_index)) // time going up
 			{
-				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_TIMELERPING);
-				return;
+				if(PlayerJustEnteredNewLap[target_index])
+				{
+					client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_TIMELERPING_LAPUP);
+					return;
+				}
+				else
+				{
+					client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_TIMELERPING);
+					return;
+				}
 			}
 			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_IRI]) // iri medal active
 			{
@@ -571,14 +514,14 @@ IncludeScript("outerwall_entity_io.nut", this);
 	}
 	else if(MedalTimeHUDGameTextEntity) // regular medal times / settings menu
 	{
-		if(PlayerCurrentSettingQuery[target_index] != null)
+		if(PlayerCurrentSettingQuery[target_index] == null || PlayerCurrentSettingQuery[target_index] == eSettingQuerys.Profile)
 		{
-			client.SetScriptOverlayMaterial(MAT_MENU_SETTINGS);
+			client.SetScriptOverlayMaterial(MAT_MENU_MEDALTIMES);
 			return;
 		}
 		else
 		{
-			client.SetScriptOverlayMaterial(MAT_MENU_MEDALTIMES);
+			client.SetScriptOverlayMaterial(MAT_MENU_SETTINGS);
 			return;
 		}
 	}
@@ -659,6 +602,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 }
 
 ::PlayerLastIsJumpingState <- array(MAX_PLAYERS, false)
+::PlayerLastGroundedState <- array(MAX_PLAYERS, false)
 ::PlayerLastAirDashCount <- array(MAX_PLAYERS, 0)
 
 ::PlayJumpSound <- function(client)
@@ -666,25 +610,101 @@ IncludeScript("outerwall_entity_io.nut", this);
 	local player_index = client.GetEntityIndex();
 
 	local jump_state = NetProps.GetPropBool(client, "m_Shared.m_bJumping");
+	local grounded_state = !!(NetProps.GetPropInt(client, "m_fFlags") & FL_ONGROUND);
 	local airdash_count = NetProps.GetPropInt(client, "m_Shared.m_iAirDash");
 
 	//If our previous state check is false && new one is true.
 	if(PlayerLastIsJumpingState[player_index] == false && jump_state == true)
 		client.EmitSound(SND_QUOTE_JUMP);
 
-	if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1)
+	else if(PlayerLastGroundedState[player_index] == false && grounded_state == true)
+		client.EmitSound(SND_QUOTE_THUD);
+
+	else if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1)
 		client.EmitSound(SND_BOOSTER);
 
 	PlayerLastIsJumpingState[player_index] = jump_state;
+	PlayerLastGroundedState[player_index] = grounded_state;
 	PlayerLastAirDashCount[player_index] = airdash_count;
 }
 
-::PlayerSpawnTrail <- function(client)
+::PlayerUpdateSkyboxState <- function(client)
 {
 	local player_index = client.GetEntityIndex();
-	local MaxSpeed = NetProps.GetPropFloat(client, "m_flMaxspeed");
-	//check if m_flMaxspeed is 420
-	if(MaxSpeed < 419 || client.IsNoclipping() || !IsPlayerAlive(client) || PlayerLastSpawnTrail[player_index] + 0.125 > Time())
+	local SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION;
+
+	if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD])
+		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_TIER2LAPPING;
+	else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_BRONZE])
+		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_TIER1LAPPING;
+
+	NetProps.SetPropVector(client, "m_Local.m_skybox3d.origin", SkyCameraLocation);
+}
+::PlayerLastCosmeticSpawn <-
+[
+	::PlayerLastSpawnCosmeticA <- array(MAX_PLAYERS, 0)
+	::PlayerLastSpawnCosmeticB <- array(MAX_PLAYERS, 0)
+]
+
+::PlayerCosmeticThink <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(!IsPlayerAlive(client) || client.IsNoclipping())
+		return;
+
+	switch(PlayerCosmeticEquipped[player_index])
+	{
+		case eCosmetics.Booster:
+		{
+			PlayerDispatchCosmeticParticle(client, 0, 249, 0.05, "outerwall_cosmetic_booster", client.GetOrigin() + Vector(0,0,42), Vector(0,0,0));
+			break;
+		}
+		case eCosmetics.PurpleCoin:
+		{
+			PlayerDispatchCosmeticParticle(client, 0, 0, 0.25, "outerwall_cosmetic_purplecoin", client.GetOrigin() + Vector(0,0,42), Vector(0,90,0));
+			PlayerDispatchCosmeticParticle(client, 1, 249, 0.0, "outerwall_cosmetic_purplecoin_dash_" + (PlayerEncoreStatus[player_index] ? "blue" : "red"), client.GetOrigin(), Vector(0,90,0));
+			break;
+		}
+		case eCosmetics.MachTrail:
+		{
+			PlayerSpawnCosmeticModelTrail(client, 0, 249, false);
+			break;
+		}
+		case eCosmetics.RainbowTrail:
+		{
+			PlayerSpawnCosmeticModelTrail(client, 0, 249, true);
+			break;
+		}
+		default: break;
+	}
+}
+
+::PlayerDispatchCosmeticParticle <- function(client, cosmeticindex, speedrequired, delay, particle, position, rotation)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + delay > Time())
+		return;
+
+	if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
+		return;
+
+	local string_pos = "Vector(" + position.x + "," + position.y + "," + position.z + ")"
+	local string_rot = "Vector(" + rotation.x + "," + rotation.y + "," + rotation.z + ")"
+
+	EntFireByHandle(client, "RunScriptCode", "DispatchParticleEffect(\"" + particle + "\", " + string_pos + ", " + string_rot + ");", 0.0, null, null);
+	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
+}
+
+::PlayerSpawnCosmeticModelTrail <- function(client, cosmeticindex, speedrequired, bRainbow)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + 0.125 > Time())
+		return;
+
+	if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
 		return;
 
 	local trail = SpawnEntityFromTable("prop_dynamic",
@@ -699,7 +719,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 		disablereceiveshadows = true,
 		rendermode = 5,
 		renderamt = 0,
-		rendercolor = "255 0 0",
+		rendercolor = bRainbow ? RainbowTrail() : PlayerEncoreStatus[player_index] ? "0 0 255" : "255 0 0",
 		DefaultAnim = client.GetSequenceName(client.GetSequence())
 	})
 	Entities.DispatchSpawn(trail);
@@ -707,7 +727,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 	EntFireByHandle(trail, "SetPlayBackRate", "0", 0.05, client, null);
 	EntFireByHandle(trail, "Alpha", "50", 0.05, client, null);
 	EntFireByHandle(trail, "Kill", "", 0.5, client, null);
-	PlayerLastSpawnTrail[player_index] = Time();
+	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
 }
 
 ::SetPlayerZone <- function(iZone)
@@ -749,10 +769,13 @@ IncludeScript("outerwall_entity_io.nut", this);
 	DebugPrint("Player " + player_index + "'s new checkpoint is: " + iNewCheckpoint);
 }
 
-::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false, bPlayHurtSound = true)
+::TeleportPlayerToZone <- function(iZone = null, client = null, iCheckpointFilter = null, bAllowOnlyInFilter = false, bPlayHurtSound = true, bIgnoreNoclip = false)
 {
 	//TODO: Add a case for the checkpoints in bonus 4 and 5
-	if(!client || client.IsNoclipping())
+	if(!client)
+		return;
+
+	if(!bIgnoreNoclip && client.IsNoclipping())
 		return;
 
 	local player_index = client.GetEntityIndex();
@@ -782,13 +805,13 @@ IncludeScript("outerwall_entity_io.nut", this);
 	if(bPlayHurtSound)
 		client.EmitSound(SND_QUOTE_HURT);
 
-	local TeleportDest = Entities.FindByName(null, "teleport_encore_" + PlayerZoneList[player_index].tostring());
+	local TeleportDest = Entities.FindByName(null, "teleport_regular_" + PlayerZoneList[player_index].tostring());
 
 	if(TeleportDest == null)
 		return;
 
 	client.SetOrigin(TeleportDest.GetOrigin());
-	client.SnapEyeAngles(TeleportDest.GetAngles());
+	client.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
 }
 
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
@@ -807,6 +830,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 		ResetTimeTrialArena(player_index);
 		PlayerActivateTimeTrial(activator, false);
 		ResetPlayerAchievementArrays(player_index);
+		PlayerUpdateSkyboxState(activator);
 	}
 }
 
@@ -838,6 +862,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 		EntFire("logic_relay_goal_bonus" + iZoneGoal, "Trigger");
 
 	CheckPlayerMedal(iZoneGoal, activator);
+	CheckAchievementBatch_PostRun(player_index);
 
 	if(PlayerEncoreStatus[player_index] != 1)
 	{
@@ -891,7 +916,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 	CheckAchievement_HitAlot(player_index);
 }
 
-::BoosterTouch <- function(iBoosterType = 0, bEncoreBooster = false)
+::BoosterTouch <- function(bEncoreBooster = false)
 {
 	local player_index = activator.GetEntityIndex();
 
@@ -899,14 +924,7 @@ IncludeScript("outerwall_entity_io.nut", this);
 		return;
 
 	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
-
-	switch(iBoosterType)
-	{
-		case 0: player_velocity.z = 650; break;
-		case 1: player_velocity.y = 650; break;
-		default: break;
-	}
-
+	player_velocity.z = 650;
 	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
 	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
 	activator.EmitSound("Halloween.spell_blastjump");

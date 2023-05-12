@@ -6,7 +6,7 @@ const COINTOUCHRADIUS = 64;
 
 ::PlayerLastUseRadar <- array(MAX_PLAYERS, 0)
 ::PlayerRadarReady <- array(MAX_PLAYERS, false)
-::PlayerCoinStatus <- array(MAX_PLAYERS, array(PURPLECOIN_COUNT, false))
+::PlayerCoinStatus <- ConstructTwoDimArray(MAX_PLAYERS, PURPLECOIN_COUNT, false)
 ::PlayerCoinCount <- array(MAX_PLAYERS, PURPLECOIN_COUNT)
 
 ::ResetPurpleCoinArena <- function()

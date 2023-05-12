@@ -1,5 +1,4 @@
 ::PlayerAccountID <- array(MAX_PLAYERS, null)
-::BannedAccountID <- array(128, null)
 
 ::SpecialPlayerAccountID <-
 [
@@ -18,21 +17,25 @@ enum PlayerLeaderboardDataTypes
 //16,384 is the max size a file can be.
 //10 bytes per entry (9 for the account_id + 1 for the comma)
 //16,384 / 10 = 1,638.4
-const MAX_LEADERBOARD_ENTRIES = 1638
+const MAX_LEADERBOARD_ENTRIES = 1638;
+
+::leaderboard_array <- array(MAX_LEADERBOARD_ENTRIES, null)
+::current_leaderboard_page <- 1;
+::leaderboard_max_page <- 1;
 
 const ZONE_COUNT = 7;
-const ZONE_COUNT_ENCORE = 6;
+const ZONE_COUNT_ENCORE = 7;
 const CHECKPOINT_COUNT = 2;
 
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
 
-::PlayerBestTimeArray <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
-::PlayerBestCheckpointTimeArrayOne <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
-::PlayerBestCheckpointTimeArrayTwo <- array(MAX_PLAYERS, array(ZONE_COUNT, 5000))
-::PlayerBestLapCountEncoreArray <- array(MAX_PLAYERS, array(ZONE_COUNT_ENCORE, 0))
+::PlayerBestTimeArray <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
+::PlayerBestCheckpointTimeArrayOne <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
+::PlayerBestCheckpointTimeArrayTwo <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
+::PlayerBestLapCountEncoreArray <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT_ENCORE, 0)
 ::PlayerBestSandPitTimeEncoreArray <- array(MAX_PLAYERS, 5000)
 
-::PlayerAchievements <- array(MAX_PLAYERS, array(eAchievements.MAX, 0))
+::PlayerAchievements <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, 0)
 
 ::PlayerMiscStats <-
 [
@@ -84,39 +87,51 @@ enum PlayerDataTypes
 ::ResetPlayerDataArrays <- function(player_index)
 {
 	PlayerPreventSaving[player_index] = false;
+	PlayerAccountID[player_index] = null;
 
-	foreach(time in PlayerBestTimeArray[player_index])
-		time = 5000;
+	for(local i = 0; i < ZONE_COUNT; i++)
+	{
+		PlayerBestTimeArray[player_index][i] = 5000;
+		PlayerBestCheckpointTimeArrayOne[player_index][i] = 5000;
+		PlayerBestCheckpointTimeArrayTwo[player_index][i] = 5000;
+	}
 
-	foreach(zone in PlayerBestCheckpointTimeArrayOne[player_index])
-		zone = 5000;
-
-	foreach(zone in PlayerBestCheckpointTimeArrayTwo[player_index])
-		zone = 5000;
-
-	foreach(laps in PlayerBestLapCountEncoreArray[player_index])
-		laps = 0;
+	for(local i = 0; i < ZONE_COUNT_ENCORE; i++)
+		PlayerBestLapCountEncoreArray[player_index][i] = 0;
 
 	PlayerBestSandPitTimeEncoreArray[player_index] = 5000;
 
-	foreach(achievement in PlayerAchievements[player_index])
-		achievement = 0;
+	for(local i = 0; i < eAchievements.MAX; i++)
+		PlayerAchievements[player_index][i] = 0;
 
-	foreach(stats in PlayerMiscStats[player_index])
-		stats = 0;
+	foreach(i, stats in PlayerMiscStats)
+		PlayerMiscStats[i][player_index] = 0;
 
-	foreach(setting in PlayerSettings[player_index])
-		setting = 0;
+	foreach(i, setting in PlayerSettings)
+		PlayerSettings[i][player_index] = 0;
+
+	DebugPrint("Reset Data Arrays for player " + player_index);
 }
 
 ::CalculatePlayerAccountID <- function(client)
 {
 	local player_index = client.GetEntityIndex();
+
+	if(PlayerPreventSaving[player_index] == true)
+	{
+		DebugPrint("Refusing to grab player " + player_index + "'s NetworkIDString. PlayerPreventSaving is true for this person.");
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Refusing to grab your SteamID due to a previous error.");
+		return;
+	}
+
 	local player_networkid = NetProps.GetPropString(client, "m_szNetworkIDString");
 
-	if(player_networkid == "BOT" || player_networkid == 0)
+	if(player_networkid == null || player_networkid == 0 || type(player_networkid) != "string" || player_networkid == "" || player_networkid == "null" || player_networkid == "BOT" || player_networkid == "STEAM_ID_LAN" || player_networkid == "STEAM_ID_PENDING" || player_networkid == "HLTV" || player_networkid == "REPLAY" || player_networkid == "UNKNOWN")
 	{
-		PlayerAccountID[player_index] == null;
+		PlayerAccountID[player_index] = null;
+		PlayerPreventSaving[player_index] = true;
+		DebugPrint("Player " + player_index + "'s SteamID was invalid. We got: " + player_networkid);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to grab your SteamID. Steam may be down.");
 		return;
 	}
 
@@ -124,7 +139,10 @@ enum PlayerDataTypes
 
 	if(id_split.len() != 3)
 	{
-		PlayerAccountID[player_index] == null;
+		PlayerAccountID[player_index] = null;
+		PlayerPreventSaving[player_index] = true;
+		DebugPrint("Player " + player_index + "'s SteamID was impossible to parse. We got: " + player_networkid);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to parse your SteamID. This shouldn't ever happen!");
 		return;
 	}
 
@@ -143,7 +161,7 @@ enum PlayerDataTypes
 
 	if(PlayerPreventSaving[player_index] == true)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. Not allowing overwrite of improper save.");
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game due to a previous error. Please rejoin the server.");
 		return;
 	}
 
@@ -156,12 +174,6 @@ enum PlayerDataTypes
 			ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. AccountID is null even after attempting to grab again. Steam may be down.");
 			return;
 		}
-	}
-
-	if(BannedAccountID.find(PlayerAccountID[player_index]) != null)
-	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. You are not allowed to make saves.");
-		return;
 	}
 
 	local mapversion = split(GetMapName(), "_");
@@ -219,6 +231,25 @@ enum PlayerDataTypes
 
 ::PlayerLoadGame <- function(player_index)
 {
+	local client = PlayerInstanceFromIndex(player_index);
+
+	if(PlayerPreventSaving[player_index] == true)
+	{
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to load your save due to a previous error.");
+		return;
+	}
+
+	if(PlayerAccountID[player_index] == null)
+	{
+		CalculatePlayerAccountID(client);
+
+		if(PlayerAccountID[player_index] == null)
+		{
+			ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to load your save. AccountID is null even after attempting to grab again. Steam may be down.");
+			return;
+		}
+	}
+
 	local save = FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
 
 	if(save == null)
@@ -317,31 +348,27 @@ enum PlayerDataTypes
 	}
 	catch(exception)
 	{
-		local client = PlayerInstanceFromIndex(player_index);
-		ResetPlayerDataArrays(player_index);
-		PlayerPreventSaving[player_index] = true;
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. If you didn't edit your save, alert someone with server access and post an issue on the GitHub with the text below and your save file.");
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. If you didn't manually edit your save, alert someone with server access and post an issue on the \"horiuchii/outerwall_vscript\" GitHub with the text below and your save file.");
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nSave Type: " + savetype + "\nLoad Data: " + load_data + "\nIndex Location: " + i + "\nSave Buffer: " + savebuffer);
+		ResetPlayerDataArrays(player_index);
+		PlayerPreventSaving[player_index] = true;
 	}
 }
 
 ::PlayerUpdateLeaderboardTimes <- function(player_index)
 {
-	if(PlayerPreventSaving[player_index] == true || BannedAccountID.find(PlayerAccountID[player_index] != null))
+	if(PlayerPreventSaving[player_index] == true)
+	{
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to update your leaderboard times due to a previous error.");
 		return;
+	}
 
 	local player = PlayerInstanceFromIndex(player_index);
 	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null)
 	{
-		for (local i = 0; i < ZONE_COUNT; i++)
-		{
-			//no medal exists, dont make leaderboard entry
-			if(GetPlayerBestMedal(player_index, i, false) == -1)
-			{
-				return;
-			}
-		}
+		if(!IsPlayerEncorable(player_index))
+			return;
 	}
 
 	local name = AddEscapeChars(NetProps.GetPropString(player, "m_szNetname"));
@@ -561,21 +588,63 @@ enum PlayerDataTypes
 		entry_data_array[entry_index] = entry_data;
 	}
 
+	// for(local i = 0; i < 1600; i++)
+	// {
+	// 	dummy_entry_data <- {
+	// 		account_id = null,
+	// 		steam_name = "DUMMYDUMMYDUMMY(" + i + ")",
+	// 		total_time = RandomFloat(120, 1000)
+	// 	}
+
+	// 	entry_data_array.append(dummy_entry_data);
+	// }
+
 	//sort array based on total_time
-	if(entry_data_array.len() != 1)
+	if(entry_data_array.len() > 1)
 	{
 		entry_data_array.sort(SortTotalTime)
 	}
 
+	leaderboard_array = entry_data_array;
+	SetLeaderboardPage(1);
+}
+
+const LEADERBOARD_PAGE_SIZE = 22;
+
+::SetLeaderboardPage <- function(iPage)
+{
+	local start_len = LEADERBOARD_PAGE_SIZE * (iPage - 1);
+	local end_len = LEADERBOARD_PAGE_SIZE + (LEADERBOARD_PAGE_SIZE * (iPage - 1));
+
+	if(start_len > leaderboard_array.len() || start_len < 0)
+	{
+		iPage = start_len < 0 ? leaderboard_max_page : 1;
+
+		start_len = LEADERBOARD_PAGE_SIZE * (iPage - 1);
+		end_len = LEADERBOARD_PAGE_SIZE + (LEADERBOARD_PAGE_SIZE * (iPage - 1));
+
+		if(start_len > leaderboard_array.len() || start_len < 0)
+			return;
+	}
+
+	if(end_len > leaderboard_array.len())
+		end_len = leaderboard_array.len();
+
+	local leaderboard_page = leaderboard_array.slice(start_len, end_len);
+	current_leaderboard_page = iPage;
+	leaderboard_max_page = ceil(1.0 * leaderboard_array.len() / LEADERBOARD_PAGE_SIZE);
+
 	EntFire("leaderboard_*", "SetText", "");
 
-	foreach(i, ranking in entry_data_array)
+	foreach(i, ranking in leaderboard_page)
 	{
-		if(i == 15)
+		if(!ranking)
 			break;
 
-		DebugPrint(i + 1 + ": " + ranking.steam_name + " - " + FormatTime(ranking.total_time));
-		EntFire("leaderboard_" + (i + 1), "SetText", (i + 1) + ": " + ranking.steam_name + " - " + FormatTime(round(ranking.total_time, 2)))
-		//NetProps.SetPropString(text, "m_iszMessage", i + 1 + ": " + ranking.steam_name + " - " + ranking.total_time);
+		if(i <= 5)
+			EntFire("leaderboard_" + i, "SetRainbow", iPage == 1 ? "1" : "0");
+
+		//DebugPrint((i + 1 + start_len) + ": " + ranking.steam_name + " - " + FormatTime(ranking.total_time));
+		EntFire("leaderboard_" + (i + 1), "SetText", (i + 1 + start_len) + ": " + ranking.steam_name + " - " + FormatTime(round(ranking.total_time, 2)))
 	}
 }

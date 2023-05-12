@@ -1,103 +1,3 @@
-//shorten constants for sanity
-::MAX_PLAYERS <- Constants.Server.MAX_PLAYERS
-::TEAM_UNASSIGNED <- Constants.ETFTeam.TEAM_UNASSIGNED
-::TF_TEAM_RED <- Constants.ETFTeam.TF_TEAM_RED
-::TF_TEAM_BLUE <- Constants.ETFTeam.TF_TEAM_BLUE
-::TEAM_SPECTATOR <- Constants.ETFTeam.TEAM_SPECTATOR
-::HOLIDAY_SOLDIER <- Constants.EHoliday.kHoliday_Soldier
-::OBS_MODE_IN_EYE <- Constants.ESpectatorMode.OBS_MODE_IN_EYE
-::OBS_MODE_CHASE <- Constants.ESpectatorMode.OBS_MODE_CHASE
-::DMG_BURN <- Constants.FDmgType.DMG_BURN
-::HUD_PRINTTALK <- Constants.EHudNotify.HUD_PRINTTALK
-::IN_ATTACK <- Constants.FButtons.IN_ATTACK
-::IN_ATTACK2 <- Constants.FButtons.IN_ATTACK2
-::TF_CLASS_SCOUT <- Constants.ETFClass.TF_CLASS_SCOUT
-
-::DEBUG_OUTPUT <- false
-
-::OUTERWALL_MEDAL_BRONZE <- 0
-::OUTERWALL_MEDAL_SILVER <- 1
-::OUTERWALL_MEDAL_GOLD <- 2
-::OUTERWALL_MEDAL_IRI <- 3
-
-::MAT_MENU_MEDALTIMES <- "outerwall/hud/hud_menu1.vmt"
-::MAT_MENU_SETTINGS <- "outerwall/hud/hud_menu2.vmt"
-
-::MAT_ENCOREHUD <- "outerwall/hud/hud_encore.vmt"
-::MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE <- "outerwall/hud/hud_encore_menu1.vmt"
-::MAT_ENCOREHUD_MENU_SETTINGS_ENCORE <- "outerwall/hud/hud_encore_menu2.vmt"
-::MAT_ENCOREHUD_ACTIVE_TIMELERPING <- "outerwall/hud/hud_encore_timelerping.vmt"
-
-::MAT_ENCOREHUD_ACTIVE_NOMEDAL <- "outerwall/hud/hud_encore_active.vmt"
-::MAT_ENCOREHUD_ACTIVE_BRONZE <- "outerwall/hud/hud_encore_active_bronze.vmt"
-::MAT_ENCOREHUD_ACTIVE_SILVER <- "outerwall/hud/hud_encore_active_silver.vmt"
-::MAT_ENCOREHUD_ACTIVE_GOLD <- "outerwall/hud/hud_encore_active_gold.vmt"
-::MAT_ENCOREHUD_ACTIVE_IRI <- "outerwall/hud/hud_encore_active_iri.vmt"
-
-::TIMER_PLAYERHUDTEXT <- "outerwall_timer_gametext_"
-::BONUS_PLAYERHUDTEXT <- "outerwall_bonus_gametext_"
-::ENCORE_PLAYERHUDTEXT <- "outerwall_encore_gametext_"
-
-::OUTERWALL_SAVEPATH <- "pf_outerwall/"
-::OUTERWALL_SAVETYPE <- ".sav"
-::OUTERWALL_SAVELEADERBOARDSUFFIX <- "_leaderboarddata"
-::OUTERWALL_SAVELEADERBOARD <- "leaderboard_entries"
-
-::OUTERWALL_SERVERPATH <- "server/"
-::OUTERWALL_BANNEDACCOUNTS <- "account_bans"
-
-::OUTERWALL_MAPNAME <- "pf_outerwall_"
-
-enum eAchievements{
-	HurtAlot
-	NormalInnerWallNoBoost
-	NormalHellNoDmg
-	NormalPurpleCoinNoRadar
-	SecretClimb
-	EncoreUnlock
-	NormalGold
-	NormalIri
-	LapsAlot
-	EncoreOsideNoDmg
-	EncoreBalconyClock
-	EncoreHellTime
-	EncorePurpleCoinNoRadar
-	EncoreManyLaps
-	EncoreFinish
-	EncoreGold
-	EncoreIri
-	AllGold
-	AllIri
-	MAX
-}
-
-enum eSettingQuerys{
-	DisplayTime
-	DisplayCheckpoint
-	Soundtrack
-	Encore
-	Achievement
-	Cosmetic
-	MAX
-}
-
-enum eCheckpointOptions{
-	Bonuses
-	Always
-	Never
-}
-
-enum eMapVersions{
-	v4a
-}
-
-::MapVersionArray <-
-[
-	"v4a"
-]
-
-::CURRENT_VERSION <- eMapVersions.v4a;
-
 ::DeltaTime <- function()
 {
 	return clamp(FrameTime(), 0.0, 1.0);
@@ -327,7 +227,7 @@ enum eMapVersions{
 {
 	local main_player = PlayerInstanceFromIndex(main_player_index);
 
-	for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
+	for(local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
 	{
 		if(player_index == main_player_index)
 		{
@@ -336,10 +236,7 @@ enum eMapVersions{
 		}
 
 		local player = PlayerInstanceFromIndex(player_index);
-		if (!player)
-			continue;
-
-		if(player.GetTeam() != TEAM_SPECTATOR)
+		if (!player || player.GetTeam() != TEAM_SPECTATOR)
 			continue;
 
 		local obsmode = NetProps.GetPropInt(main_player, "m_iObserverMode");
@@ -396,8 +293,18 @@ enum eMapVersions{
 
 ::RainbowTrail <- function()
 {
-	//int color[3];
-	//color[0] = round(Cosine((GetGameTime() * 1.5) + 6) * 127.5 + 127.5, 0);
-	//color[1] = round(Cosine((GetGameTime() * 1.5) + 4) * 127.5 + 127.5, 0);
-	//color[2] = round(Cosine((GetGameTime() * 1.5) + 2) * 127.5 + 127.5, 0);
+	local color = Vector(0, 0, 0);
+	color.x = round(cos((Time() * 1.5) + 6) * 127.5 + 127.5, 0);
+	color.y = round(cos((Time() * 1.5) + 4) * 127.5 + 127.5, 0);
+	color.z = round(cos((Time() * 1.5) + 2) * 127.5 + 127.5, 0);
+	return color;
+}
+
+::ConstructTwoDimArray <- function(size1, size2, default_value)
+{
+	local return_array = array(size1);
+	for(local i = 0; i < size1; i++)
+		return_array[i] = array(size2, default_value);
+
+	return return_array;
 }

@@ -8,10 +8,11 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 
 ::PlayerTimeTrialTime <- array(MAX_PLAYERS, START_TIME)
 ::PlayerTimeTrialTimeDisplay <- array(MAX_PLAYERS, START_TIME)
-::PlayerTimePickupStatus <- array(MAX_PLAYERS, array(TIMEPICKUP_COUNT, false))
+::PlayerTimePickupStatus <- ConstructTwoDimArray(MAX_PLAYERS, TIMEPICKUP_COUNT, false)
 ::PlayerTimeTrialActive <- array(MAX_PLAYERS, false)
 ::PlayerLastTimeTrialThink <- array(MAX_PLAYERS, 0)
 ::PlayerCurrentLapCount <- array(MAX_PLAYERS, 1)
+::PlayerJustEnteredNewLap <- array(MAX_PLAYERS, false)
 
 ::IsTimeLerping <- function(player_index)
 {
@@ -22,7 +23,13 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 {
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerTimeTrialActive[player_index] != true || !IsPlayerAlive(client))
+	if(!!!PlayerEncoreStatus[player_index] && PlayerTimeTrialActive[player_index] || !IsPlayerAlive(client))
+	{
+		PlayerTimeTrialActive[player_index] = false;
+		return;
+	}
+
+	if(PlayerTimeTrialActive[player_index] != true)
 		return;
 
 	if(PlayerLastTimeTrialThink[player_index] + TIME_REDUCE_THINK > Time())
@@ -47,6 +54,7 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 		EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "color 0 255 0");
 	else
 	{
+		PlayerJustEnteredNewLap[player_index] = false;
 		local time = remap(-0.1, 100.0, 0.0, 1.0, clamp(0.0, 100.0, PlayerTimeTrialTimeDisplay[player_index]));
 		local color = lerpRGB(time, Vector(255, 0, 0), Vector(240, 255, 0));
 		EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "color " + color.x + " " + color.y + " " + color.z);
@@ -97,7 +105,7 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 	for(local iArrayIndex = 0; iArrayIndex < TIMEPICKUP_COUNT; iArrayIndex++)
 	{
 		PlayerTimePickupStatus[player_index][iArrayIndex] = true;
-		DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerTimePickupStatus[player_index][iArrayIndex]);
+		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerTimePickupStatus[player_index][iArrayIndex]);
 	}
 }
 
@@ -131,13 +139,15 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 
 	PlayerCurrentLapCount[player_index]++;
 	PlayerTimeTrialTime[player_index] += LAP_ADD_TIME;
-	DisplayTime(activator, true);
+	PlayerJustEnteredNewLap[player_index] = true;
+	DisplayLapEncore(player_index);
 	activator.SetOrigin(TeleportDest.GetOrigin());
 
 	if(!PlayerCheatedCurrentRun[player_index])
 		PlayerLapsRan[player_index] += 1;
 
 	EmitSoundOnClient(SND_WARTIMER_UP, activator);
+	PlayerUpdateSkyboxState(activator);
 }
 
 ::TimePickupTouch <- function()

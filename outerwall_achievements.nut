@@ -11,14 +11,19 @@
     PlayerUseRadarDuringRun[player_index] = false;
 }
 
-::UnlockPlayerAchievementMessage <- function(achievement_index, client_index)
+::UnlockPlayerAchievement <- function(achievement_index, client_index)
 {
     //foreach client on the server, display message
     local client = PlayerInstanceFromIndex(client_index);
     local playername = NetProps.GetPropString(client, "m_szNetname");
-    PlayerAchievements[player_index][achievement_index] = 1;
+
+    if(!!PlayerAchievements[client_index][achievement_index])
+        return;
+
+    PlayerAchievements[client_index][achievement_index] = 1;
     client.EmitSound("Achievement.Earned");
     DispatchParticleEffect("achieved", client.GetOrigin() + Vector(0,0,84), Vector(0,90,0));
+    PlayerSaveGame(client);
 
     for(local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
     {
@@ -38,6 +43,22 @@
     CheckAchievement_NormalAllIri(player_index);
     CheckAchievement_EncoreAllGold(player_index);
     CheckAchievement_EncoreAllIri(player_index);
+    CheckAchievement_AllGold(player_index);
+    CheckAchievement_AllIri(player_index);
+}
+
+::CheckAchievementBatch_PostRun <- function(player_index)
+{
+    CheckAchievement_NormalInnerWallNoBoost(player_index);
+    CheckAchievement_NormalHellNoDmg(player_index);
+    CheckAchievement_NormalPurpleCoinNoRadar(player_index);
+    CheckAchievement_EncoreUnlock(player_index);
+    CheckAchievement_EncoreOsideNoDmg(player_index);
+    CheckAchievement_EncoreBalconyClock(player_index);
+    CheckAchievement_EncoreHellTime(player_index);
+    CheckAchievement_EncorePurpleCoinNoRadar(player_index);
+    CheckAchievement_EncoreManyLapsRun(player_index);
+    CheckAchievement_EncoreFinish(player_index);
 }
 
 ::CheckAchievement_HitAlot <- function(player_index)
@@ -46,7 +67,7 @@
         return;
 
     if((PlayerSpikeHits[player_index] + PlayerLavaHits[player_index]) >= 5000)
-        UnlockPlayerAchievementMessage(eAchievements.HurtAlot, player_index);
+        UnlockPlayerAchievement(eAchievements.HurtAlot, player_index);
 }
 
 ::CheckAchievement_NormalInnerWallNoBoost <- function(player_index)
@@ -55,7 +76,7 @@
         return;
 
     if(!PlayerUseInnerWallBoosterDuringRun[player_index] && PlayerZoneList[player_index] == 3 && !!!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.NormalInnerWallNoBoost, player_index);
+        UnlockPlayerAchievement(eAchievements.NormalInnerWallNoBoost, player_index);
 }
 
 ::CheckAchievement_NormalHellNoDmg <- function(player_index)
@@ -64,7 +85,7 @@
         return;
 
     if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == 4 && !!!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.NormalHellNoDmg, player_index);
+        UnlockPlayerAchievement(eAchievements.NormalHellNoDmg, player_index);
 }
 
 ::CheckAchievement_NormalPurpleCoinNoRadar <- function(player_index)
@@ -73,18 +94,20 @@
         return;
 
     if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == 6 && !!!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.NormalPurpleCoinNoRadar, player_index);
+        UnlockPlayerAchievement(eAchievements.NormalPurpleCoinNoRadar, player_index);
 }
 
-::AwardAchievement_SecretClimb <- function(player_index)
+::AwardAchievement_SecretClimb <- function()
 {
+    local player_index = activator.GetEntityIndex();
+
     if(!!PlayerAchievements[player_index][eAchievements.SecretClimb])
         return;
 
     if(PlayerCheatedCurrentRun[player_index])
         return;
 
-    DisplayAchievementMessage(eAchievements.SecretClimb, player_index);
+    UnlockPlayerAchievement(eAchievements.SecretClimb, player_index);
 }
 
 ::CheckAchievement_EncoreUnlock <- function(player_index)
@@ -93,7 +116,7 @@
         return;
 
     if(IsPlayerEncorable(player_index))
-        DisplayAchievementMessage(eAchievements.EncoreUnlock, player_index);
+        UnlockPlayerAchievement(eAchievements.EncoreUnlock, player_index);
 }
 
 ::CheckAchievement_NormalAllGold <- function(player_index)
@@ -110,7 +133,7 @@
 		}
 	}
 
-    DisplayAchievementMessage(eAchievements.NormalGold, player_index);
+    UnlockPlayerAchievement(eAchievements.NormalGold, player_index);
 }
 
 ::CheckAchievement_NormalAllIri <- function(player_index)
@@ -127,7 +150,7 @@
         }
     }
 
-    DisplayAchievementMessage(eAchievements.NormalIri, player_index);
+    UnlockPlayerAchievement(eAchievements.NormalIri, player_index);
 }
 
 ::CheckAchievement_LapsAlot <- function(player_index)
@@ -136,7 +159,7 @@
         return;
 
     if(PlayerLapsRan[player_index] >= 100)
-        DisplayAchievementMessage(eAchievements.LapsAlot, player_index);
+        UnlockPlayerAchievement(eAchievements.LapsAlot, player_index);
 }
 
 ::CheckAchievement_EncoreOsideNoDmg <- function(player_index)
@@ -145,7 +168,7 @@
         return;
 
     if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == 0 && !!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.EncoreOsideNoDmg, player_index);
+        UnlockPlayerAchievement(eAchievements.EncoreOsideNoDmg, player_index);
 }
 
 ::CheckAchievement_EncoreBalconyClock <- function(player_index)
@@ -154,7 +177,7 @@
         return;
 
     if(PlayerClocksCollectedDuringRun[player_index] <= 4 && PlayerZoneList[player_index] == 2 && !!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.EncoreBalconyClock, player_index);
+        UnlockPlayerAchievement(eAchievements.EncoreBalconyClock, player_index);
 }
 
 ::CheckAchievement_EncoreHellTime <- function(player_index)
@@ -163,7 +186,7 @@
         return;
 
     if(PlayerTimeTrialTime[player_index] >= 200 && PlayerZoneList[player_index] == 2 && !!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.EncoreHellTime, player_index);
+        UnlockPlayerAchievement(eAchievements.EncoreHellTime, player_index);
 }
 
 ::CheckAchievement_EncorePurpleCoinNoRadar <- function(player_index)
@@ -172,12 +195,34 @@
         return;
 
     if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == 6 && !!PlayerEncoreStatus[player_index])
-        DisplayAchievementMessage(eAchievements.EncorePurpleCoinNoRadar, player_index);
+        UnlockPlayerAchievement(eAchievements.EncorePurpleCoinNoRadar, player_index);
 }
 
-//todo: EncoreManyLaps
+::CheckAchievement_EncoreManyLapsRun <- function(player_index)
+{
+    if(!!PlayerAchievements[player_index][eAchievements.EncoreManyLaps])
+        return;
 
-//todo: EncoreFinish
+    if(!!PlayerEncoreStatus[player_index] && PlayerCurrentLapCount[player_index] >= 10)
+        UnlockPlayerAchievement(eAchievements.EncoreManyLaps, player_index);
+}
+
+::CheckAchievement_EncoreFinish <- function(player_index)
+{
+    if(!!PlayerAchievements[player_index][eAchievements.EncoreFinish])
+        return;
+
+    for (local i = 0; i < ZONE_COUNT_ENCORE; i++)
+	{
+		// no medal exists
+		if(GetPlayerBestMedal(player_index, i, true) == -1)
+		{
+			return;
+		}
+	}
+
+    UnlockPlayerAchievement(eAchievements.EncoreFinish, player_index);
+}
 
 ::CheckAchievement_EncoreAllGold <- function(player_index)
 {
@@ -193,7 +238,7 @@
         }
     }
 
-    DisplayAchievementMessage(eAchievements.EncoreGold, player_index);
+    UnlockPlayerAchievement(eAchievements.EncoreGold, player_index);
 }
 
 ::CheckAchievement_EncoreAllIri <- function(player_index)
@@ -210,9 +255,27 @@
         }
     }
 
-    DisplayAchievementMessage(eAchievements.EncoreIri, player_index);
+    UnlockPlayerAchievement(eAchievements.EncoreIri, player_index);
 }
 
-//todo: AllGold
+::CheckAchievement_AllGold <- function(player_index)
+{
+    if(!!PlayerAchievements[player_index][eAchievements.AllGold])
+        return;
 
-//todo: AllIri
+    if(!!!PlayerAchievements[player_index][eAchievements.NormalGold] || !!!PlayerAchievements[player_index][eAchievements.EncoreGold])
+        return;
+
+    UnlockPlayerAchievement(eAchievements.AllGold, player_index);
+}
+
+::CheckAchievement_AllIri <- function(player_index)
+{
+    if(!!PlayerAchievements[player_index][eAchievements.AllIri])
+        return;
+
+    if(!!!PlayerAchievements[player_index][eAchievements.NormalIri] || !!!PlayerAchievements[player_index][eAchievements.EncoreIri])
+        return;
+
+    UnlockPlayerAchievement(eAchievements.AllIri, player_index);
+}

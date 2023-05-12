@@ -23,91 +23,10 @@
 	"spanish"
 ]
 
-::OUTERWALL_PVP_CURRENTWEAPON <- [
-	"Current Weapon:"
-	"Current Weapon:"
+::OUTERWALL_RESET_PROFILE_TITLE <- [
+	"Reset Profile"
+	"Reset Profile"
 ]
-::OUTERWALL_PVP_AMMO <- [
-	"Rockets:"
-	"Rockets:"
-]
-::OUTERWALL_PVP_WEAPON <- [
-	::OUTERWALL_PVP_WEAPON_POLARSTAR <- [
-		"Polar Star"
-		"Polar Star"
-	]
-	::OUTERWALL_PVP_WEAPON_ROCKETLAUNCHER <- [
-		"Rocket Launcher"
-		"Rocket Launcher"
-	]
-	::OUTERWALL_PVP_WEAPON_SNAKE <- [
-		"Snake"
-		"Snake"
-	]
-]
-::OUTERWALL_PVP_COMBO_DEATH <- [
-	"That streak was "
-	"That streak was "
-]
-::OUTERWALL_PVP_COMBO_SUFFIX <- [
-	" (%i kills)"
-	" (%i kills)"
-]
-::OUTERWALL_PVP_COMBO <- [
-	TIER_1 <- [
-		"MILD"
-		"MILD"
-	]
-	TIER_2 <- [
-		"ANTSY"
-		"ANTSY"
-	]
-	TIER_3 <- [
-		"MAD"
-		"MAD"
-	]
-	TIER_4 <- [
-		"UNSANITARY"
-		"UNSANITARY"
-	]
-	TIER_5 <- [
-		"WHIMSICAL"
-		"WHIMSICAL"
-	]
-	TIER_6 <- [
-		"HORRIFIC"
-		"HORRIFIC"
-	]
-	TIER_7 <- [
-		"BALLING"
-		"BALLING"
-	]
-	TIER_8 <- [
-		"NEMESIS INDUCING"
-		"NEMESIS INDUCING"
-	]
-	TIER_9 <- [
-		"UNFUNNY"
-		"UNFUNNY"
-	]
-	TIER_10 <- [
-		"NOT UNFUNNY BUT NOT FUNNY EITHER"
-		"NOT UNFUNNY BUT NOT FUNNY EITHER"
-	]
-	TIER_11 <- [
-		"FUNNY"
-		"FUNNY"
-	]
-	TIER_12 <- [
-		"ENOUGH"
-		"ENOUGH"
-	]
-	TIER_13 <- [
-		"FUCKED UP"
-		"FUCKED UP"
-	]
-]
-
 ::OUTERWALL_RESET_PROFILE_QUESTIONS <- [
 	::QUESTION_1 <- [
 		"You got some busniness with me?"
@@ -143,8 +62,8 @@
 	]
 ]
 ::OUTERWALL_RESET_PROFILE_NORESET <- [
-	"Now scram!"
-	"Now scram!"
+	"Then scram!"
+	"Then scram!"
 ]
 ::OUTERWALL_RESET_PROFILE_RESET <- [
 	"The deed has been done."
@@ -162,16 +81,24 @@
 	]
 ]
 ::OUTERWALL_SETTING_BUTTON_ATTACK <- [
-	"[ATTACK] - "
-	"[ATTACK] - "
+	"[ATTACK] "
+	"[ATTACK] "
 ]
 ::OUTERWALL_SETTING_BUTTON_ALTATTACK <- [
-	"[ALT-ATTACK] - "
-	"[ALT-ATTACK] - "
+	"[ALT-ATTACK] "
+	"[ALT-ATTACK] "
+]
+::OUTERWALL_SETTING_BUTTON_SPECIALATTACK <- [
+	"[SPEC-ATTACK] "
+	"[SPEC-ATTACK] "
 ]
 ::OUTERWALL_SETTING_TOGGLE <- [
 	"Toggle"
 	"Toggle"
+]
+::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
+	"[LOCKED] Requires a medal on each course"
+	"[LOCKED] Requires a medal on each course"
 ]
 ::OUTERWALL_SETTING_NEXTPAGE <- [
 	"Next"
@@ -180,6 +107,18 @@
 ::OUTERWALL_SETTING_PREVPAGE <- [
 	"Previous"
 	"Previous"
+]
+::OUTERWALL_SETTING_EQUIP <- [
+	"Equip"
+	"Equip"
+]
+::OUTERWALL_SETTING_UNEQUIP <- [
+	"Unequip"
+	"Unequip"
+]
+::OUTERWALL_COSMETIC_REQUIREMENT <- [
+	"[LOCKED] Requires \"%s\""
+	"[LOCKED] Requires \"%s\""
 ]
 ::OUTERWALL_SETTING_YES <- [
 	"Yes"
@@ -193,9 +132,22 @@
 	"Tutorial"
 	"Tutorial"
 ]
+::OUTERWALL_SETTING_REFRESHLEADERBOARD <- [
+	"Refresh"
+	"Refresh"
+]
+::OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT <- [
+	"[LOCKED] Refresh (Cooldown %s)"
+	"[LOCKED] Refresh (Cooldown %s)"
+]
 ::OUTERWALL_SETTING_CURRENT <- [
 	"Current Setting: "
 	"Current Setting: "
+]
+
+::OUTERWALL_SETTING_TITLE <- [
+	"Settings"
+	"Settings"
 ]
 ::OUTERWALL_SETTING_NAME <- [
 	::OUTERWALL_SETTING_FINALTIME_NAME <- [
@@ -279,14 +231,18 @@
 	// 	"REMIXED (2023)"
 	// ]
 ]
-::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
-	"You do not qualify for Encore Mode yet."
-	"You do not qualify for Encore Mode yet."
-]
 
+::OUTERWALL_LEADERBOARD_TITLE <- [
+	"Leaderboard"
+	"Leaderboard"
+]
 ::OUTERWALL_LEADERBOARD_PAGE <- [
-	"Page: "
-	"Page: "
+	"Page "
+	"Page "
+]
+::OUTERWALL_LEADERBOARD_RANK <- [
+	"Your Rank: "
+	"Your Rank: "
 ]
 
 ::OUTERWALL_ACHIEVEMENT_TITLE <- [
@@ -298,6 +254,10 @@
 		"Pain O' Plenty"
 		"Pain O' Plenty"
 	]
+	// ::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_NAME <- [
+	// 	"Climber's Clamber"
+	// 	"Climber's Clamber"
+	// ]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
 		"No Booster Required"
 		"No Booster Required"
@@ -376,13 +336,17 @@
 		"Get hurt... alot.\n"
 		"Get hurt... alot.\n"
 	]
+	// ::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
+	// 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
+	// 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
+	// ]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
 		"Don't touch any of the air currents at the Inner Wall.\n"
 		"Don't touch any of the air currents at the Inner Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
-		"Don't take any damage at the Sacred Grounds.\n"
-		"Don't take any damage at the Sacred Grounds.\n"
+		"Don't take any environmental damage at the Sacred Grounds.\n"
+		"Don't take any environmental damage at the Sacred Grounds.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
 		"Earn atleast a gold medal without using the radar at the Sand Pit.\n"
@@ -409,8 +373,8 @@
 		"Complete 100 extra laps.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
-		"Don't take any damage at Encore Outer Wall.\n"
-		"Don't take any damage at Encore Outer Wall.\n"
+		"Don't take any environmental damage at Encore Outer Wall.\n"
+		"Don't take any environmental damage at Encore Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
 		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
@@ -454,9 +418,13 @@
 	" has achieved: "
 ]
 
-::OUTERWALL_STATS_TITLE <- [
-	"Player Stats"
-	"Player Stats"
+::OUTERWALL_PROFILE_TITLE <- [
+	"Player Profile"
+	"Player Profile"
+]
+::OUTERWALL_STATS_SUBTITLE_STATS <- [
+	"Stats"
+	"Stats"
 ]
 ::OUTERWALL_STATS_TIMEPLAYED <- [
 	"Time Played: "
@@ -470,10 +438,6 @@
 	"Times hurt by spike: "
 	"Times hurt by spike: "
 ]
-::OUTERWALL_STATS_SPIKEJUMPS <- [
-	"Times spikejumped: "
-	"Times spikejumped: "
-]
 ::OUTERWALL_STATS_LAVAHITS <- [
 	"Times burned by lava: "
 	"Times burned by lava: "
@@ -482,31 +446,39 @@
 	"Extra laps ran: "
 	"Extra laps ran: "
 ]
-::OUTERWALL_STATS_PVPKILLS <- [
-	"PvP kills: "
-	"PvP kills: "
+::OUTERWALL_STATS_TOTALTIME <- [
+	"Cumulative regular time: "
+	"Cumulative regular time: "
+]
+::OUTERWALL_STATS_SUBTITLE_TIMES <- [
+	"Times"
+	"Times"
 ]
 
 ::OUTERWALL_COSMETIC_TITLE <- [
 	"Cosmetics"
 	"Cosmetics"
 ]
-::OUTERWALL_COSMETIC_EQUIPPED <- [
-	"Equipped:"
-	"Equipped:"
-]
 ::OUTERWALL_COSMETIC_NAME <- [
-	::OUTERWALL_COSMETIC_NONEEQUIPPED_NAME <- [
-		"None"
-		"None"
+	::OUTERWALL_COSMETIC_BOOSTER_NAME <- [
+		"Booster Trail"
+		"Booster Trail"
+	]
+	::OUTERWALL_COSMETIC_PURPLESHINE_NAME <- [
+		"Purple Shine"
+		"Purple Shine"
 	]
 	::OUTERWALL_COSMETIC_MACHTRAIL_NAME <- [
-		"Mach 3 Trail"
-		"Mach 3 Trail"
+		"Mach Trail"
+		"Mach Trail"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_NAME <- [
 		"Rainbow Trail"
 		"Rainbow Trail"
+	]
+	::OUTERWALL_COSMETIC_RAVESTORY_NAME <- [
+		"Raving Lyrics"
+		"Raving Lyrics"
 	]
 	::OUTERWALL_COSMETIC_WHIMSICALSTAR_NAME <- [
 		"Whimsical Star"
@@ -514,26 +486,30 @@
 	]
 ]
 ::OUTERWALL_COSMETIC_DESC <- [
-	::OUTERWALL_COSMETIC_NONEEQUIPPED_DESC <- [
-		""
-		""
+	::OUTERWALL_COSMETIC_BOOSTER_DESC <- [
+		"This nozzle powered jetpack can\ncross any perilous gap you need."
+		"This nozzle powered jetpack can\ncross any perilous gap you need."
+	]
+	::OUTERWALL_COSMETIC_PURPLESHINE_DESC <- [
+		"Nobody knows where these coins\ncame from, but they sure are beautiful."
+		"Nobody knows where these coins\ncame from, but they sure are beautiful."
 	]
 	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
-		"Who knew breaking the sound barrier was this easy?"
-		"Who knew breaking the sound barrier was this easy?"
+		"Who knew breaking the\nsound barrier was this easy?"
+		"Who knew breaking the\nsound barrier was this easy?"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
-		"Perfect for the aftermath of a stormy night."
-		"Perfect for the aftermath of a stormy night."
+		"Perfect for the aftermath\nof a stormy night."
+		"Perfect for the aftermath\nof a stormy night."
+	]
+	::OUTERWALL_COSMETIC_RAVESTORY_DESC <- [
+		"Who wrote these, anyway?\nSounds like they belong in a rave."
+		"Who wrote these, anyway?\nSounds like they belong in a rave."
 	]
 	::OUTERWALL_COSMETIC_WHIMSICALSTAR_DESC <- [
-		"A special reward for zealous challengers."
-		"A special reward for zealous challengers."
+		"A special reward for\nzealous challengers."
+		"A special reward for\nzealous challengers."
 	]
-]
-::OUTERWALL_COSMETIC_REQUIREMENT <- [
-	"[LOCKED]\nRequires "
-	"[LOCKED]\nRequires "
 ]
 
 ::OUTERWALL_ENCORETUTORIAL_INTRO <- [
@@ -581,7 +557,7 @@
 	"Checkpoint "
 	"Checkpoint "
 ]
-::OUTERWALL_TIMER_CHECKPOINT_PERSONAL <- [
+::OUTERWALL_TIMER_PERSONALBEST <- [
 	" Per. "
 	" Per. "
 ]
@@ -594,8 +570,14 @@
 	"Tiempo final: "
 ]
 ::OUTERWALL_TIMER_FINALTIME_LAPCOUNT <- [
-	" + %i Laps"
-	" + %i Laps"
+	::SINGULAR <- [
+		" (%i Lap)"
+		" (%i Lap)"
+	]
+	::PLURAL <- [
+		" (%i Laps)"
+		" (%i Laps)"
+	]
 ]
 ::OUTERWALL_TIMER_NONE <- [
 	"N/A"
@@ -635,19 +617,19 @@
 ::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
 	::OUTERWALL_TIMER_MEDAL_DISPLAY_REGULAR <- [
 		::BRONZE <- [
-			"Bronze time: "
+			"Bronze Time: "
 			"Tiempo de bronce: "
 		]
 		::SILVER <- [
-			"Silver time: "
+			"Silver Time: "
 			"Tiempo de plata: "
 		]
 		::GOLD <- [
-			"Gold time: "
+			"Gold Time: "
 			"Tiempo de oro: "
 		]
 		::IRIDESCENT <- [
-			"Iridescent time: "
+			"Iridescent Time: "
 			"Tiempo de iridiscente: "
 		]
 	]
@@ -671,12 +653,16 @@
 	]
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
-	"Best medal: "
-	"Best medal: "
+	"Best Medal: "
+	"Best Medal: "
+]
+::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE <- [
+	"Best Encore Medal: "
+	"Best Encore Medal: "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
-	"Best time: "
-	"Best time: "
+	"Best Time: "
+	"Best Time: "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT <- [
 	"Checkpoint %i: "
@@ -687,8 +673,8 @@
 	"Gooched!"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP <- [
-	"Most laps: "
-	"Most laps: "
+	"Most Laps: "
+	"Most Laps: "
 ]
 
 ::OUTERWALL_TIMER_ACHIEVED <- [
@@ -701,19 +687,19 @@
 ]
 ::OUTERWALL_TIMER_MEDAL_ACHIEVED <- [
 	::BRONZE <- [
-		"Bronze medal."
+		"Bronze Medal."
 		"Medalla de bronce."
 	]
 	::SILVER <- [
-		"Silver medal!"
+		"Silver Medal!"
 		"¡Medalla de plata!"
 	]
 	::GOLD <- [
-		"Gold medal!"
+		"Gold Medal!"
 		"¡Medalla de oro!"
 	]
 	::IRIDESCENT <- [
-		"Iridescent medal!"
+		"Iridescent Medal!"
 		"¡Medalla de iridiscente!"
 	]
 ]
@@ -742,8 +728,8 @@
 			"Now you're getting somewhere! You"
 		]
 		::MESSAGE_2 <- [
-			"Not bad, you"
-			"Not bad, you"
+			"Nice, you"
+			"Nice, you"
 		]
 		::MESSAGE_3 <- [
 			"Not too shabby, you"
@@ -795,49 +781,37 @@
 		]
 	]
 	::OUTERWALL_TIMER_MESSAGE_NOMEDAL <- [
-		::REGULAR <- [
-			::MESSAGE_1 <- [
-				"That was REALLY slow, you"
-				"That was REALLY slow, you"
-			]
-			::MESSAGE_2 <- [
-				"WOW, could you have gone any slower? You"
-				"WOW, could you have gone any slower? You"
-			]
-			::MESSAGE_3 <- [
-				"That was pretty bad, you"
-				"That was pretty bad, you"
-			]
-			::MESSAGE_4 <- [
-				"Tough luck pal, you"
-				"Tough luck pal, you"
-			]
-			::MESSAGE_5 <- [
-				"Lame, you"
-				"Lame, you"
-			]
-			::MESSAGE_6 <- [
-				"Too bad! You"
-				"Too bad! You"
-			]
-			::MESSAGE_7 <- [
-				"You can do better than that, right? You"
-				"You can do better than that, right? You"
-			]
-			::MESSAGE_8 <- [
-				"Sucks to suck. You"
-				"Sucks to suck. You"
-			]
+		::MESSAGE_1 <- [
+			"That was REALLY slow, you"
+			"That was REALLY slow, you"
 		]
-		::ENCORE <- [
-			::MESSAGE_1 <- [
-				"You do know you need to run multiple laps, right? You"
-				"You do know you need to run multiple laps, right? You"
-			]
-			::MESSAGE_2 <- [
-				"Giving up already? You"
-				"Giving up already? You"
-			]
+		::MESSAGE_2 <- [
+			"WOW, could you have gone any slower? You"
+			"WOW, could you have gone any slower? You"
+		]
+		::MESSAGE_3 <- [
+			"That was pretty bad, you"
+			"That was pretty bad, you"
+		]
+		::MESSAGE_4 <- [
+			"Tough luck pal, you"
+			"Tough luck pal, you"
+		]
+		::MESSAGE_5 <- [
+			"Lame, you"
+			"Lame, you"
+		]
+		::MESSAGE_6 <- [
+			"Too bad! You"
+			"Too bad! You"
+		]
+		::MESSAGE_7 <- [
+			"You can do better than that, right? You"
+			"You can do better than that, right? You"
+		]
+		::MESSAGE_8 <- [
+			"Sucks to suck. You"
+			"Sucks to suck. You"
 		]
 	]
 ]
@@ -883,6 +857,10 @@
 		"Touching lava will actually send you twice as high as a spike does, while only dealing half the damage!"
 		"¡Tocar lava en realidad te enviará el doble de alto que un pico, mientras que solo inflige la mitad del daño!"
 	]
+	::TIP_11 <- [
+		"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
+		"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
+	]
 ]
 ::OUTERWALL_TIP_CRAP <- [
 	::TIP_1 <- [
@@ -922,8 +900,8 @@
 		"¿Estás buscando una forma rápida de curarte después de recibir daño? ¡Lástima! El daño que te haces a ti mismo es permanente."
 	]
 	::TIP_10 <- [
-		"Ever wonder what happens when a teleporter turns off halfway during teleportation?"
-		"Ever wonder what happens when a teleporter turns off halfway during teleportation?"
+		"Ever wonder what happens when a teleporter turns off halfway during teleportation? Lets find out!"
+		"Ever wonder what happens when a teleporter turns off halfway during teleportation? Lets find out!"
 	]
 	::TIP_11 <- [
 		"The mystery is of Story or Cave. And where does the solution lie? The island welcomes visitors for the depth they bring as they enter."
@@ -932,6 +910,22 @@
 	::TIP_12 <- [
 		"TIP SERVER UNAVAILABLE TRY AGAIN LATER"
 		"SERVIDOR DE CONSEJOS NO DISPONIBLE INTÉNTELO DE NUEVO MÁS TARDE"
+	]
+	::TIP_13 <- [
+		"Anything you do in the simulation is logged and can never be undone."
+		"Anything you do in the simulation is logged and can never be undone."
+	]
+	::TIP_14 <- [
+		"Your actions in the simulation will have consequences beyone your comprehension."
+		"Your actions in the simulation will have consequences beyone your comprehension."
+	]
+	::TIP_15 <- [
+		"Beware of angering those you cannot see."
+		"Beware of angering those you cannot see."
+	]
+	::TIP_16 <- [
+		"You cannot escape the simulation."
+		"You cannot escape the simulation."
 	]
 ]
 ::OUTERWALL_TIP_PARKOUR <- [
