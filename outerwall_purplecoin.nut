@@ -1,5 +1,6 @@
 const PURPLECOIN_COUNT = 120;
 const PURPLECOIN_COINPATH = "purplecoin_coin_";
+const PURPLECOIN_COINPATH_ENCORE = "encore_purplecoin_coin_";
 
 const PURPLECOIN_ANNOTATE_RADAR_COOLDOWN = 25;
 const COINTOUCHRADIUS = 64;
@@ -9,14 +10,16 @@ const COINTOUCHRADIUS = 64;
 ::PlayerCoinStatus <- ConstructTwoDimArray(MAX_PLAYERS, PURPLECOIN_COUNT, false)
 ::PlayerCoinCount <- array(MAX_PLAYERS, PURPLECOIN_COUNT)
 
+const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
+
+::PlayerLastRadarReadyMessageSet <- array(MAX_PLAYERS, 0)
+::PlayerCurrentRadarMessage <- array(MAX_PLAYERS, 0)
+
 ::ResetPurpleCoinArena <- function()
 {
 	local player_index = activator.GetEntityIndex();
 
 	ResetPlayerPurpleCoinArenaArray(player_index);
-
-	//Reset Player HUD Count
-	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + TranslateString(OUTERWALL_HUD_COIN, player_index) + PlayerCoinCount[player_index]);
 
 	DebugPrint("Reset Purple Coin Arena for player " + player_index);
 }
@@ -32,9 +35,50 @@ const COINTOUCHRADIUS = 64;
 	}
 }
 
+::PurpleCoinHudThink <- function(client)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(PlayerZoneList[player_index] != eCourses.SandPit)
+		return;
+
+	local count_prefix = "";
+
+	if(PlayerCoinCount[player_index] < 10)
+		count_prefix = "00";
+	else if(PlayerCoinCount[player_index] < 100)
+		count_prefix = "0";
+
+	local radar_message = "";
+
+	if(PlayerRadarReady[player_index])
+	{
+		if(PlayerLastRadarReadyMessageSet[player_index] + PURPLECOIN_READY_MESSAGE_LENGTH <= Time())
+		{
+			PlayerLastRadarReadyMessageSet[player_index] = Time();
+			PlayerCurrentRadarMessage[player_index] = PlayerCurrentRadarMessage[player_index] == 0 ? 1 : 0;
+		}
+
+		radar_message = TranslateString(OUTERWALL_HUD_COINRADAR_READY[PlayerCurrentRadarMessage[player_index]], player_index);
+	}
+	else
+	{
+		local time = round((PlayerLastUseRadar[player_index] - Time()) + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN, 1);
+		local pretime = time < 10 ? "0" : "";
+		local posttime = time == time.tointeger() ? ".0" : "";
+		radar_message = format(TranslateString(OUTERWALL_HUD_COINRADAR_NOTREADY, player_index), (pretime + time.tostring() + posttime).tostring());
+	}
+
+
+	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + radar_message + "\n\n" + TranslateString(OUTERWALL_HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
+}
+
 ::CheckPurpleCoinAnnotateButton <- function(client)
 {
 	local player_index = client.GetEntityIndex();
+
+	if(PlayerZoneList[player_index] != eCourses.SandPit)
+		return;
 
 	local buttons = NetProps.GetPropInt(client, "m_nButtons");
 
@@ -46,7 +90,7 @@ const COINTOUCHRADIUS = 64;
 	}
 
 	//If our previous key capture doesn't contain attack key && new one does.
-	if(PlayerZoneList[player_index] != 6 || !(!(PreviousButtons[player_index] & IN_ATTACK) && buttons & IN_ATTACK))
+	if(!(!(PreviousButtons[player_index] & IN_ATTACK) && buttons & IN_ATTACK))
 		return;
 
 	if(PlayerLastUseRadar[player_index] + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN > Time())
@@ -57,12 +101,14 @@ const COINTOUCHRADIUS = 64;
 
 	local bitfield = (1 << player_index);
 
+	local coinpath = !!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
+
 	foreach(i, coin in PlayerCoinStatus[player_index])
 	{
 		if(!coin)
 			continue;
 
-		local trigger = Entities.FindByName(null, PURPLECOIN_COINPATH + (i + 1));
+		local trigger = Entities.FindByName(null, coinpath + (i + 1));
 
 		local trigger_position = trigger.GetOrigin();
 
@@ -85,28 +131,24 @@ const COINTOUCHRADIUS = 64;
 	PlayerRadarReady[player_index] = false;
 }
 
-::CoinTouch <- function(bEncoreCoin = false)
+::CoinTouch <- function()
 {
 	local player_index = activator.GetEntityIndex();
 
-	if(PlayerZoneList[player_index] != 6)
+	if(PlayerZoneList[player_index] != eCourses.SandPit || PlayerCoinCount[player_index] == 0)
 		return;
 
-	if(PlayerCoinCount[player_index] == 0)
-		return;
-
-	if(PlayerEncoreStatus[player_index] != bEncoreCoin.tointeger())
-		return;
+	local coinpath = !!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
 
 	//get closest purplecoin prop_dynamic and get its name
 	local player_origin = activator.GetOrigin();
-	local CoinHandle = Entities.FindByNameWithin(null, PURPLECOIN_COINPATH + "*", player_origin, COINTOUCHRADIUS);
+	local CoinHandle = Entities.FindByNameWithin(null, coinpath + "*", player_origin, COINTOUCHRADIUS);
 	//DebugDrawBox(player_origin, Vector(-COINTOUCHRADIUS, -COINTOUCHRADIUS, -COINTOUCHRADIUS), Vector(COINTOUCHRADIUS, COINTOUCHRADIUS, COINTOUCHRADIUS), 255, 0, 0, 155, 10)
 
 	if(!CoinHandle)
 	{
 		player_origin.z += 96;
-		CoinHandle = Entities.FindByNameWithin(null, PURPLECOIN_COINPATH + "*", player_origin, COINTOUCHRADIUS);
+		CoinHandle = Entities.FindByNameWithin(null, coinpath + "*", player_origin, COINTOUCHRADIUS);
 		//DebugDrawBox(player_origin, Vector(-COINTOUCHRADIUS, -COINTOUCHRADIUS, -COINTOUCHRADIUS), Vector(COINTOUCHRADIUS, COINTOUCHRADIUS, COINTOUCHRADIUS), 0, 255, 0, 155, 10)
 	}
 
@@ -114,6 +156,7 @@ const COINTOUCHRADIUS = 64;
 		return;
 
 	local strTriggerName = NetProps.GetPropString(CoinHandle, "m_iName");
+
 	local TriggerID = strTriggerName.slice(PURPLECOIN_COINPATH.len()).tointeger() - 1;
 
 	if(PlayerCoinStatus[player_index][TriggerID] == false)
@@ -124,16 +167,6 @@ const COINTOUCHRADIUS = 64;
 
 	PlayerCoinCount[player_index] -= 1;
 	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
-
-	//update player HUD
-	local count_prefix = ""
-
-	if(PlayerCoinCount[player_index] < 10)
-		count_prefix = "00";
-	else if(PlayerCoinCount[player_index] < 100)
-		count_prefix = "0";
-
-	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + TranslateString(OUTERWALL_HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
 
 	//show particle and play sound
 	local coin_location = CoinHandle.GetOrigin();

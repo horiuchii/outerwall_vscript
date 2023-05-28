@@ -97,8 +97,8 @@
 	"Toggle"
 ]
 ::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
-	"[LOCKED] Requires a medal on each course"
-	"[LOCKED] Requires a medal on each course"
+	"[LOCKED] Requires a time on each course"
+	"[LOCKED] Requires a time on each course"
 ]
 ::OUTERWALL_SETTING_NEXTPAGE <- [
 	"Next"
@@ -226,10 +226,18 @@
 		"ORGANYA (2004)"
 		"ORGANYA (2004)"
 	]
-	// ::REMIXED <- [
-	// 	"REMIXED (2023)"
-	// 	"REMIXED (2023)"
-	// ]
+	::PLUS <- [
+		"PLUS (2010)"
+		"PLUS (2010)"
+	]
+	::REMIXED <- [
+	 	"REMIXED (2023)"
+	 	"REMIXED (2023)"
+	]
+	::KEROMIX <- [
+		"KERO-MIX (2015)"
+		"KERO-MIX (2015)"
+	]
 ]
 
 ::OUTERWALL_LEADERBOARD_TITLE <- [
@@ -305,10 +313,6 @@
 	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_NAME <- [
 		"Seeing Purple"
 		"Seeing Purple"
-	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_NAME <- [
-		"Overstaying Your Welcome"
-		"Overstaying Your Welcome"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
 		"Mimiga Death March"
@@ -388,10 +392,6 @@
 		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
 		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAP_COUNT_DESC <- [
-		"Complete a run with 10 laps.\n"
-		"Complete a run with 10 laps.\n"
-	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
 		"Earn a medal in every Encore course.\n"
 		"Earn a medal in every Encore course.\n"
@@ -434,13 +434,9 @@
 	"Achievements: "
 	"Achievements: "
 ]
-::OUTERWALL_STATS_SPIKEHITS <- [
-	"Times hurt by spike: "
-	"Times hurt by spike: "
-]
-::OUTERWALL_STATS_LAVAHITS <- [
-	"Times burned by lava: "
-	"Times burned by lava: "
+::OUTERWALL_STATS_TIMESHURT <- [
+	"Times hurt by environment: "
+	"Times hurt by environment: "
 ]
 ::OUTERWALL_STATS_LAPSRAN <- [
 	"Extra laps ran: "
@@ -512,6 +508,10 @@
 	]
 ]
 
+::OUTERWALL_ENCORE_UNLOCK <- [
+	"You just unlocked Encore Mode! You can enable it in the teleporter room!"
+	"You just unlocked Encore Mode! You can enable it in the teleporter room!"
+]
 ::OUTERWALL_ENCORETUTORIAL_INTRO <- [
 	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
 	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
@@ -525,8 +525,8 @@
 	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_1 <- [
-	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
-	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 1/2 of what they were last lap and add an additional 30 seconds to your clock."
+	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 3/4 of what they were last lap and add an additional 30 seconds to your clock."
+	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 3/4 of what they were last lap and add an additional 30 seconds to your clock."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_2 <- [
 	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
@@ -540,6 +540,20 @@
 ::OUTERWALL_HUD_COIN <- [
 	"Coin\nx"
 	"Coin\nx"
+]
+::OUTERWALL_HUD_COINRADAR_READY <- [
+	::MSG1 <- [
+		"RADAR READY"
+		"RADAR READY"
+	]
+	::MSG1 <- [
+		"[ATTACK] TO USE"
+		"[ATTACK] TO USE"
+	]
+]
+::OUTERWALL_HUD_COINRADAR_NOTREADY <- [
+	"CHARGING RADAR [%s]"
+	"CHARGING RADAR [%s]"
 ]
 ::OUTERWALL_TIMETRIAL_LAP <- [
 	"Lap "

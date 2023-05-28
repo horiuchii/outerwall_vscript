@@ -103,12 +103,24 @@
 	local medal_times = ZoneTimes[iZone];
 	local medal_laps = ZoneLaps_Encore[iZone];
 
-	local total_time = PlayerBestTimeArray[player_index][iZone];
-	local laps_ran = PlayerBestLapCountEncoreArray[player_index][iZone];
+	local milestone = null;
+
+	if(bEncore)
+	{
+		if(iZone == 6)
+		{
+			bEncore = false;
+			milestone = PlayerBestSandPitTimeEncoreArray[player_index];
+		}
+		else
+			milestone = PlayerBestLapCountEncoreArray[player_index][iZone];
+	}
+	else
+		milestone = PlayerBestTimeArray[player_index][iZone];
 
 	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
-		if((!bEncore && total_time < medal_times[medal_index]) || (bEncore && laps_ran >= medal_laps[medal_index]))
+		if((!bEncore && milestone < medal_times[medal_index]) || (bEncore && milestone >= medal_laps[medal_index]))
 		{
 			return medal_index;
 		}
@@ -154,7 +166,7 @@
 	for (local i = 0; i < ZONE_COUNT; i++)
 	{
 		// no medal exists, not encorable
-		if(GetPlayerBestMedal(player_index, i, false) == -1)
+		if(PlayerBestTimeArray[player_index][i] == 5000)
 		{
 			return false;
 		}

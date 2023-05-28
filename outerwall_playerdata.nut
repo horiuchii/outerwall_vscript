@@ -15,16 +15,17 @@ enum PlayerLeaderboardDataTypes
 }
 
 //16,384 is the max size a file can be.
-//10 bytes per entry (9 for the account_id + 1 for the comma)
-//16,384 / 10 = 1,638.4
-const MAX_LEADERBOARD_ENTRIES = 1638;
+//11 bytes per entry (10 for the account_id + 1 for the comma)
+//16,384 / 11 = 1,489.45
+const MAX_LEADERBOARD_ENTRIES = 1489;
 
 ::leaderboard_array <- array(MAX_LEADERBOARD_ENTRIES, null)
 ::current_leaderboard_page <- 1;
 ::leaderboard_max_page <- 1;
+::PlayerCachedLeaderboardPosition <- array(MAX_PLAYERS, null)
 
 const ZONE_COUNT = 7;
-const ZONE_COUNT_ENCORE = 7;
+const ZONE_COUNT_ENCORE = 6;
 const CHECKPOINT_COUNT = 2;
 
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
@@ -40,10 +41,8 @@ const CHECKPOINT_COUNT = 2;
 ::PlayerMiscStats <-
 [
 	::PlayerSecondsPlayed <- array(MAX_PLAYERS, 0)
-	::PlayerSpikeHits <- array(MAX_PLAYERS, 0)
-	::PlayerLavaHits <- array(MAX_PLAYERS, 0)
+	::PlayerTimesHurt <- array(MAX_PLAYERS, 0)
 	::PlayerLapsRan <- array(MAX_PLAYERS, 0)
-	::PlayerPVPKills <- array(MAX_PLAYERS, 0)
 ]
 
 ::PlayerSettings <-
@@ -79,7 +78,7 @@ enum PlayerDataTypes
 	for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
 	{
 		local player = PlayerInstanceFromIndex(player_index);
-		if (player == null) continue;
+		if(player == null || player.GetTeam() == TEAM_UNASSIGNED || PlayerZoneList[player_index] == null) continue;
 		PlayerSaveGame(player);
 	}
 }
@@ -126,7 +125,7 @@ enum PlayerDataTypes
 
 	local player_networkid = NetProps.GetPropString(client, "m_szNetworkIDString");
 
-	if(player_networkid == null || player_networkid == 0 || type(player_networkid) != "string" || player_networkid == "" || player_networkid == "null" || player_networkid == "BOT" || player_networkid == "STEAM_ID_LAN" || player_networkid == "STEAM_ID_PENDING" || player_networkid == "HLTV" || player_networkid == "REPLAY" || player_networkid == "UNKNOWN")
+	if(player_networkid == null || type(player_networkid) != "string" || player_networkid == "" || player_networkid == "\0" || player_networkid == "null" || player_networkid == "BOT" || player_networkid == "STEAM_ID_LAN" || player_networkid == "STEAM_ID_PENDING" || player_networkid == "HLTV" || player_networkid == "REPLAY" || player_networkid == "UNKNOWN")
 	{
 		PlayerAccountID[player_index] = null;
 		PlayerPreventSaving[player_index] = true;
@@ -161,7 +160,7 @@ enum PlayerDataTypes
 
 	if(PlayerPreventSaving[player_index] == true)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game due to a previous error. Please rejoin the server.");
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game due to a previous error.");
 		return;
 	}
 
@@ -348,7 +347,7 @@ enum PlayerDataTypes
 	}
 	catch(exception)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. If you didn't manually edit your save, alert someone with server access and post an issue on the \"horiuchii/outerwall_vscript\" GitHub with the text below and your save file.");
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. Please alert a server admin and have them post an issue on the \"horiuchii/outerwall_vscript\" GitHub with the text below and your save file.");
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nSave Type: " + savetype + "\nLoad Data: " + load_data + "\nIndex Location: " + i + "\nSave Buffer: " + savebuffer);
 		ResetPlayerDataArrays(player_index);
@@ -358,13 +357,14 @@ enum PlayerDataTypes
 
 ::PlayerUpdateLeaderboardTimes <- function(player_index)
 {
+	local player = PlayerInstanceFromIndex(player_index);
+
 	if(PlayerPreventSaving[player_index] == true)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to update your leaderboard times due to a previous error.");
+		ClientPrint(player, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to update your leaderboard times due to a previous error.");
 		return;
 	}
 
-	local player = PlayerInstanceFromIndex(player_index);
 	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null)
 	{
 		if(!IsPlayerEncorable(player_index))
@@ -588,16 +588,19 @@ enum PlayerDataTypes
 		entry_data_array[entry_index] = entry_data;
 	}
 
-	// for(local i = 0; i < 1600; i++)
-	// {
-	// 	dummy_entry_data <- {
-	// 		account_id = null,
-	// 		steam_name = "DUMMYDUMMYDUMMY(" + i + ")",
-	// 		total_time = RandomFloat(120, 1000)
-	// 	}
+	if(true)
+	{
+		for(local i = 0; i < MAX_LEADERBOARD_ENTRIES; i++)
+		{
+			dummy_entry_data <- {
+				account_id = null,
+				steam_name = "the fox jumped over the lazy dog",
+				total_time = RandomFloat(LEADERBOARD_IRI - 30, LEADERBOARD_BRONZE + 250)
+			}
 
-	// 	entry_data_array.append(dummy_entry_data);
-	// }
+			entry_data_array.append(dummy_entry_data);
+		}
+	}
 
 	//sort array based on total_time
 	if(entry_data_array.len() > 1)
@@ -606,10 +609,11 @@ enum PlayerDataTypes
 	}
 
 	leaderboard_array = entry_data_array;
+	PlayerCachedLeaderboardPosition = array(MAX_PLAYERS, null);
 	SetLeaderboardPage(1);
 }
 
-const LEADERBOARD_PAGE_SIZE = 22;
+const LEADERBOARD_PAGE_SIZE = 25;
 
 ::SetLeaderboardPage <- function(iPage)
 {
@@ -635,16 +639,25 @@ const LEADERBOARD_PAGE_SIZE = 22;
 	leaderboard_max_page = ceil(1.0 * leaderboard_array.len() / LEADERBOARD_PAGE_SIZE);
 
 	EntFire("leaderboard_*", "SetText", "");
+	EntFire("leaderboard_*", "SetColor", "0 128 128");
+	EntFire("leaderboard_*", "SetRainbow", "0");
 
 	foreach(i, ranking in leaderboard_page)
 	{
 		if(!ranking)
 			break;
 
-		if(i <= 5)
-			EntFire("leaderboard_" + i, "SetRainbow", iPage == 1 ? "1" : "0");
+		if(i < 5 && iPage == 1)
+			EntFire("leaderboard_" + (i + 1), "SetRainbow", "1");
+		else if(ranking.total_time <= LEADERBOARD_IRI)
+			EntFire("leaderboard_" + (i + 1), "SetColor", "255 36 54");
+		else if(ranking.total_time <= LEADERBOARD_GOLD)
+			EntFire("leaderboard_" + (i + 1), "SetColor", "255 215 0");
+		else if(ranking.total_time <= LEADERBOARD_SILVER)
+			EntFire("leaderboard_" + (i + 1), "SetColor", "192 192 192");
+		else if(ranking.total_time <= LEADERBOARD_BRONZE)
+			EntFire("leaderboard_" + (i + 1), "SetColor", "210 105 30");
 
-		//DebugPrint((i + 1 + start_len) + ": " + ranking.steam_name + " - " + FormatTime(ranking.total_time));
-		EntFire("leaderboard_" + (i + 1), "SetText", (i + 1 + start_len) + ": " + ranking.steam_name + " - " + FormatTime(round(ranking.total_time, 2)))
+		EntFire("leaderboard_" + (i + 1), "SetText", (i + 1 + start_len) + ": " + (ranking.steam_name).toupper() + " - " + FormatTime(round(ranking.total_time, 2)))
 	}
 }

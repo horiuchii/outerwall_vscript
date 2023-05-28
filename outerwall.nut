@@ -1,6 +1,11 @@
 IncludeScript("outerwall_const.nut", this);
 IncludeScript("outerwall_utils.nut", this);
-IncludeScript("outerwall_language.nut", this);
+
+if(FileToString(OUTERWALL_SERVERPATH + OUTERWALL_SERVER_LANGUAGEOVERRIDE_ENABLE) == "true")
+	IncludeScript(OUTERWALL_SERVERPATH + OUTERWALL_SERVER_LANGUAGEOVERRIDE, this);
+else
+	IncludeScript("outerwall_language.nut", this);
+
 IncludeScript("outerwall_playerdata.nut", this);
 
 ::PlayerZoneList <- array(MAX_PLAYERS, null)
@@ -10,8 +15,6 @@ IncludeScript("outerwall_playerdata.nut", this);
 ::PlayerLastPosition <- array(MAX_PLAYERS, Vector(0,0,0))
 
 ::PreviousButtons <- array(MAX_PLAYERS, 0)
-
-::PlayerPvPStatus <- array(MAX_PLAYERS, false)
 
 ::bRoundOver <- false
 ::bGlobalCheated <- false
@@ -26,37 +29,52 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 ::Soundtracks <-
 [
-	"remastered",
-	"ridiculon",
-	"organya"
+	".Remastered",
+	".Ridiculon",
+	".Organya",
+	".Plus",
+	".Remixed",
+	".Keromix"
 ]
 
+//TODO: ENUM THIS BITCH, FUCK
 ::Tracks <-
 [
-	"white", //0
-	"pulse", //1
-	"moonsong_inside","moonsong_outside", //2,3
-	"lastcave", //4
-	"balcony","balcony_lava", //5,6
-	"geothermal", //7
-	"hell_inside","hell_outside", //8,9
-	"windfortress_inside","windfortress_outside","windfortress_lava", //10,11,12
-	"meltdown" //13
-	"lastbattle_inside", "lastbattle_outside", "lastbattle_lava" //14,15,16
+	"White", //0
+	"Pulse", //1
+	"Moonsong.Inside","Moonsong.Outside", //2,3
+	"LastCave", //4
+	"Balcony","Balcony.Lava", //5,6
+	"Geothermal", //7
+	"RunningHell.Inside","RunningHell.Outside", //8,9
+	"WindFortress.Inside","WindFortress.Outside","WindFortress.Lava", //10,11,12
+	"Meltdown" //13
 ]
 
 ::SoundTestTracks <-
 [
-	"white", //0
-	"pulse", //1
-	"moonsong", //2
-	"lastcave", //3
-	"balcony", //4
-	"geothermal", //5
-	"hell", //6
-	"windfortress", //7
-	"meltdown", //8
-	"lastbattle" //9
+	"White", //0
+	"Pulse", //1
+	"Moonsong", //2
+	"LastCave", //3
+	"Balcony", //4
+	"Geothermal", //5
+	"RunningHell", //6
+	"WindFortress", //7
+	"Meltdown", //8
+	"Gravity", //9
+	"EyesOfFlame", //10
+	"LastBattle" //11
+]
+
+::PrecacheSoundtrackNames <-
+[
+	"remastered"
+	"ridic"
+	"organya"
+	"plus"
+	"remixed"
+	"kero"
 ]
 
 ::PrecacheTrackNames <-
@@ -69,7 +87,10 @@ IncludeScript("outerwall_gameevents.nut", this);
 	"grand",
 	"hell",
 	"kaze",
-	"mdown2"
+	"mdown2",
+	"gravity",
+	"fireeye",
+	"lastbt3"
 ]
 
 ::OuterwallMain <- function()
@@ -137,7 +158,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	const SND_MEDAL_IRIDESCENT = "Outerwall.MedalIridescent";
 
 	PrecacheSound("misc/achievement_earned.wav");
-	PrecacheSound("misc/halloween/spell_blast_jump.wav");
+	PrecacheSound("player/pl_impact_airblast1.wav");
 
 	foreach(sound in PyroSoundsPrecache)
 		PrecacheSound(sound);
@@ -146,6 +167,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		EntFire("soldier_statue", "kill");
 
 	CreateGameText();
+	SetLeaderboardMedalTimes();
 	PopulateLeaderboard();
 
 	Convars.SetValue("mp_forceautoteam", 1);
@@ -180,7 +202,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 			fadeout = 0.05,
 			holdtime = 0.3,
 			x = 0.44,
-			y = 0.795
+			y = 0.720
 		})
 
 		local gametext_encore = SpawnEntityFromTable("game_text",
@@ -208,6 +230,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 ::OuterwallClientThink <- function()
 {
+	//CheckForCheating(self);
+
 	PlaySpectatorTrackThink(self);
 
 	PlayerHUDThink(self);
@@ -216,6 +240,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	PlayerTimeTrialThink(self);
 
+	PurpleCoinHudThink(self);
+
 	CheckSettingButton(self);
 
 	PlayJumpSound(self);
@@ -223,8 +249,6 @@ IncludeScript("outerwall_gameevents.nut", this);
 	UpdatePlayerLastButtons(self);
 
 	PlayerCosmeticThink(self);
-
-	//CheckForCheating(self);
 
 	return 0.0;
 }
@@ -236,6 +260,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	PlayerTrackList[player_index] = 2;
 	PlayerCheckpointStatus[player_index] = 0;
 	PlayerLanguage[player_index] = 0;
+	PlayerCachedLeaderboardPosition[player_index] = null;
 	//reset arena array
 	ResetPlayerPurpleCoinArenaArray(player_index);
 	ResetPlayerTimeTrialArenaArray(player_index);
@@ -291,7 +316,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	client.PrecacheScriptSound("outerwall/music/ladder.mp3");
 
-	foreach(soundtrack in Soundtracks)
+	foreach(soundtrack in PrecacheSoundtrackNames)
 	{
 		foreach(song in PrecacheTrackNames)
 		{
@@ -344,6 +369,35 @@ IncludeScript("outerwall_gameevents.nut", this);
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
 
+::PlaySoundscape <- function(strSoundscape, client)
+{
+	local player_index = client.GetEntityIndex().tointeger().tostring();
+
+	local soundscape = SpawnEntityFromTable("env_soundscape_triggerable",
+	{
+		targetname = player_index,
+		origin = OUTERWALL_SKYCAMERA_LOCATION,
+		soundscape = strSoundscape
+	})
+
+	local trigger = SpawnEntityFromTable("trigger_soundscape",
+	{
+		targetname = player_index + player_index,
+		origin = OUTERWALL_SKYCAMERA_LOCATION,
+		soundscape = player_index
+	})
+
+	Entities.DispatchSpawn(soundscape);
+	Entities.DispatchSpawn(trigger);
+	EntFireByHandle(trigger, "StartTouch", "", 0.0, client, client);
+	EntFireByHandle(soundscape, "Kill", "", 0.01, client, client);
+	EntFireByHandle(trigger, "Kill", "", 0.01, client, client);
+	EntFire(player_index, "Kill", "", 0.5, client);
+	EntFire(player_index + player_index, "Kill", "", 0.5, client);
+
+	DebugPrint("Player " + player_index + " is now listening to: " + strSoundscape);
+}
+
 ::PlayTrack <- function(iTrack, client)
 {
 	if(bRoundOver)
@@ -351,26 +405,64 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerTimeTrialActive && PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD])
+	if(PlayerTimeTrialActive[player_index])
 	{
-		//todo: play lapping theme based on location, outside, lava, inside, etc..
-		return;
-	}
+		local song = null
 
-	if(PlayerTrackList[player_index] == iTrack)
-		return;
+		if(PlayerCurrentLapCount[player_index] > 1)
+		{
+			song = "outerwall."
+
+			if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD]) // gold medal active
+				song += "LastBattle"
+
+			else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_SILVER]) // silver medal active
+			{
+				if(PlayerSoundtrackList[player_index] == 4) // Remixed Soundtrack
+				{
+					if(PlayerZoneList[player_index] == eCourses.Balcony)
+						song += "EyesOfFlameThroneRoom"
+					else if(PlayerZoneList[player_index] == eCourses.WindFortress)
+						song += "EyesOfFlameGCLONE"
+				}
+				else
+					song += "EyesOfFlame"
+			}
+
+			else // bronze medal active
+				song += "Gravity"
+
+			switch(iTrack)
+			{
+				case 3: case 5: case 7: case 9: case 11:
+				{
+					song += ".Outside"
+					break;
+				}
+				case 4:	case 8: case 12:
+				{
+					song += ".Lava"
+					break;
+				}
+				case 2: case 10: default:
+				{
+					song += ".Inside"
+					break;
+				}
+			}
+		}
+
+		if(song != null)
+		{
+			printl(song)
+			//PlaySoundscape(song, client);
+			return;
+		}
+	}
 
 	PlayerTrackList[player_index] = iTrack;
 
-	if(iTrack == -1)
-	{
-		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, client, client);
-		DebugPrint("Player " + player_index + " is now listening to nothing");
-		return;
-	}
-
-	DoEntFire("trigger_soundscape_" + Tracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
-	DebugPrint("Player " + player_index + " is now listening to: " + Soundtracks[PlayerSoundtrackList[player_index]] + " " + Tracks[iTrack]);
+	PlaySoundscape("outerwall." + (iTrack == -1 ? "XXXX" : Tracks[iTrack] + Soundtracks[PlayerSoundtrackList[player_index]]), client);
 }
 
 ::PlaySoundTestTrack <- function(iTrack, client)
@@ -381,7 +473,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 	local player_index = client.GetEntityIndex();
 
 	PlayerTrackList[player_index] = -1;
-	DoEntFire("soundtest_trigger_soundscape_" + SoundTestTracks[iTrack] + "_" + Soundtracks[PlayerSoundtrackList[player_index]], "StartTouch", "", 0.0, client, client);
+
+	PlaySoundscape("soundtest.outerwall." + SoundTestTracks[iTrack] + Soundtracks[PlayerSoundtrackList[player_index]], client);
 }
 
 ::PlaySpectatorTrackThink <- function(client)
@@ -398,12 +491,12 @@ IncludeScript("outerwall_gameevents.nut", this);
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
 		{
 			if(PlayerTrackList[spectator_target.GetEntityIndex()] != -1)
-				DoEntFire("trigger_soundscape_" + Tracks[PlayerTrackList[spectator_target.GetEntityIndex()]] + "_" + Soundtracks[PlayerSoundtrackList[spectator_target.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
+				PlaySoundscape("outerwall." + Tracks[PlayerTrackList[spectator_target.GetEntityIndex()]] + Soundtracks[PlayerSoundtrackList[spectator_target.GetEntityIndex()]], client);
 			else
-				DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, client, client);
+				PlaySoundscape("outerwall.XXXX", client);
 		}
 		else //we're likely spectating the credits camera, play our pulse
-			DoEntFire("trigger_soundscape_pulse_" + Soundtracks[PlayerSoundtrackList[client.GetEntityIndex()]], "StartTouch", "", 0.0, client, client);
+			PlaySoundscape("outerwall.Pulse." + Soundtracks[PlayerSoundtrackList[client.GetEntityIndex()]], client);
 	}
 }
 
@@ -431,7 +524,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		TimeTrialHUDGameTextEntity = (ENCORE_PLAYERHUDTEXT + target_index);
 		PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + target_index);
 	}
-	else if(PlayerZoneList[target_index] == 6)
+	else if(PlayerZoneList[target_index] == eCourses.SandPit)
 		PurpleCoinHUDGameTextEntity = (BONUS_PLAYERHUDTEXT + target_index);
 
 	if(PlayerMedalTimeHUDStatusArray[target_index] == true)
@@ -561,7 +654,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 {
 	local player_index = client.GetEntityIndex();
 
-	if(client == null || PlayerCheatedCurrentRun[player_index] == true)
+	if(!client || PlayerCheatedCurrentRun[player_index] == true)
 		return;
 
 	if(bGlobalCheated)
@@ -734,7 +827,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 {
 	local player_index = activator.GetEntityIndex();
 
-	if(iZone == PlayerZoneList[player_index] && iZone != 0)
+	if(iZone == PlayerZoneList[player_index] && iZone != eCourses.OuterWall)
 		return;
 
 	PlayerZoneList[player_index] = iZone;
@@ -762,7 +855,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		EmitSoundOnClient(SND_CHECKPOINT, activator);
 		PlayerSetCheckpointTime(player_index);
 
-		if(PlayerZoneList[player_index] == 0)
+		if(PlayerZoneList[player_index] == eCourses.OuterWall)
 			DoEntFire("checkpoint_" + iNewCheckpoint, "StartTouch", "", 0.0, activator, activator);
 	}
 
@@ -892,7 +985,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 			client.EmitSound(SND_QUOTE_HURT);
 
 			if(!PlayerCheatedCurrentRun[player_index])
-				PlayerSpikeHits[player_index] += 1;
+				PlayerTimesHurt[player_index] += 1;
 
 			break;
 		case 2: //Lava
@@ -901,7 +994,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 			client.EmitSound(SND_QUOTE_HURT_LAVA);
 
 			if(!PlayerCheatedCurrentRun[player_index])
-				PlayerLavaHits[player_index] += 1;
+				PlayerTimesHurt[player_index] += 1;
 
 			break;
 		case 3: //Instant Kill
@@ -916,7 +1009,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	CheckAchievement_HitAlot(player_index);
 }
 
-::BoosterTouch <- function(bEncoreBooster = false)
+::BoosterTouch <- function(bEncoreBooster = false, vCustomAngle = null)
 {
 	local player_index = activator.GetEntityIndex();
 
@@ -924,9 +1017,18 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
-	player_velocity.z = 650;
+
+	if(vCustomAngle == null)
+		player_velocity.z = 650;
+	else if(type(vCustomAngle) == "vector")
+	{
+		if(vCustom.x != 0) player_velocity.x = vCustom.x;
+		if(vCustom.y != 0) player_velocity.y = vCustom.y;
+		if(vCustom.z != 0) player_velocity.z = vCustom.z;
+	}
+
 	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
 	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
-	activator.EmitSound("Halloween.spell_blastjump");
+	activator.EmitSound("TFPlayer.AirBlastImpact");
 	PlayerUseInnerWallBoosterDuringRun[player_index] = 1;
 }

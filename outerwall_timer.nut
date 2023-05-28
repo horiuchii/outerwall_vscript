@@ -26,11 +26,11 @@ const NO_MEDAL_COLOR = "008B8B";
 	// bronze, silver, gold, iridescence
 	[85, 70, 50, 40], //oside
 	[60, 45, 35, 30], //last cave
-	[70, 55, 45, 30], //balcony
+	[75, 65, 55, 42], //balcony
 	[65, 45, 35, 25], //inner wall
-	[135, 100, 70, 60], //hell
-	[145, 110, 80, 75], //wind fortress
-	[155, 135, 115, 100], //sand pit
+	[135, 100, 85, 65], //hell
+	[145, 110, 95, 85], //wind fortress
+	[155, 135, 115, 95], //sand pit
 ]
 
 ::ZoneLaps_Encore <-
@@ -77,6 +77,29 @@ const NO_MEDAL_COLOR = "008B8B";
 	"'"
 	"'s"
 ]
+
+::LEADERBOARD_IRI <- 0;
+::LEADERBOARD_GOLD <- 0;
+::LEADERBOARD_SILVER <- 0;
+::LEADERBOARD_BRONZE <- 0;
+
+::SetLeaderboardMedalTimes <- function()
+{
+	for(local iZone = 0; iZone < ZONE_COUNT; iZone++)
+	{
+		for(local iMedal = 0; iMedal < 4; iMedal++)
+		{
+			if(iMedal == 3)
+				LEADERBOARD_IRI += ZoneTimes[iZone][iMedal];
+			if(iMedal == 2)
+				LEADERBOARD_GOLD += ZoneTimes[iZone][iMedal];
+			if(iMedal == 1)
+				LEADERBOARD_SILVER += ZoneTimes[iZone][iMedal];
+			if(iMedal == 0)
+				LEADERBOARD_BRONZE += ZoneTimes[iZone][iMedal];
+		}
+	}
+}
 
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
 ::PlayerCheckpointTimes <- ConstructTwoDimArray(MAX_PLAYERS, CHECKPOINT_COUNT, 5000)
@@ -149,7 +172,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 	PlayerCheckpointTimes[player_index][checkpoint] = Time() - PlayerStartTime[player_index];
 
-	if(PlayerSettingDisplayCheckpoint[player_index] == eCheckpointOptions.Bonuses && PlayerZoneList[player_index] == 0)
+	if(PlayerSettingDisplayCheckpoint[player_index] == eCheckpointOptions.Bonuses && PlayerZoneList[player_index] == eCourses.OuterWall)
 		return;
 
 	else if(PlayerSettingDisplayCheckpoint[player_index] == eCheckpointOptions.Never)
@@ -187,7 +210,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
 		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[PlayerEncoreStatus[player_index]][medal_index], player_index)
-		MedalTimesText += !!PlayerEncoreStatus[player_index] ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAP, player_index) + ZoneLaps_Encore[iZone][medal_index]) : FormatTime(ZoneTimes[iZone][medal_index]);
+		MedalTimesText += (!!PlayerEncoreStatus[player_index] && iZone != 6) ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAP, player_index) + ZoneLaps_Encore[iZone][medal_index]) : FormatTime(ZoneTimes[iZone][medal_index]);
 
 		MedalTimesText += "\n";
 	}
@@ -200,7 +223,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	else
 	{
 		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
-		MedalTimesText += (iZone != 6 ? ("\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : "");
+		MedalTimesText += "\n" + (iZone != 6 ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestSandPitTimeEncoreArray[player_index].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestSandPitTimeEncoreArray[player_index])));
 	}
 
 	if(!!!PlayerEncoreStatus[player_index])

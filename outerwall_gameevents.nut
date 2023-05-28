@@ -3,6 +3,7 @@ ClearGameEventCallbacks();
 function OnGameEvent_teamplay_round_win(eventdata)
 {
 	bRoundOver = true;
+	PerformAutosave();
     for (local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
     {
         local player = PlayerInstanceFromIndex(player_index);
@@ -29,10 +30,13 @@ function OnGameEvent_player_team(eventdata)
 
 function OnGameEvent_server_cvar(eventdata)
 {
-	if(eventdata.cvarname == "sv_cheats" && !bGlobalCheated)
+	if(bGlobalCheated)
+		return;
+
+	if(eventdata.cvarname == "sv_cheats")
 	{
 		bGlobalCheated = true;
-		ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "WARNING: \"sv_cheats\" has been toggled. Scoring has been disabled.")
+		ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "WARNING: Cvar \"" + eventdata.cvarname + "\" has been changed. Scoring has been disabled.")
 	}
 }
 

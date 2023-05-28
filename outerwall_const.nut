@@ -35,11 +35,13 @@ const MAT_MENU_MEDALTIMES = "outerwall/hud/hud_menu1.vmt"
 const MAT_MENU_SETTINGS = "outerwall/hud/hud_menu2.vmt"
 
 const MAT_ENCOREHUD = "outerwall/hud/hud_encore.vmt"
+const MAT_ENCOREHUD_RADAR = "outerwall/hud/hud_encore_radar.vmt"
 const MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE = "outerwall/hud/hud_encore_menu1.vmt"
 const MAT_ENCOREHUD_MENU_SETTINGS_ENCORE = "outerwall/hud/hud_encore_menu2.vmt"
 const MAT_ENCOREHUD_ACTIVE_TIMELERPING = "outerwall/hud/hud_encore_timelerping.vmt"
 const MAT_ENCOREHUD_ACTIVE_TIMELERPING_LAPUP = "outerwall/hud/hud_encore_timelerping_lapup.vmt"
 
+const MAT_ENCOREHUD_ACTIVE_NOMEDAL_RADAR = "outerwall/hud/hud_encore_active_radar.vmt"
 const MAT_ENCOREHUD_ACTIVE_NOMEDAL = "outerwall/hud/hud_encore_active.vmt"
 const MAT_ENCOREHUD_ACTIVE_BRONZE = "outerwall/hud/hud_encore_active_bronze.vmt"
 const MAT_ENCOREHUD_ACTIVE_SILVER = "outerwall/hud/hud_encore_active_silver.vmt"
@@ -55,7 +57,21 @@ const OUTERWALL_SAVETYPE = ".sav"
 const OUTERWALL_SAVELEADERBOARDSUFFIX = "_leaderboarddata"
 const OUTERWALL_SAVELEADERBOARD = "leaderboard_entries"
 
+::OUTERWALL_SERVERPATH <- "pf_outerwall/server/"
+::OUTERWALL_SERVER_LANGUAGEOVERRIDE_ENABLE <- "language_override_enable"
+::OUTERWALL_SERVER_LANGUAGEOVERRIDE <- "language_override.nut"
+
 const OUTERWALL_MAPNAME = "pf_outerwall_"
+
+enum eCourses{
+	OuterWall
+	LastCave
+	Balcony
+	InnerWall
+	Hell
+	WindFortress
+	SandPit
+}
 
 enum eAchievements{
 	HurtAlot
@@ -72,7 +88,6 @@ enum eAchievements{
 	EncoreBalconyClock
 	EncoreHellTime
 	EncorePurpleCoinNoRadar
-	EncoreManyLaps
 	EncoreFinish
 	EncoreGold
 	EncoreIri

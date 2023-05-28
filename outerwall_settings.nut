@@ -8,6 +8,8 @@
 	UpdateSettingsText(player_index);
 }
 
+const LEADERBOARD_RESET_TIME = 300
+
 ::ProfileSelection <- array(MAX_PLAYERS, 0)
 ::AchievementSelection <- array(MAX_PLAYERS, 0)
 ::CosmeticSelection <- array(MAX_PLAYERS, 0)
@@ -67,17 +69,26 @@
 		}
 		case eSettingQuerys.Soundtrack:
 		{
-			if(ButtonPressed != BUTTON_MOUSE1)
+			if(ButtonPressed == BUTTON_MOUSE3)
 				return;
 
 			local current_track = PlayerSoundtrackList[player_index];
-			if(current_track == 0)
-				SetPlayerSoundtrack(1, client);
-			else if(current_track == 1)
-				SetPlayerSoundtrack(2, client);
-			else if(current_track == 2)
-				SetPlayerSoundtrack(0, client);
+			if(ButtonPressed == BUTTON_MOUSE1)
+			{
+				if(current_track == OUTERWALL_SETTING_SOUNDTRACK_OPTION.len() - 1)
+					current_track = 0;
+				else
+					current_track++;
+			}
+			else if(ButtonPressed == BUTTON_MOUSE2)
+			{
+				if(current_track == 0)
+					current_track = OUTERWALL_SETTING_SOUNDTRACK_OPTION.len() - 1;
+				else
+					current_track--;
+			}
 
+			SetPlayerSoundtrack(current_track, client);
 			break;
 		}
 		case eSettingQuerys.Encore:
@@ -123,7 +134,7 @@
 
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
-				if(AchievementSelection[player_index] == eAchievements.MAX - 1)
+				if(AchievementSelection[player_index] == eAchievements.MAX - 2)
 					AchievementSelection[player_index] = 0;
 				else
 					AchievementSelection[player_index]++;
@@ -216,7 +227,7 @@
 			}
 			else if(ButtonPressed == BUTTON_MOUSE3)
 			{
-				if(LastUpdatedLeaderboard + 480 > Time())
+				if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
 					return;
 
 				LastUpdatedLeaderboard = Time();
@@ -281,7 +292,16 @@
 	if(!IsPlayerEncorable(player_index) && PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
 		SettingsText += TranslateString(OUTERWALL_SETTING_ENCORE_NOQUALIFY, player_index);
 	else
-		SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_TOGGLE, player_index);
+	{
+		if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Soundtrack)
+		{
+			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
+			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
+		}
+		else
+			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_TOGGLE, player_index);
+	}
+
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", SettingsText);
@@ -312,9 +332,8 @@
 		foreach(playerdata in PlayerAchievements[player_index])
 			achievement_count += playerdata.tointeger();
 
-		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + eAchievements.MAX + "\n";
-		StatsText += TranslateString(OUTERWALL_STATS_SPIKEHITS, player_index) + PlayerSpikeHits[player_index] + "\n";
-		StatsText += TranslateString(OUTERWALL_STATS_LAVAHITS, player_index) + PlayerLavaHits[player_index] + "\n";
+		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + (eAchievements.MAX - 1) + "\n";
+		StatsText += TranslateString(OUTERWALL_STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n\n";
 
 		if(IsPlayerEncorable(player_index))
 		{
@@ -324,7 +343,7 @@
 			foreach(time in PlayerBestTimeArray[player_index])
 				total_time += time;
 
-			StatsText += TranslateString(OUTERWALL_STATS_TOTALTIME, player_index) + FormatTime(total_time) + "\n";
+			StatsText += TranslateString(OUTERWALL_STATS_TOTALTIME, player_index) + FormatTime(round(total_time, 2)) + "\n";
 		}
 		else
 			StatsText += "\n\n";
@@ -380,7 +399,7 @@
 	local StatsText = "";
 
 	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + " ";
-	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + eAchievements.MAX + ") - ";
+	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + (eAchievements.MAX - 1) + ") - ";
 
 	if((!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > eAchievements.NormalIri) ||
 	(AchievementSelection[player_index] == eAchievements.SecretClimb && !!!PlayerAchievements[player_index][eAchievements.SecretClimb]))
@@ -395,7 +414,7 @@
 
 	StatsText += !!PlayerAchievements[player_index][AchievementSelection[player_index]] ? "[O]\n" : "[X]\n";
 	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", StatsText);
@@ -466,20 +485,35 @@
 
 	LeaderText += TranslateString(OUTERWALL_LEADERBOARD_TITLE, player_index) + " (" + TranslateString(OUTERWALL_LEADERBOARD_PAGE, player_index) + current_leaderboard_page + " / " + leaderboard_max_page + ")\n";
 
-	local player_rank = null;
-	foreach(i, ranking in leaderboard_array)
+	local player_rank = PlayerCachedLeaderboardPosition[player_index];
+	if(player_rank == null)
 	{
-		if(ranking.account_id == PlayerAccountID[player_index])
-			player_rank = i + 1;
+		foreach(i, ranking in leaderboard_array)
+		{
+			if(ranking.account_id == PlayerAccountID[player_index])
+			{
+				PlayerCachedLeaderboardPosition[player_index] = i + 1;
+				player_rank = PlayerCachedLeaderboardPosition[player_index];
+				break;
+			}
+		}
+
+		if(player_rank == null)
+		{
+			PlayerCachedLeaderboardPosition[player_index] = -1;
+			player_rank = PlayerCachedLeaderboardPosition[player_index];
+		}
+
+		DebugPrint("cached player " + player_index + "leaderboard rank: " + player_rank);
 	}
 
-	LeaderText += (TranslateString(OUTERWALL_LEADERBOARD_RANK, player_index) + (player_rank ? "#" + player_rank : TranslateString(OUTERWALL_TIMER_NONE, player_index))) + "\n\n";
+	LeaderText += (TranslateString(OUTERWALL_LEADERBOARD_RANK, player_index) + (player_rank != -1 ? ("#" + player_rank) : TranslateString(OUTERWALL_TIMER_NONE, player_index))) + "\n\n";
 
 	LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
 	LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
 
-	if(LastUpdatedLeaderboard + 480 > Time())
-		LeaderText += format(TranslateString(OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + 480 - Time()).tointeger()));
+	if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
+		LeaderText += format(TranslateString(OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
 	else
 		LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_REFRESHLEADERBOARD, player_index);
 

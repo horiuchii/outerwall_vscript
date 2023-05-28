@@ -80,9 +80,9 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 	local posttime = time == time.tointeger() ? ".0" : "";
 	EntFire(ENCORE_PLAYERHUDTEXT + player_index, "addoutput", "message " + pretime + time.tostring() + posttime);
 
-	if(PlayerZoneList[player_index] != 6)
+	if(PlayerZoneList[player_index] != eCourses.SandPit)
 	{
-		local lapcount = " " + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + "\n  " + PlayerCurrentLapCount[player_index];
+		local lapcount = "\n\n " + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + "\n  " + PlayerCurrentLapCount[player_index];
 		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + lapcount);
 	}
 
@@ -178,14 +178,14 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 	local strTriggerName = NetProps.GetPropString(TimePickupHandle, "m_iName");
 	local TriggerID = strTriggerName.slice(TIMETRIAL_TRIGGERPATH.len()).tointeger() - 1;
 
-	if (PlayerTimePickupStatus[player_index][TriggerID] == false)
+	if(PlayerTimePickupStatus[player_index][TriggerID] == false)
 		return;
 
 	PlayerTimePickupStatus[player_index][TriggerID] = false;
 
 	local time = PICKUP_ADD_TIME;
-	for (local i = 0; i < PlayerCurrentLapCount[player_index] - 1; i++)
-		time = time / 2;
+	for(local i = 0; i < PlayerCurrentLapCount[player_index] - 1; i++)
+		time = round(time * 0.75, 1);
 
 	PlayerTimeTrialTime[player_index] += time;
 	PlayerClocksCollectedDuringRun[player_index]++;

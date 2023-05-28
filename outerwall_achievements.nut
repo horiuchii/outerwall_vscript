@@ -57,7 +57,6 @@
     CheckAchievement_EncoreBalconyClock(player_index);
     CheckAchievement_EncoreHellTime(player_index);
     CheckAchievement_EncorePurpleCoinNoRadar(player_index);
-    CheckAchievement_EncoreManyLapsRun(player_index);
     CheckAchievement_EncoreFinish(player_index);
 }
 
@@ -66,7 +65,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.HurtAlot])
         return;
 
-    if((PlayerSpikeHits[player_index] + PlayerLavaHits[player_index]) >= 5000)
+    if(PlayerTimesHurt[player_index] >= 5000)
         UnlockPlayerAchievement(eAchievements.HurtAlot, player_index);
 }
 
@@ -75,7 +74,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost])
         return;
 
-    if(!PlayerUseInnerWallBoosterDuringRun[player_index] && PlayerZoneList[player_index] == 3 && !!!PlayerEncoreStatus[player_index])
+    if(!PlayerUseInnerWallBoosterDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.InnerWall && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalInnerWallNoBoost, player_index);
 }
 
@@ -84,7 +83,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.NormalHellNoDmg])
         return;
 
-    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == 4 && !!!PlayerEncoreStatus[player_index])
+    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.Hell && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalHellNoDmg, player_index);
 }
 
@@ -93,7 +92,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.NormalPurpleCoinNoRadar])
         return;
 
-    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == 6 && !!!PlayerEncoreStatus[player_index])
+    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.SandPit && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalPurpleCoinNoRadar, player_index);
 }
 
@@ -116,7 +115,10 @@
         return;
 
     if(IsPlayerEncorable(player_index))
+    {
         UnlockPlayerAchievement(eAchievements.EncoreUnlock, player_index);
+        ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x01" + "\x07FFD700" + TranslateString(OUTERWALL_ENCORE_UNLOCK, player_index));
+    }
 }
 
 ::CheckAchievement_NormalAllGold <- function(player_index)
@@ -167,7 +169,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.EncoreOsideNoDmg])
         return;
 
-    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == 0 && !!PlayerEncoreStatus[player_index])
+    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.OuterWall && !!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.EncoreOsideNoDmg, player_index);
 }
 
@@ -176,7 +178,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.EncoreBalconyClock])
         return;
 
-    if(PlayerClocksCollectedDuringRun[player_index] <= 4 && PlayerZoneList[player_index] == 2 && !!PlayerEncoreStatus[player_index])
+    if(PlayerClocksCollectedDuringRun[player_index] <= 4 && PlayerZoneList[player_index] == eCourses.Balcony && !!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.EncoreBalconyClock, player_index);
 }
 
@@ -185,7 +187,7 @@
     if(!!PlayerAchievements[player_index][eAchievements.EncoreHellTime])
         return;
 
-    if(PlayerTimeTrialTime[player_index] >= 200 && PlayerZoneList[player_index] == 2 && !!PlayerEncoreStatus[player_index])
+    if(PlayerTimeTrialTime[player_index] >= 200 && PlayerZoneList[player_index] == eCourses.Hell && !!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.EncoreHellTime, player_index);
 }
 
@@ -194,17 +196,8 @@
     if(!!PlayerAchievements[player_index][eAchievements.EncorePurpleCoinNoRadar])
         return;
 
-    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == 6 && !!PlayerEncoreStatus[player_index])
+    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.SandPit && !!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.EncorePurpleCoinNoRadar, player_index);
-}
-
-::CheckAchievement_EncoreManyLapsRun <- function(player_index)
-{
-    if(!!PlayerAchievements[player_index][eAchievements.EncoreManyLaps])
-        return;
-
-    if(!!PlayerEncoreStatus[player_index] && PlayerCurrentLapCount[player_index] >= 10)
-        UnlockPlayerAchievement(eAchievements.EncoreManyLaps, player_index);
 }
 
 ::CheckAchievement_EncoreFinish <- function(player_index)
