@@ -144,6 +144,10 @@
 	"Current Setting: "
 	"Current Setting: "
 ]
+::OUTERWALL_LEADERBOARD_NOENTRIES <- [
+	"[NO ENTRIES]"
+	"[NO ENTRIES]"
+]
 
 ::OUTERWALL_SETTING_TITLE <- [
 	"Settings"
@@ -311,8 +315,8 @@
 		"Nikumaru Masta"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_NAME <- [
-		"Seeing Purple"
-		"Seeing Purple"
+		"NAND Flash"
+		"NAND Flash"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
 		"Mimiga Death March"

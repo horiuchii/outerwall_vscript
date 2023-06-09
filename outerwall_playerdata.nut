@@ -23,10 +23,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 ::current_leaderboard_page <- 1;
 ::leaderboard_max_page <- 1;
 ::PlayerCachedLeaderboardPosition <- array(MAX_PLAYERS, null)
+::leaderboard_loaded <- false;
 
-const ZONE_COUNT = 7;
-const ZONE_COUNT_ENCORE = 6;
-const CHECKPOINT_COUNT = 2;
+::ZONE_COUNT <- 7;
+::ZONE_COUNT_ENCORE <- 6;
+::CHECKPOINT_COUNT <- 2;
 
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
 
@@ -460,12 +461,73 @@ enum PlayerDataTypes
 	StringToFile(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE, save);
 }
 
-::PopulateLeaderboard <- function()
+::RemovePlayerFromLeaderboardEntries <- function(account_id)
 {
 	local entry_list_string = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE);
 
 	if(entry_list_string == null)
 		return;
+
+	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
+
+	local load_data = 0;
+
+	local i = 0;
+
+	local save_length = entry_list_string.len();
+
+	local savebuffer = "";
+
+	while(i < save_length)
+	{
+		if(entry_list_string[i] == ',' || i == save_length) //we've gotten to the end
+		{
+			if(savebuffer == "")
+				continue;
+
+			//parse entry list
+			entry_list_array[load_data] = savebuffer.tostring() + "";
+
+			load_data += 1;
+			savebuffer = "";
+			i += 1;
+			continue;
+		}
+
+		savebuffer += entry_list_string[i].tochar();
+		i += 1;
+	}
+
+	local target_index = entry_list_array.find(account_id)
+
+	if(target_index == null)
+		return;
+
+	//remove account_id from array and append -1 to end of array
+	entry_list_array.remove(target_index);
+	entry_list_array.append(-1);
+
+	//save the file
+	local save = "";
+
+	foreach(leaderboard_entry in entry_list_array)
+	{
+		save += leaderboard_entry + ",";
+	}
+
+	StringToFile(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE, save);
+}
+
+::PopulateLeaderboard <- function()
+{
+	local entry_list_string = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE);
+
+	if(entry_list_string == null)
+	{
+		EntFire("leaderboard_*", "SetText", "");
+		return;
+	}
+
 
 	//parse leaderboard_entries
 	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
@@ -611,6 +673,7 @@ enum PlayerDataTypes
 	leaderboard_array = entry_data_array;
 	PlayerCachedLeaderboardPosition = array(MAX_PLAYERS, null);
 	SetLeaderboardPage(1);
+	leaderboard_loaded = true;
 }
 
 const LEADERBOARD_PAGE_SIZE = 25;

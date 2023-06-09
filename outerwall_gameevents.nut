@@ -40,6 +40,11 @@ function OnGameEvent_server_cvar(eventdata)
 	}
 }
 
+function OnGameEvent_player_connect(eventdata)
+{
+	ResetPlayerGlobalArrays(eventdata.index + 1);
+}
+
 function OnGameEvent_player_spawn(eventdata)
 {
 	local client = GetPlayerFromUserID(eventdata.userid);

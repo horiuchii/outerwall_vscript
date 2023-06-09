@@ -192,6 +192,7 @@ const LEADERBOARD_RESET_TIME = 300
 					if(PlayerPreventSaving[player_index] == true)
 					{
 						ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to reset your save due to a previous error.");
+						UpdateResetProfileText(client);
 						return;
 					}
 
@@ -199,6 +200,7 @@ const LEADERBOARD_RESET_TIME = 300
 					PlayerSaveGame(client);
 					PlayerLoadGame(player_index);
 					EncoreTeamCheck(client);
+					RemovePlayerFromLeaderboardEntries(PlayerAccountID[player_index]);
 				}
 				else
 					ResetProfileProgress[player_index]++;
@@ -211,6 +213,9 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Leaderboard:
 		{
+			if(!leaderboard_loaded)
+				return;
+
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
 				if(leaderboard_max_page == 1)
@@ -483,6 +488,14 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local LeaderText = "";
 
+	if(!leaderboard_loaded)
+	{
+		LeaderText = TranslateString(OUTERWALL_LEADERBOARD_TITLE, player_index) + "\n\n" + TranslateString(OUTERWALL_LEADERBOARD_NOENTRIES, player_index)
+		local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
+		NetProps.SetPropString(text, "m_iszMessage", LeaderText);
+		return;
+	}
+
 	LeaderText += TranslateString(OUTERWALL_LEADERBOARD_TITLE, player_index) + " (" + TranslateString(OUTERWALL_LEADERBOARD_PAGE, player_index) + current_leaderboard_page + " / " + leaderboard_max_page + ")\n";
 
 	local player_rank = PlayerCachedLeaderboardPosition[player_index];
@@ -490,6 +503,9 @@ const LEADERBOARD_RESET_TIME = 300
 	{
 		foreach(i, ranking in leaderboard_array)
 		{
+			if(PlayerAccountID[player_index] == null)
+				break;
+
 			if(ranking.account_id == PlayerAccountID[player_index])
 			{
 				PlayerCachedLeaderboardPosition[player_index] = i + 1;
