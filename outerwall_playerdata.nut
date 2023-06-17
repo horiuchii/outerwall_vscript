@@ -43,6 +43,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 [
 	::PlayerSecondsPlayed <- array(MAX_PLAYERS, 0)
 	::PlayerTimesHurt <- array(MAX_PLAYERS, 0)
+	::PlayerRunsRan <- array(MAX_PLAYERS, 0)
 	::PlayerLapsRan <- array(MAX_PLAYERS, 0)
 ]
 
@@ -290,6 +291,14 @@ enum PlayerDataTypes
 				{
 					case PlayerDataTypes.map_version:
 					{
+						if(MapVersionArray.find(savebuffer.tostring()) == null)
+						{
+							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Refusing to load your save, may be from a newer version of the map.");
+							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
+							ResetPlayerDataArrays(player_index);
+							PlayerPreventSaving[player_index] = true;
+							return;
+						}
 						break;
 					}
 					case PlayerDataTypes.best_time:

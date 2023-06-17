@@ -2,6 +2,9 @@
 ::PlayerDamagedDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerClocksCollectedDuringRun <- array(MAX_PLAYERS, 0)
 ::PlayerUseRadarDuringRun <- array(MAX_PLAYERS, false)
+::PlayerTouchedForbiddenZoneDuringRun <- array(MAX_PLAYERS, false)
+::PlayerDoubleJumpDuringRun <- array(MAX_PLAYERS, false)
+::PlayerSmokeyProgress <- array(MAX_PLAYERS, 0)
 
 ::ResetPlayerAchievementArrays <- function(player_index)
 {
@@ -9,6 +12,13 @@
     PlayerDamagedDuringRun[player_index] = false;
     PlayerClocksCollectedDuringRun[player_index] = 0;
     PlayerUseRadarDuringRun[player_index] = false;
+    PlayerTouchedForbiddenZoneDuringRun[player_index] = false;
+    PlayerDoubleJumpDuringRun[player_index] = false;
+}
+
+::PlayerTouchForbiddenZone <- function()
+{
+    PlayerTouchedForbiddenZoneDuringRun[activator.GetEntityIndex()] = true;
 }
 
 ::UnlockPlayerAchievement <- function(achievement_index, client_index)
@@ -51,6 +61,7 @@
 {
     CheckAchievement_NormalInnerWallNoBoost(player_index);
     CheckAchievement_NormalHellNoDmg(player_index);
+    CheckAchievement_NormalWindFortressNoDoubleJumpNoDmg(player_index);
     CheckAchievement_NormalPurpleCoinNoRadar(player_index);
     CheckAchievement_EncoreUnlock(player_index);
     CheckAchievement_EncoreOsideNoDmg(player_index);

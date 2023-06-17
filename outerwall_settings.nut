@@ -185,6 +185,11 @@ const LEADERBOARD_RESET_TIME = 300
 
 			if(ButtonPressed == ResetProfile_Answers[ResetProfileProgress[player_index]])
 			{
+				// if(ResetProfileProgress[player_index] == 7)
+				// 	//playsound
+				// else if(ResetProfileProgress[player_index] == 6)
+				// 	//playsound
+
 				if(ResetProfileProgress[player_index] == ResetProfile_Answers.len() - 1)
 				{
 					ResetProfileProgress[player_index] = -2;
@@ -338,7 +343,8 @@ const LEADERBOARD_RESET_TIME = 300
 			achievement_count += playerdata.tointeger();
 
 		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + (eAchievements.MAX - 1) + "\n";
-		StatsText += TranslateString(OUTERWALL_STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n\n";
+		StatsText += TranslateString(OUTERWALL_STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n";
+		StatsText += TranslateString(OUTERWALL_STATS_RUNSRAN, player_index) + PlayerRunsRan[player_index] + "\n"
 
 		if(IsPlayerEncorable(player_index))
 		{
@@ -359,8 +365,8 @@ const LEADERBOARD_RESET_TIME = 300
 	{
 		local iZone = ProfileSelection[player_index] - 1;
 		StatsText += TranslateString(OUTERWALL_STATS_SUBTITLE_TIMES, player_index) + "\n";
-		StatsText += "[" + ZoneNames[iZone] + "]\n";
-		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index)) + "\n";
+		StatsText += "[" + ZoneNames[iZone] + "] ~ " + (iZone == 0 ? "Main Stage" : "Bonus " + iZone) + "\n";
+		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index)) + "\n";
 		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestTimeArray[player_index][iZone])) + "\n";
 
 		local checktime = [
@@ -404,10 +410,11 @@ const LEADERBOARD_RESET_TIME = 300
 	local StatsText = "";
 
 	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + " ";
-	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + (eAchievements.MAX - 1) + ") - ";
+	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + (eAchievements.MAX - 1) + ")\n";
 
 	if((!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > eAchievements.NormalIri) ||
-	(AchievementSelection[player_index] == eAchievements.SecretClimb && !!!PlayerAchievements[player_index][eAchievements.SecretClimb]))
+	(AchievementSelection[player_index] == eAchievements.SecretClimb && !!!PlayerAchievements[player_index][eAchievements.SecretClimb]) ||
+	(AchievementSelection[player_index] == eAchievements.SecretSmokey && !!!PlayerAchievements[player_index][eAchievements.SecretSmokey]))
 	{
 		StatsText += "???\n???\n\n"
 	}
@@ -434,7 +441,7 @@ const LEADERBOARD_RESET_TIME = 300
 	local EquipText = "";
 
 	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index) + " ";
-	EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + OUTERWALL_COSMETIC_NAME.len() + ") - ";
+	EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + OUTERWALL_COSMETIC_NAME.len() + ")\n";
 
 	EquipText += TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "\n";
 	EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n";
@@ -532,6 +539,7 @@ const LEADERBOARD_RESET_TIME = 300
 		LeaderText += format(TranslateString(OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
 	else
 		LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_REFRESHLEADERBOARD, player_index);
+
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", LeaderText);

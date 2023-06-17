@@ -173,8 +173,8 @@
 ]
 ::OUTERWALL_SETTING_DESC <- [
 	::OUTERWALL_SETTING_FINALTIME_DESC <- [
-		"Shows a run's final time,\ncolor representing the medal."
-		"Shows a run's final time,\ncolor representing the medal."
+		"Shows a run's final time,\ncolor representing the rank."
+		"Shows a run's final time,\ncolor representing the rank."
 	]
 	::OUTERWALL_SETTING_CHECKPOINTTIME_DESC <- [
 		"Display's your checkpoint time\nwhen you reach one."
@@ -266,10 +266,10 @@
 		"Pain O' Plenty"
 		"Pain O' Plenty"
 	]
-	// ::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_NAME <- [
-	// 	"Climber's Clamber"
-	// 	"Climber's Clamber"
-	// ]
+	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_NAME <- [
+		"Climber's Clamber"
+		"Climber's Clamber"
+	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
 		"No Booster Required"
 		"No Booster Required"
@@ -278,9 +278,17 @@
 		"Heavenly Trip Through Hell"
 		"Heavenly Trip Through Hell"
 	]
+	::OUTERWALL_ACHIEVEMENT_WINDFORTRESS_NODOUBLEJUMPNODMG_NAME <- [
+		"Let The Wind Guide You"
+		"Let The Wind Guide You"
+	]
 	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_NAME <- [
 		"Non Volatile Memory"
 		"Non Volatile Memory"
+	]
+	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_NAME <- [
+		"Secret Smokester"
+		"Secret Smokester"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_NAME <- [
 		"Breaking The Fourth (Outer) Wall"
@@ -291,12 +299,12 @@
 		"Encore, Encore!"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
-		"Golden Bond"
-		"Golden Bond"
+		"Iron Bond"
+		"Iron Bond"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
-		"Iridescent Bond"
-		"Iridescent Bond"
+		"TODO: NORMAL_ALLIRI"
+		"TODO: NORMAL_ALLIRI"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
 		"Island Collapse Ad Infinitum"
@@ -341,13 +349,13 @@
 ]
 ::OUTERWALL_ACHIEVEMENT_DESC <- [
 	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_DESC <- [
-		"Get hurt... alot.\n"
-		"Get hurt... alot.\n"
+		"Take environmental damage 5000 times.\n"
+		"Take environmental damage 5000 times.\n"
 	]
-	// ::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
-	// 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
-	// 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
-	// ]
+	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
+	 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
+	 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
+	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
 		"Don't touch any of the air currents at the Inner Wall.\n"
 		"Don't touch any of the air currents at the Inner Wall.\n"
@@ -356,9 +364,17 @@
 		"Don't take any environmental damage at the Sacred Grounds.\n"
 		"Don't take any environmental damage at the Sacred Grounds.\n"
 	]
+	::OUTERWALL_ACHIEVEMENT_WINDFORTRESS_NODOUBLEJUMPNODMG_DESC <- [
+		"Don't take any environmental damage and don't double jump at the Wind Fortress.\n"
+		"Don't take any environmental damage and don't double jump at the Wind Fortress.\n"
+	]
 	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
-		"Earn atleast a gold medal without using the radar at the Sand Pit.\n"
-		"Earn atleast a gold medal without using the radar at the Sand Pit.\n"
+		"Earn at least an A rank without using the radar at the Sand Pit.\n"
+		"Earn at least an A rank without using the radar at the Sand Pit.\n"
+	]
+	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_DESC <- [
+		"Find Smokey."
+		"Find Smokey."
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
 		"not funny\n"
@@ -369,12 +385,12 @@
 		"Unlock Encore mode.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in each course.\n"
-		"Earn a Gold Medal in each course.\n"
+		"Earn an A Rank on each course.\n"
+		"Earn an A Rank on each course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in each course.\n"
-		"Earn a Iridescent Medal in each course.\n"
+		"Earn an S Rank on each course.\n"
+		"Earn an S Rank on each course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
 		"Complete 100 extra laps.\n"
@@ -393,28 +409,28 @@
 		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_DESC <- [
-		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
-		"Earn atleast a gold medal without using the radar at Encore Sand Pit.\n"
+		"Earn atleast an A rank without using the radar at Encore Sand Pit.\n"
+		"Earn atleast an A rank without using the radar at Encore Sand Pit.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
-		"Earn a medal in every Encore course.\n"
-		"Earn a medal in every Encore course.\n"
+		"Earn a rank in every Encore course.\n"
+		"Earn a rank in every Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in each Encore course.\n"
-		"Earn a Gold Medal in each Encore course.\n"
+		"Earn an A Rank in each Encore course.\n"
+		"Earn an A Rank in each Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in each Encore course.\n"
-		"Earn a Iridescent Medal in each Encore course.\n"
+		"Earn an S Rank in each Encore course.\n"
+		"Earn an S Rank in each Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLGOLD_DESC <- [
-		"Earn a Gold Medal in every course.\n"
-		"Earn a Gold Medal in every course.\n"
+		"Earn an A Rank in every Regular and Encore course.\n"
+		"Earn an A Rank in every Regular and Encore course.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ALLIRI_DESC <- [
-		"Earn a Iridescent Medal in every course.\n"
-		"Earn a Iridescent Medal in every course.\n"
+		"Earn an S Rank in every Regular and Encore course.\n"
+		"Earn an S Rank in every Regular and Encore course.\n"
 	]
 ]
 ::OUTERWALL_ACHIEVEMENT_ACHIEVED <- [
@@ -442,6 +458,10 @@
 	"Times hurt by environment: "
 	"Times hurt by environment: "
 ]
+::OUTERWALL_STATS_RUNSRAN <- [
+	"Completed runs: "
+	"Completed runs: "
+]
 ::OUTERWALL_STATS_LAPSRAN <- [
 	"Extra laps ran: "
 	"Extra laps ran: "
@@ -453,6 +473,14 @@
 ::OUTERWALL_STATS_SUBTITLE_TIMES <- [
 	"Times"
 	"Times"
+]
+::OUTERWALL_STATS_TIMES_MAINSTAGE <- [
+	"Main Stage"
+	"Main Stage"
+]
+::OUTERWALL_STATS_TIMES_BONUS <- [
+	"Bonus"
+	"Bonus"
 ]
 
 ::OUTERWALL_COSMETIC_TITLE <- [
@@ -495,8 +523,8 @@
 		"Nobody knows where these coins\ncame from, but they sure are beautiful."
 	]
 	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
-		"Who knew breaking the\nsound barrier was this easy?"
-		"Who knew breaking the\nsound barrier was this easy?"
+		"Nothing compares!"
+		"Nothing compares!"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
 		"Perfect for the aftermath\nof a stormy night."
@@ -537,8 +565,8 @@
 	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
 ]
 ::OUTERWALL_ENCORETUTORIAL_LAP_3 <- [
-	"Higher tiers of medals require running multiple laps through a course. Good Luck!"
-	"Higher tiers of medals require running multiple laps through a course. Good Luck!"
+	"Higher tiers of ranks require running multiple laps through a course. Good Luck!"
+	"Higher tiers of ranks require running multiple laps through a course. Good Luck!"
 ]
 
 ::OUTERWALL_HUD_COIN <- [
@@ -550,7 +578,7 @@
 		"RADAR READY"
 		"RADAR READY"
 	]
-	::MSG1 <- [
+	::MSG2 <- [
 		"[ATTACK] TO USE"
 		"[ATTACK] TO USE"
 	]
@@ -563,6 +591,10 @@
 	"Lap "
 	"Vuelta "
 ]
+::OUTERWALL_TIMETRIAL_FINALLAP <- [
+	"FINAL \nLAP"
+	"FINAL \nLAP"
+]
 ::OUTERWALL_TIMER_ENCORE <- [
 	"Encore "
 	"Encore "
@@ -572,8 +604,8 @@
 	"Parece que has hecho trampa, tu tiempo ha sido invalidado."
 ]
 ::OUTERWALL_TIMER_CHECKPOINT <- [
-	"Checkpoint "
-	"Checkpoint "
+	"%s Checkpoint "
+	"%s Checkpoint "
 ]
 ::OUTERWALL_TIMER_PERSONALBEST <- [
 	" Per. "
@@ -601,82 +633,65 @@
 	"N/A"
 	"N/A"
 ]
+::OUTERWALL_TIMER_MEDAL_NOMEDAL <- [
+	"D"
+	"D"
+]
 ::OUTERWALL_TIMER_MEDAL <- [
 	::BRONZE <- [
-		"Bronze"
-		"Bronce"
+		"C"
+		"C"
 	]
 	::SILVER <- [
-		"Silver"
-		"Plata"
+		"B"
+		"B"
 	]
 	::GOLD <- [
-		"Gold"
-		"Oro"
+		"A"
+		"A"
 	]
 	::IRIDESCENT <- [
-		"Iridescent"
-		"Iridiscente"
+		"S"
+		"S"
 	]
 ]
-
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES <- [
-	"%s%s Medal Times"
-	"Tiempos de medalla de %s"
+	"%s%s Ranks"
+	"%s%s Ranks"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES_ENCORE <- [
-	"%s%s Encore Medal Times"
-	"Tiempos de medalla Encore de %s"
+	"%s%s Encore Ranks"
+	"%s%s Encore Ranks"
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_LAP <- [
 	"Lap "
 	"Vuelta "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
-	::OUTERWALL_TIMER_MEDAL_DISPLAY_REGULAR <- [
-		::BRONZE <- [
-			"Bronze Time: "
-			"Tiempo de bronce: "
-		]
-		::SILVER <- [
-			"Silver Time: "
-			"Tiempo de plata: "
-		]
-		::GOLD <- [
-			"Gold Time: "
-			"Tiempo de oro: "
-		]
-		::IRIDESCENT <- [
-			"Iridescent Time: "
-			"Tiempo de iridiscente: "
-		]
+	::BRONZE <- [
+		"C Rank: "
+		"C Rank: "
 	]
-	::OUTERWALL_TIMER_MEDAL_DISPLAY_ENCORE <- [
-		::BRONZE <- [
-			"Bronze: "
-			"Bronce: "
-		]
-		::SILVER <- [
-			"Silver: "
-			"Plata: "
-		]
-		::GOLD <- [
-			"Gold: "
-			"Oro: "
-		]
-		::IRIDESCENT <- [
-			"Iridescent: "
-			"Iridiscente: "
-		]
+	::SILVER <- [
+		"B Rank: "
+		"B Rank: "
+	]
+	::GOLD <- [
+		"A Rank: "
+		"A Rank: "
+	]
+	::IRIDESCENT <- [
+		"S Rank: "
+		"S Rank: "
 	]
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
-	"Best Medal: "
-	"Best Medal: "
+	"Best Rank: "
+	"Best Rank: "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE <- [
-	"Best Encore Medal: "
-	"Best Encore Medal: "
+	"Best Encore Rank: "
+	"Best Encore Rank: "
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
 	"Best Time: "
@@ -700,25 +715,25 @@
 	" lograda %s "
 ]
 ::OUTERWALL_TIMER_FAILEDTOQUALIFY <- [
-	" failed to qualify for any of %s%s medals."
-	" failed to qualify for any of %s%s medals."
+	"D Rank."
+	"D Rank."
 ]
 ::OUTERWALL_TIMER_MEDAL_ACHIEVED <- [
 	::BRONZE <- [
-		"Bronze Medal."
-		"Medalla de bronce."
+		"C Rank."
+		"C Rank."
 	]
 	::SILVER <- [
-		"Silver Medal!"
-		"¡Medalla de plata!"
+		"B Rank."
+		"B Rank."
 	]
 	::GOLD <- [
-		"Gold Medal!"
-		"¡Medalla de oro!"
+		"A Rank!"
+		"A Rank!"
 	]
 	::IRIDESCENT <- [
-		"Iridescent Medal!"
-		"¡Medalla de iridiscente!"
+		"S Rank!"
+		"S Rank!"
 	]
 ]
 ::OUTERWALL_TIMER_MESSAGE <- [
@@ -839,10 +854,10 @@
 		"Touching a spike can grant a vertical boost! Combine it with a long jump to reach new heights!"
 		"¡Tocar un pico puede otorgar un impulso vertical! ¡Combínalo con un salto de longitud para alcanzar nuevas alturas!"
 	]
-	::TIP_2 <- [
-		"Obtaining the glorious iridescent medal requires you to prove mastery over a course by getting a time even faster than gold. Only for those zealous challengers out there!"
-		"Obtener la gloriosa medalla iridiscente requiere que demuestres el dominio de un curso al obtener un tiempo incluso más rápido que el oro. ¡Solo para esos entusiastas retadores por ahí!"
-	]
+	// ::TIP_2 <- [
+	// 	"Obtaining the glorious iridescent medal requires you to prove mastery over a course by getting a time even faster than gold. Only for those zealous challengers out there!"
+	// 	"Obtener la gloriosa medalla iridiscente requiere que demuestres el dominio de un curso al obtener un tiempo incluso más rápido que el oro. ¡Solo para esos entusiastas retadores por ahí!"
+	// ]
 	::TIP_3 <- [
 		"Keep an eye out for alternative routes through a course, they can help you achieve better times!"
 		"Esté atento a las rutas alternativas a través de un curso, ¡pueden ayudarlo a lograr mejores tiempos!"
@@ -988,12 +1003,6 @@
 	::TIP_1 <- [
 		"Fuck you!"
 		"Vete a la mierda!"
-	]
-]
-::OUTERWALL_TIP_ENCORE <- [
-	::TIP_1 <- [
-		"GET OUT NOW!!!"
-		"GET OUT NOW!!!"
 	]
 ]
 ::OUTERWALL_TIP_PREFIX <- [

@@ -27,72 +27,6 @@ IncludeScript("outerwall_timetrial.nut", this);
 IncludeScript("outerwall_entity_io.nut", this);
 IncludeScript("outerwall_gameevents.nut", this);
 
-::Soundtracks <-
-[
-	".Remastered",
-	".Ridiculon",
-	".Organya",
-	".Plus",
-	".Remixed",
-	".Keromix"
-]
-
-//TODO: ENUM THIS BITCH, FUCK
-::Tracks <-
-[
-	"White", //0
-	"Pulse", //1
-	"Moonsong.Inside","Moonsong.Outside", //2,3
-	"LastCave", //4
-	"Balcony","Balcony.Lava", //5,6
-	"Geothermal", //7
-	"RunningHell.Inside","RunningHell.Outside", //8,9
-	"WindFortress.Inside","WindFortress.Outside","WindFortress.Lava", //10,11,12
-	"Meltdown" //13
-]
-
-::SoundTestTracks <-
-[
-	"White", //0
-	"Pulse", //1
-	"Moonsong", //2
-	"LastCave", //3
-	"Balcony", //4
-	"Geothermal", //5
-	"RunningHell", //6
-	"WindFortress", //7
-	"Meltdown", //8
-	"Gravity", //9
-	"EyesOfFlame", //10
-	"LastBattle" //11
-]
-
-::PrecacheSoundtrackNames <-
-[
-	"remastered"
-	"ridic"
-	"organya"
-	"plus"
-	"remixed"
-	"kero"
-]
-
-::PrecacheTrackNames <-
-[
-	"white",
-	"kodou",
-	"oside",
-	"lastcave",
-	"balcony",
-	"grand",
-	"hell",
-	"kaze",
-	"mdown2",
-	"gravity",
-	"fireeye",
-	"lastbt3"
-]
-
 ::OuterwallMain <- function()
 {
 	DebugPrint("OUTERWALL INIT STARTED");
@@ -404,61 +338,6 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	local player_index = client.GetEntityIndex();
-
-	if(PlayerTimeTrialActive[player_index])
-	{
-		local song = null
-
-		if(PlayerCurrentLapCount[player_index] > 1)
-		{
-			song = "outerwall."
-
-			if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD]) // gold medal active
-				song += "LastBattle"
-
-			else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_SILVER]) // silver medal active
-			{
-				if(PlayerSoundtrackList[player_index] == 4) // Remixed Soundtrack
-				{
-					if(PlayerZoneList[player_index] == eCourses.Balcony)
-						song += "EyesOfFlameThroneRoom"
-					else if(PlayerZoneList[player_index] == eCourses.WindFortress)
-						song += "EyesOfFlameGCLONE"
-				}
-				else
-					song += "EyesOfFlame"
-			}
-
-			else // bronze medal active
-				song += "Gravity"
-
-			switch(iTrack)
-			{
-				case 3: case 5: case 7: case 9: case 11:
-				{
-					song += ".Outside"
-					break;
-				}
-				case 4:	case 8: case 12:
-				{
-					song += ".Lava"
-					break;
-				}
-				case 2: case 10: default:
-				{
-					song += ".Inside"
-					break;
-				}
-			}
-		}
-
-		if(song != null)
-		{
-			printl(song)
-			//PlaySoundscape(song, client);
-			return;
-		}
-	}
 
 	PlayerTrackList[player_index] = iTrack;
 
@@ -868,10 +747,10 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(!client)
 		return;
 
+	local player_index = client.GetEntityIndex();
+
 	if(!bIgnoreNoclip && client.IsNoclipping())
 		return;
-
-	local player_index = client.GetEntityIndex();
 
 	if(iZone == null) //Player is Out Of Bounds
 		iZone = PlayerZoneList[player_index];
@@ -942,7 +821,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	PlayerActivateTimeTrial(activator, false);
 
-	if(PlayerCheatedCurrentRun[player_index] || (iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
+	if(PlayerCheatedCurrentRun[player_index] ||(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{
 		ClientPrint(activator, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
 		EmitSoundOnClient(SND_MEDAL_NONE, activator);
@@ -954,10 +833,11 @@ IncludeScript("outerwall_gameevents.nut", this);
 	else
 		EntFire("logic_relay_goal_bonus" + iZoneGoal, "Trigger");
 
+	PlayerRunsRan[player_index]++;
 	CheckPlayerMedal(iZoneGoal, activator);
 	CheckAchievementBatch_PostRun(player_index);
 
-	if(PlayerEncoreStatus[player_index] != 1)
+	if(!!!PlayerEncoreStatus[player_index])
 	{
 		if(iZoneGoal == 0)
 			DoEntFire("end_zone", "StartTouch", "", 0.0, client, client);

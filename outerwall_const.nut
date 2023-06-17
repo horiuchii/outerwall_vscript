@@ -31,6 +31,15 @@ const OUTERWALL_MEDAL_SILVER = 1
 const OUTERWALL_MEDAL_GOLD = 2
 const OUTERWALL_MEDAL_IRI = 3
 
+const SMOKEY_TRIGGER_OUTERWALL = 1
+const SMOKEY_TRIGGER_LASTCAVE = 2
+const SMOKEY_TRIGGER_BALCONY = 4
+const SMOKEY_TRIGGER_INNERWALL = 8
+const SMOKEY_TRIGGER_HELL = 16
+const SMOKEY_TRIGGER_WINDFORTRESS = 32
+const SMOKEY_TRIGGER_SANDPIT = 64
+const SMOKEY_TRIGGER_ALL = 127
+
 const MAT_MENU_MEDALTIMES = "outerwall/hud/hud_menu1.vmt"
 const MAT_MENU_SETTINGS = "outerwall/hud/hud_menu2.vmt"
 
@@ -75,10 +84,12 @@ enum eCourses{
 
 enum eAchievements{
 	HurtAlot
-	//NormalOuterWallNoParkour
+	NormalOuterWallNoParkour
 	NormalInnerWallNoBoost
 	NormalHellNoDmg
+	NormalWindFortressNoDoubleJumpDmg
 	NormalPurpleCoinNoRadar
+	SecretSmokey
 	SecretClimb
 	EncoreUnlock
 	NormalGold
@@ -156,4 +167,64 @@ enum eCosmetics{
 	BUTTON_MOUSE2
 	BUTTON_MOUSE1
 	BUTTON_MOUSE1
+]
+
+::Soundtracks <-
+[
+	".Remastered",
+	".Ridiculon",
+	".Organya",
+	".Plus",
+	".Remixed",
+	".Keromix"
+]
+
+//TODO: ENUM THIS BITCH, FUCK
+::Tracks <-
+[
+	"White", //0
+	"Pulse", //1
+	"Moonsong.Inside","Moonsong.Outside", //2,3
+	"LastCave", //4
+	"Balcony","Balcony.Lava", //5,6
+	"Geothermal", //7
+	"RunningHell.Inside","RunningHell.Outside", //8,9
+	"WindFortress.Inside","WindFortress.Outside","WindFortress.Lava", //10,11,12
+	"Meltdown" //13
+]
+
+::SoundTestTracks <-
+[
+	"White", //0
+	"Pulse", //1
+	"Moonsong", //2
+	"LastCave", //3
+	"Balcony", //4
+	"Geothermal", //5
+	"RunningHell", //6
+	"WindFortress", //7
+	"Meltdown" //8
+]
+
+::PrecacheSoundtrackNames <-
+[
+	"remastered"
+	"ridic"
+	"organya"
+	"plus"
+	"remixed"
+	"kero"
+]
+
+::PrecacheTrackNames <-
+[
+	"white",
+	"kodou",
+	"oside",
+	"lastcave",
+	"balcony",
+	"grand",
+	"hell",
+	"kaze",
+	"mdown2"
 ]

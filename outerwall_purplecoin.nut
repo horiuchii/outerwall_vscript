@@ -101,7 +101,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 
 	local bitfield = (1 << player_index);
 
-	local coinpath = !!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
+	local coinpath = !!!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
 
 	foreach(i, coin in PlayerCoinStatus[player_index])
 	{
@@ -109,6 +109,9 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 			continue;
 
 		local trigger = Entities.FindByName(null, coinpath + (i + 1));
+
+		if(!trigger)
+			continue;
 
 		local trigger_position = trigger.GetOrigin();
 
@@ -138,7 +141,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	if(PlayerZoneList[player_index] != eCourses.SandPit || PlayerCoinCount[player_index] == 0)
 		return;
 
-	local coinpath = !!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
+	local coinpath = !!!PlayerEncoreStatus[player_index] ? PURPLECOIN_COINPATH : PURPLECOIN_COINPATH_ENCORE;
 
 	//get closest purplecoin prop_dynamic and get its name
 	local player_origin = activator.GetOrigin();

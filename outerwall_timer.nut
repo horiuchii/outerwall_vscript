@@ -108,7 +108,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::DisplayTime <- function(player_index, time, iMedal, iZone)
 {
-	local messagecolor = iMedal == null ? NO_MEDAL_COLOR : MedalColors[iMedal];
+	local messagecolor = iMedal == null || iMedal == -1 ? NO_MEDAL_COLOR : MedalColors[iMedal];
 
 	//compare time to best if applicable
 	local personal_best_text = "";
@@ -129,7 +129,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::DisplayTimeEncore <- function(player_index, time, iMedal)
 {
-	local messagecolor = iMedal == null ? NO_MEDAL_COLOR : MedalColors[iMedal];
+	local messagecolor = iMedal == null || iMedal == -1 ? NO_MEDAL_COLOR : MedalColors[iMedal];
 	local lapmessage = PlayerCurrentLapCount[player_index] == 1 ? OUTERWALL_TIMER_FINALTIME_LAPCOUNT[0] : OUTERWALL_TIMER_FINALTIME_LAPCOUNT[1];
 	local laptext = format(TranslateString(lapmessage, player_index), PlayerCurrentLapCount[player_index]);
 
@@ -180,9 +180,9 @@ const NO_MEDAL_COLOR = "008B8B";
 
 	local CheckpointString = "\x01";
 	local current_checkpoint = PlayerCheckpointTimes[player_index][checkpoint];
-	CheckpointString += TranslateString(OUTERWALL_TIMER_CHECKPOINT, player_index) + (checkpoint + 1) + " " + FormatTime(current_checkpoint);
-
 	local iZone = PlayerZoneList[player_index];
+	CheckpointString += format(TranslateString(OUTERWALL_TIMER_CHECKPOINT, player_index), ZoneNames[iZone]) + (checkpoint + 1) + " " + FormatTime(current_checkpoint);
+
 	local checktime = [
 		PlayerBestCheckpointTimeArrayOne[player_index][iZone]
 		PlayerBestCheckpointTimeArrayTwo[player_index][iZone]
@@ -209,7 +209,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	local MedalTimesText = format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES, player_index), (!!PlayerEncoreStatus[player_index] ? TranslateString(OUTERWALL_TIMER_ENCORE, player_index) + ZoneNames[iZone] : ZoneNames[iZone]), ZoneSuffixes[iZone]) + "\n";
 	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
-		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[PlayerEncoreStatus[player_index]][medal_index], player_index)
+		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index)
 		MedalTimesText += (!!PlayerEncoreStatus[player_index] && iZone != 6) ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAP, player_index) + ZoneLaps_Encore[iZone][medal_index]) : FormatTime(ZoneTimes[iZone][medal_index]);
 
 		MedalTimesText += "\n";
@@ -217,12 +217,12 @@ const NO_MEDAL_COLOR = "008B8B";
 
 	if(!!!PlayerEncoreStatus[player_index])
 	{
-		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index));
+		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index));
 		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestTimeArray[player_index][iZone]));
 	}
 	else
 	{
-		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
+		MedalTimesText += "\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestLapCountEncoreArray[player_index][iZone].tointeger() == 0 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
 		MedalTimesText += "\n" + (iZone != 6 ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestSandPitTimeEncoreArray[player_index].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestSandPitTimeEncoreArray[player_index])));
 	}
 
@@ -275,7 +275,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	local laps_ran = PlayerCurrentLapCount[player_index];
 
 	local medal = null;
-	local best_medal_qualified = null;
+	local best_medal_qualified = -1;
 	local medal_times = ZoneTimes[iZone];
 	local medal_laps = ZoneLaps_Encore[iZone];
 
@@ -313,7 +313,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 	if(medal == null && player_best_medal == -1)
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(OUTERWALL_TIMER_MESSAGE_NOMEDAL[RandomInt(0, OUTERWALL_TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_FAILEDTOQUALIFY, player_index), (!!PlayerEncoreStatus[player_index] ? TranslateString(OUTERWALL_TIMER_ENCORE, player_index) + ZoneNames[iZone] : ZoneNames[iZone]), ZoneSuffixes[iZone]));
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(OUTERWALL_TIMER_MESSAGE_NOMEDAL[RandomInt(0, OUTERWALL_TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(OUTERWALL_TIMER_ACHIEVED, player_index), (!!PlayerEncoreStatus[player_index] ? TranslateString(OUTERWALL_TIMER_ENCORE, player_index) + ZoneNames[iZone] : ZoneNames[iZone]), ZoneSuffixes[iZone]) + TranslateString(OUTERWALL_TIMER_FAILEDTOQUALIFY, player_index));
 	}
 
 	if(PlayerSettingDisplayTime[player_index] == 1)
