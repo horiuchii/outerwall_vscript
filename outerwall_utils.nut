@@ -6,7 +6,7 @@
 ::DebugPrint <- function(Text)
 {
 	if(DEBUG_OUTPUT)
-		printl(Text);
+		printl("[OUTERWALL DEBUG PRINT] " + Text);
 }
 
 ::ToggleDebug <- function()
@@ -26,7 +26,7 @@
 {
 	local f = pow(10, decimalPoints) * 1.0;
 	local newVal = val * f;
-	newVal = floor(newVal + 0.5)
+	newVal = floor(newVal + 0.5);
 	newVal = (newVal * 1.0) / f;
 
 	return newVal;
@@ -127,6 +127,35 @@
 	}
 
 	return -1;
+}
+
+::PlaySoundscape <- function(strSoundscape, client)
+{
+	local player_index = client.GetEntityIndex().tointeger().tostring();
+
+	local soundscape = SpawnEntityFromTable("env_soundscape_triggerable",
+	{
+		targetname = player_index,
+		origin = OUTERWALL_SKYCAMERA_LOCATION,
+		soundscape = strSoundscape
+	})
+
+	local trigger = SpawnEntityFromTable("trigger_soundscape",
+	{
+		targetname = player_index + player_index,
+		origin = OUTERWALL_SKYCAMERA_LOCATION,
+		soundscape = player_index
+	})
+
+	Entities.DispatchSpawn(soundscape);
+	Entities.DispatchSpawn(trigger);
+	EntFireByHandle(trigger, "StartTouch", "", 0.0, client, client);
+	EntFireByHandle(soundscape, "Kill", "", 0.01, client, client);
+	EntFireByHandle(trigger, "Kill", "", 0.01, client, client);
+	EntFire(player_index, "Kill", "", 0.5, client);
+	EntFire(player_index + player_index, "Kill", "", 0.5, client);
+
+	DebugPrint("Player " + player_index + " is now listening to: " + strSoundscape);
 }
 
 ::SortTotalTime <- function(a,b)
@@ -235,6 +264,7 @@
 	ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Failed to enforce encore status on player " + player_index)
 }
 
+//TODO: work on system that translates the special strings for each spectator instead of using the main player
 ::PrintToPlayerAndSpectators <- function(main_player_index, message)
 {
 	local main_player = PlayerInstanceFromIndex(main_player_index);
@@ -301,6 +331,27 @@
 	}
 
 	return input_time.tostring();
+}
+
+::FormatAchievementDataTime <- function()
+{
+	local CurrentTime = {};
+    LocalTime(CurrentTime);
+	local date = "";
+
+	date += (CurrentTime.month < 10 ? ("0" + (CurrentTime.month).tostring()) : (CurrentTime.month).tostring());
+	date += (CurrentTime.day < 10 ? ("0" + (CurrentTime.day).tostring()) : (CurrentTime.day).tostring());
+	date += (CurrentTime.year).tostring();
+
+	return date;
+}
+
+::HasAchievement <- function(achievement_index, player_index)
+{
+	if(PlayerAchievements[player_index][achievement_index] == "0")
+		return false;
+
+	return true;
 }
 
 ::RainbowTrail <- function()

@@ -97,7 +97,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	foreach(sound in PyroSoundsPrecache)
 		PrecacheSound(sound);
 
-	if (!IsHolidayActive(HOLIDAY_SOLDIER))
+	if (!IsHolidayActive(kHoliday_Soldier))
 		EntFire("soldier_statue", "kill");
 
 	CreateGameText();
@@ -159,7 +159,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 ::OuterwallServerThink <- function()
 {
-	return 10000.0;
+	return 1000000000.0;
 }
 
 ::OuterwallClientThink <- function()
@@ -195,6 +195,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	PlayerCheckpointStatus[player_index] = 0;
 	PlayerLanguage[player_index] = 0;
 	PlayerCachedLeaderboardPosition[player_index] = null;
+	PlayerSmokeyProgress[player_index] = 0;
 	//reset arena array
 	ResetPlayerPurpleCoinArenaArray(player_index);
 	ResetPlayerTimeTrialArenaArray(player_index);
@@ -254,6 +255,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 	{
 		foreach(song in PrecacheTrackNames)
 		{
+			if(soundtrack == "plus" && (song == "white" || song == "kaze"))
+				continue;
+
 			client.PrecacheScriptSound("outerwall/music/ost_" + soundtrack + "/" + song + ".wav");
 		}
 	}
@@ -301,35 +305,6 @@ IncludeScript("outerwall_gameevents.nut", this);
 	PlayTrack(PlayerTrackList[player_index], client);
 
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
-}
-
-::PlaySoundscape <- function(strSoundscape, client)
-{
-	local player_index = client.GetEntityIndex().tointeger().tostring();
-
-	local soundscape = SpawnEntityFromTable("env_soundscape_triggerable",
-	{
-		targetname = player_index,
-		origin = OUTERWALL_SKYCAMERA_LOCATION,
-		soundscape = strSoundscape
-	})
-
-	local trigger = SpawnEntityFromTable("trigger_soundscape",
-	{
-		targetname = player_index + player_index,
-		origin = OUTERWALL_SKYCAMERA_LOCATION,
-		soundscape = player_index
-	})
-
-	Entities.DispatchSpawn(soundscape);
-	Entities.DispatchSpawn(trigger);
-	EntFireByHandle(trigger, "StartTouch", "", 0.0, client, client);
-	EntFireByHandle(soundscape, "Kill", "", 0.01, client, client);
-	EntFireByHandle(trigger, "Kill", "", 0.01, client, client);
-	EntFire(player_index, "Kill", "", 0.5, client);
-	EntFire(player_index + player_index, "Kill", "", 0.5, client);
-
-	DebugPrint("Player " + player_index + " is now listening to: " + strSoundscape);
 }
 
 ::PlayTrack <- function(iTrack, client)
@@ -439,22 +414,26 @@ IncludeScript("outerwall_gameevents.nut", this);
 					return;
 				}
 			}
-			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_IRI]) // iri medal active
+
+			local lap_count = PlayerCurrentLapCount[target_index];
+			local current_zone = PlayerZoneList[target_index];
+
+			if(lap_count >= ZoneLaps_Encore[current_zone][OUTERWALL_MEDAL_IRI]) // iri medal active
 			{
 				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_IRI);
 				return;
 			}
-			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_GOLD]) // gold medal active
+			if(lap_count >= ZoneLaps_Encore[current_zone][OUTERWALL_MEDAL_GOLD]) // gold medal active
 			{
 				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_GOLD);
 				return;
 			}
-			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_SILVER]) // silver medal active
+			if(lap_count >= ZoneLaps_Encore[current_zone][OUTERWALL_MEDAL_SILVER]) // silver medal active
 			{
 				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_SILVER);
 				return;
 			}
-			else if(PlayerCurrentLapCount[target_index] >= ZoneLaps_Encore[PlayerZoneList[target_index]][OUTERWALL_MEDAL_BRONZE]) // bronze medal active
+			if(lap_count >= ZoneLaps_Encore[current_zone][OUTERWALL_MEDAL_BRONZE]) // bronze medal active
 			{
 				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_ACTIVE_BRONZE);
 				return;
@@ -465,16 +444,23 @@ IncludeScript("outerwall_gameevents.nut", this);
 				return;
 			}
 		}
-		else if(MedalTimeHUDGameTextEntity) // encore medal times / settings menu
+		if(MedalTimeHUDGameTextEntity) // encore medal times / settings menu
 		{
-			if(PlayerCurrentSettingQuery[target_index] != null)
+			local setting = PlayerCurrentSettingQuery[target_index];
+
+			if(setting == null || setting == eSettingQuerys.Profile)
 			{
-				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_SETTINGS_ENCORE);
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE);
+				return;
+			}
+			if(setting == eSettingQuerys.Soundtrack || setting == eSettingQuerys.Encore || setting == eSettingQuerys.Achievement || setting == eSettingQuerys.Cosmetic)
+			{
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_SETTINGS_LONGER_ENCORE);
 				return;
 			}
 			else
 			{
-				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE);
+				client.SetScriptOverlayMaterial(MAT_ENCOREHUD_MENU_SETTINGS_ENCORE);
 				return;
 			}
 		}
@@ -484,11 +470,18 @@ IncludeScript("outerwall_gameevents.nut", this);
 			return;
 		}
 	}
-	else if(MedalTimeHUDGameTextEntity) // regular medal times / settings menu
+	if(MedalTimeHUDGameTextEntity) // regular medal times / settings menu
 	{
-		if(PlayerCurrentSettingQuery[target_index] == null || PlayerCurrentSettingQuery[target_index] == eSettingQuerys.Profile)
+		local setting = PlayerCurrentSettingQuery[target_index];
+
+		if(setting == null || setting == eSettingQuerys.Profile)
 		{
 			client.SetScriptOverlayMaterial(MAT_MENU_MEDALTIMES);
+			return;
+		}
+		if(setting == eSettingQuerys.Soundtrack || setting == eSettingQuerys.Encore || setting == eSettingQuerys.Achievement || setting == eSettingQuerys.Cosmetic)
+		{
+			client.SetScriptOverlayMaterial(MAT_MENU_SETTINGS_LONGER);
 			return;
 		}
 		else
@@ -643,11 +636,16 @@ IncludeScript("outerwall_gameevents.nut", this);
 			PlayerSpawnCosmeticModelTrail(client, 0, 249, false);
 			break;
 		}
-		case eCosmetics.RainbowTrail:
+		case eCosmetics.Victory:
 		{
-			PlayerSpawnCosmeticModelTrail(client, 0, 249, true);
+			PlayerDispatchCosmeticParticle(client, 0, 249, 0.05, "outerwall_cosmetic_victory_" + PlayerZoneList[player_index], client.GetOrigin() + Vector(0,0,6), Vector(0,180,0));
 			break;
 		}
+		// case eCosmetics.RainbowTrail:
+		// {
+		// 	PlayerSpawnCosmeticModelTrail(client, 0, 249, true);
+		// 	break;
+		// }
 		default: break;
 	}
 }
@@ -691,7 +689,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		disablereceiveshadows = true,
 		rendermode = 5,
 		renderamt = 0,
-		rendercolor = bRainbow ? RainbowTrail() : PlayerEncoreStatus[player_index] ? "0 0 255" : "255 0 0",
+		rendercolor = bRainbow ? RainbowTrail() : Time() % 0.25 >= 0.125 ? "0 255 0" : PlayerEncoreStatus[player_index] ? "0 0 255" : "255 0 0",
 		DefaultAnim = client.GetSequenceName(client.GetSequence())
 	})
 	Entities.DispatchSpawn(trail);
@@ -889,7 +887,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	CheckAchievement_HitAlot(player_index);
 }
 
-::BoosterTouch <- function(bEncoreBooster = false, vCustomAngle = null)
+::BoosterTouch <- function(bEncoreBooster = false)
 {
 	local player_index = activator.GetEntityIndex();
 
@@ -898,17 +896,10 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
 
-	if(vCustomAngle == null)
-		player_velocity.z = 650;
-	else if(type(vCustomAngle) == "vector")
-	{
-		if(vCustom.x != 0) player_velocity.x = vCustom.x;
-		if(vCustom.y != 0) player_velocity.y = vCustom.y;
-		if(vCustom.z != 0) player_velocity.z = vCustom.z;
-	}
+	player_velocity.z = 650;
 
 	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
 	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
 	activator.EmitSound("TFPlayer.AirBlastImpact");
-	PlayerUseInnerWallBoosterDuringRun[player_index] = 1;
+	PlayerUseInnerWallBoosterDuringRun[player_index]++;
 }

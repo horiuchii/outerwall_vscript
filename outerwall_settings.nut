@@ -15,14 +15,16 @@ const LEADERBOARD_RESET_TIME = 300
 ::CosmeticSelection <- array(MAX_PLAYERS, 0)
 ::ResetProfileProgress <- array(MAX_PLAYERS, 0)
 ::LastUpdatedLeaderboard <- 0
-
+//todo: think of adding setting for player sounds, individual or all together
 ::CheckSettingButton <- function(client)
 {
 	local player_index = client.GetEntityIndex();
 
 	local buttons = NetProps.GetPropInt(client, "m_nButtons");
 
-	if(PlayerCurrentSettingQuery[player_index] == null)
+	local current_setting = PlayerCurrentSettingQuery[player_index];
+
+	if(current_setting == null)
 	{
 		NetProps.SetPropFloat(client, "m_flNextAttack", 0);
 		return;
@@ -42,14 +44,25 @@ const LEADERBOARD_RESET_TIME = 300
 	if(ButtonPressed == null)
 		return;
 
-	switch(PlayerCurrentSettingQuery[player_index])
+	switch(current_setting)
 	{
 		case eSettingQuerys.DisplayTime:
 		{
 			if(ButtonPressed != BUTTON_MOUSE1)
 				return;
 
+			//TODO: remove this when adding encore
 			PlayerSettingDisplayTime[player_index] = (!!!PlayerSettingDisplayTime[player_index]).tointeger();
+			break;
+
+			local current_setting = PlayerSettingDisplayTime[player_index];
+			if(current_setting == 0)
+				PlayerSettingDisplayTime[player_index] = 1;
+			else if(current_setting == 1)
+				PlayerSettingDisplayTime[player_index] = 2;
+			else if(current_setting == 2)
+				PlayerSettingDisplayTime[player_index] = 0;
+
 			break;
 		}
 		case eSettingQuerys.DisplayCheckpoint:
@@ -75,7 +88,7 @@ const LEADERBOARD_RESET_TIME = 300
 			local current_track = PlayerSoundtrackList[player_index];
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
-				if(current_track == OUTERWALL_SETTING_SOUNDTRACK_OPTION.len() - 1)
+				if(current_track == Soundtracks.len() - 1)
 					current_track = 0;
 				else
 					current_track++;
@@ -83,7 +96,7 @@ const LEADERBOARD_RESET_TIME = 300
 			else if(ButtonPressed == BUTTON_MOUSE2)
 			{
 				if(current_track == 0)
-					current_track = OUTERWALL_SETTING_SOUNDTRACK_OPTION.len() - 1;
+					current_track = Soundtracks.len() - 1;
 				else
 					current_track--;
 			}
@@ -96,7 +109,9 @@ const LEADERBOARD_RESET_TIME = 300
 			if(ButtonPressed != BUTTON_MOUSE1)
 				return;
 
-			if(IsPlayerEncorable(player_index) || IsPlayerSpecial(player_index))
+			//TODO: REPLACE ME WHEN WE RELEASE WITH ENCORE
+			//if(IsPlayerEncorable(player_index) || IsPlayerSpecial(player_index))
+			if(false)
 				PlayerEncoreStatus[player_index] = (!!!PlayerEncoreStatus[player_index]).tointeger();
 			else
 				return;
@@ -134,7 +149,7 @@ const LEADERBOARD_RESET_TIME = 300
 
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
-				if(AchievementSelection[player_index] == eAchievements.MAX - 2)
+				if(AchievementSelection[player_index] == eAchievements.MAX - 1)
 					AchievementSelection[player_index] = 0;
 				else
 					AchievementSelection[player_index]++;
@@ -152,19 +167,23 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Cosmetic:
 		{
-			if(ButtonPressed == BUTTON_MOUSE3)
-				return;
-
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
-				if(CosmeticSelection[player_index] == OUTERWALL_COSMETIC_NAME.len() - 1)
+				if(CosmeticSelection[player_index] == eCosmetics.MAX - 2)
 					CosmeticSelection[player_index] = 0;
 				else
 					CosmeticSelection[player_index]++;
 			}
 			else if(ButtonPressed == BUTTON_MOUSE2)
 			{
-				if(!!PlayerAchievements[player_index][Cosmetic_Requirement[CosmeticSelection[player_index]]])
+				if(CosmeticSelection[player_index] == 0)
+					CosmeticSelection[player_index] = eCosmetics.MAX - 2;
+				else
+					CosmeticSelection[player_index]--;
+			}
+			else if(ButtonPressed == BUTTON_MOUSE3)
+			{
+				if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
 				{
 					if(PlayerCosmeticEquipped[player_index] - 1 == CosmeticSelection[player_index])
 						PlayerCosmeticEquipped[player_index] = 0;
@@ -206,6 +225,7 @@ const LEADERBOARD_RESET_TIME = 300
 					PlayerLoadGame(player_index);
 					EncoreTeamCheck(client);
 					RemovePlayerFromLeaderboardEntries(PlayerAccountID[player_index]);
+					PlayerCachedLeaderboardPosition[player_index] = null;
 				}
 				else
 					ResetProfileProgress[player_index]++;
@@ -248,12 +268,12 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 	}
 
-	if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Achievement || (PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Cosmetic && ButtonPressed == 1))
+	if(current_setting == eSettingQuerys.Profile || current_setting == eSettingQuerys.Achievement || (current_setting == eSettingQuerys.Cosmetic && (ButtonPressed == 1 || ButtonPressed == 2)))
 		EmitSoundOnClient(SND_MENU_MOVE, client);
 	else
 		EmitSoundOnClient(SND_MENU_SELECT, client);
 
-	if(PlayerCurrentSettingQuery[player_index] <= eSettingQuerys.Encore)
+	if(current_setting <= eSettingQuerys.Encore)
 		UpdateSettingsText(player_index);
 }
 
@@ -305,11 +325,18 @@ const LEADERBOARD_RESET_TIME = 300
 	{
 		if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Soundtrack)
 		{
+			SettingsText += TranslateString(OUTERWALL_SOUNDTRACK_AUTHOR, player_index) + SoundtrackAuthors[PlayerSoundtrackList[player_index]] + "\n";
 			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
 			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
 		}
 		else
+		{
 			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_TOGGLE, player_index);
+
+			if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
+				SettingsText += "\n" + TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_ENCORETUTORIAL, player_index);
+		}
+
 	}
 
 
@@ -339,16 +366,17 @@ const LEADERBOARD_RESET_TIME = 300
 		StatsText += "\n" + TranslateString(OUTERWALL_STATS_TIMEPLAYED, player_index) + FormatTimeHours(PlayerSecondsPlayed[player_index]) + "\n";
 
 		local achievement_count = 0;
-		foreach(playerdata in PlayerAchievements[player_index])
-			achievement_count += playerdata.tointeger();
+		for (local i = 0; i < eAchievements.MAX; i++)
+			achievement_count += (HasAchievement(i, player_index)).tointeger()
 
-		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + (eAchievements.MAX - 1) + "\n";
+		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + eAchievements.MAX + "\n";
 		StatsText += TranslateString(OUTERWALL_STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n";
 		StatsText += TranslateString(OUTERWALL_STATS_RUNSRAN, player_index) + PlayerRunsRan[player_index] + "\n"
 
 		if(IsPlayerEncorable(player_index))
 		{
-			StatsText += TranslateString(OUTERWALL_STATS_LAPSRAN, player_index) + PlayerLapsRan[player_index] + "\n";
+			StatsText += "\n";
+			//StatsText += TranslateString(OUTERWALL_STATS_LAPSRAN, player_index) + PlayerLapsRan[player_index] + "\n";
 
 			local total_time = 0;
 			foreach(time in PlayerBestTimeArray[player_index])
@@ -365,7 +393,7 @@ const LEADERBOARD_RESET_TIME = 300
 	{
 		local iZone = ProfileSelection[player_index] - 1;
 		StatsText += TranslateString(OUTERWALL_STATS_SUBTITLE_TIMES, player_index) + "\n";
-		StatsText += "[" + ZoneNames[iZone] + "] ~ " + (iZone == 0 ? "Main Stage" : "Bonus " + iZone) + "\n";
+		StatsText += "[" + ZoneNames[iZone] + "] ~ " + (iZone == 0 ? TranslateString(OUTERWALL_STATS_TIMES_MAINSTAGE, player_index) : TranslateString(OUTERWALL_STATS_TIMES_BONUS, player_index) + iZone) + "\n";
 		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index)) + "\n";
 		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestTimeArray[player_index][iZone])) + "\n";
 
@@ -387,8 +415,9 @@ const LEADERBOARD_RESET_TIME = 300
 
 		if(IsPlayerEncorable(player_index))
 		{
-			StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
-			StatsText += (iZone != 6 ? ("\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : "\n") + "\n";
+			StatsText += "\n\n";
+			//StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
+			//StatsText += (iZone != 6 ? ("\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : "\n") + "\n";
 		}
 		else
 			StatsText += "\n\n";
@@ -410,21 +439,28 @@ const LEADERBOARD_RESET_TIME = 300
 	local StatsText = "";
 
 	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + " ";
-	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + (eAchievements.MAX - 1) + ")\n";
+	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + eAchievements.MAX + ")\n";
 
 	if((!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > eAchievements.NormalIri) ||
-	(AchievementSelection[player_index] == eAchievements.SecretClimb && !!!PlayerAchievements[player_index][eAchievements.SecretClimb]) ||
-	(AchievementSelection[player_index] == eAchievements.SecretSmokey && !!!PlayerAchievements[player_index][eAchievements.SecretSmokey]))
+	(AchievementSelection[player_index] == eAchievements.SecretClimb && !HasAchievement(eAchievements.SecretClimb, player_index)) ||
+	(AchievementSelection[player_index] == eAchievements.SecretSmokey && !HasAchievement(eAchievements.SecretSmokey, player_index)))
 	{
-		StatsText += "???\n???\n\n"
+		StatsText += "???\n???\n\n\n"
 	}
 	else
 	{
-		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) + "\n";
+		StatsText += "[" + TranslateString(OUTERWALL_ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) + "]\n";
 		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_DESC[AchievementSelection[player_index]], player_index) + "\n";
 	}
 
-	StatsText += !!PlayerAchievements[player_index][AchievementSelection[player_index]] ? "[O]\n" : "[X]\n";
+	StatsText += HasAchievement(AchievementSelection[player_index], player_index) ? "[O]" : "[X]\n";
+
+	if(HasAchievement(AchievementSelection[player_index], player_index))
+	{
+		local achievementdate = PlayerAchievements[player_index][AchievementSelection[player_index]].tostring();
+		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_UNLOCKDATE, player_index) + achievementdate.slice(0,2) + "/" + achievementdate.slice(2,4) + "/" + achievementdate.slice(4,8) + "\n";
+	}
+
 	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
 	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
 
@@ -441,22 +477,23 @@ const LEADERBOARD_RESET_TIME = 300
 	local EquipText = "";
 
 	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index) + " ";
-	EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + OUTERWALL_COSMETIC_NAME.len() + ")\n";
+	EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
 
-	EquipText += TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "\n";
+	EquipText += "[" + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
 	EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n";
 
 	EquipText += "\n";
 
 	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
+	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
 
 	//if our cosmetic achievement isnt met, display the not unlocked message
-	if(!!!PlayerAchievements[player_index][Cosmetic_Requirement[CosmeticSelection[player_index]]])
+	if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
 		EquipText += format(TranslateString(OUTERWALL_COSMETIC_REQUIREMENT, player_index), TranslateString(OUTERWALL_ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
 	else if(CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index])
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_UNEQUIP, player_index);
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_UNEQUIP, player_index);
 	else
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_EQUIP, player_index);
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_EQUIP, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", EquipText);
@@ -470,7 +507,7 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local ResetText = "";
 
-	ResetText += TranslateString(OUTERWALL_RESET_PROFILE_TITLE, player_index) + "\n\n";
+	ResetText += TranslateString(OUTERWALL_RESET_PROFILE_TITLE, player_index) + "\n";
 
 	if(ResetProfileProgress[player_index] == -1)
 		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_NORESET, player_index);
@@ -478,7 +515,7 @@ const LEADERBOARD_RESET_TIME = 300
 		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_RESET, player_index);
 	else
 	{
-		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_QUESTIONS[ResetProfileProgress[player_index]], player_index) + "\n\n";
+		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_QUESTIONS[ResetProfileProgress[player_index]], player_index) + "\n";
 		ResetText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_YES, player_index) + "\n";
 		ResetText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NO, player_index) + "\n";
 	}

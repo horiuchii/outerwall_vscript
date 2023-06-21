@@ -29,36 +29,36 @@
 ]
 ::OUTERWALL_RESET_PROFILE_QUESTIONS <- [
 	::QUESTION_1 <- [
-		"You got some busniness with me?"
-		"You got some busniness with me?"
+		"You got some busniness with me?\n\n"
+		"You got some busniness with me?\n\n"
 	]
 	::QUESTION_2 <- [
-		"Well, then. Do you want to reset your save?"
-		"Well, then. Do you want to reset your save?"
+		"Well, then.\nDo you want to reset your save?\n"
+		"Well, then.\nDo you want to reset your save?\n"
 	]
 	::QUESTION_3 <- [
-		"But in reality, you don't really want to, right?"
-		"But in reality, you don't really want to, right?"
+		"But in reality, you don't\nreally want to, right?\n"
+		"But in reality, you don't\nreally want to, right?\n"
 	]
 	::QUESTION_4 <- [
-		"You really want to that much?"
-		"You really want to that much?"
+		"You really want to that much?\n\n"
+		"You really want to that much?\n\n"
 	]
 	::QUESTION_5 <- [
-		"You want to absolutely positively reset your save no matter what?"
-		"You want to absolutely positively reset your save no matter what?"
+		"You want to absolutely positively\nreset your save no matter what?\n"
+		"You want to absolutely positively\nreset your save no matter what?\n"
 	]
 	::QUESTION_6 <- [
-		"But really you don't want to, right?"
-		"But really you don't want to, right?"
+		"But really you don't want to, right?\n\n"
+		"But really you don't want to, right?\n\n"
 	]
 	::QUESTION_7 <- [
-		"Are you absolutely sure you're sure? Save data doesn't grow like red flowers, you know!"
-		"Are you absolutely sure you're sure? Save data doesn't grow like red flowers, you know!"
+		"Are you absolutely sure you're sure?\nSave data doesn't grow like\nred flowers, you know!"
+		"Are you absolutely sure you're sure?\nSave data doesn't grow like\nred flowers, you know!"
 	]
 	::QUESTION_8 <- [
-		"Pressing yes will irreversably delete all your save data! This is your final warning!"
-		"Pressing yes will irreversably delete all your save data! This is your final warning!"
+		"Pressing yes will irreversably\ndelete all your save data!\nThis is your final warning!"
+		"Pressing yes will irreversably\ndelete all your save data!\nThis is your final warning!"
 	]
 ]
 ::OUTERWALL_RESET_PROFILE_NORESET <- [
@@ -117,8 +117,8 @@
 	"Unequip"
 ]
 ::OUTERWALL_COSMETIC_REQUIREMENT <- [
-	"[LOCKED] Requires \"%s\""
-	"[LOCKED] Requires \"%s\""
+	"[LOCKED] REQ: [%s]"
+	"[LOCKED] REQ: [%s]"
 ]
 ::OUTERWALL_SETTING_YES <- [
 	"Yes"
@@ -143,6 +143,10 @@
 ::OUTERWALL_SETTING_CURRENT <- [
 	"Current Setting: "
 	"Current Setting: "
+]
+::OUTERWALL_SOUNDTRACK_AUTHOR <- [
+	"Author: "
+	"Author: "
 ]
 ::OUTERWALL_LEADERBOARD_NOENTRIES <- [
 	"[NO ENTRIES]"
@@ -261,10 +265,18 @@
 	"Achievements"
 	"Achievements"
 ]
+::OUTERWALL_ACHIEVEMENT_UNLOCKDATE <- [
+	" Achieved: "
+	" Achieved: "
+]
 ::OUTERWALL_ACHIEVEMENT_NAME <- [
 	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_NAME <- [
 		"Pain O' Plenty"
 		"Pain O' Plenty"
+	]
+	::OUTERWALL_ACHIEVEMENT_RUNS_ALOT_NAME <- [
+		"Moonside Marathon"
+		"Moonside Marathon"
 	]
 	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_NAME <- [
 		"Climber's Clamber"
@@ -299,12 +311,12 @@
 		"Encore, Encore!"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
-		"Iron Bond"
-		"Iron Bond"
+		"Golden God"
+		"Golden God"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
-		"TODO: NORMAL_ALLIRI"
-		"TODO: NORMAL_ALLIRI"
+		"Incandescent Iridescence"
+		"Incandescent Iridescence"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
 		"Island Collapse Ad Infinitum"
@@ -349,56 +361,64 @@
 ]
 ::OUTERWALL_ACHIEVEMENT_DESC <- [
 	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_DESC <- [
-		"Take environmental damage 5000 times.\n"
-		"Take environmental damage 5000 times.\n"
+		"Take damage from the\nenvironment 5000 times.\n"
+		"Take damage from the\nenvironment 5000 times.\n"
+	]
+	::OUTERWALL_ACHIEVEMENT_RUNS_ALOT_DESC <- [
+		"Complete 150 Runs.\n\n"
+		"Complete 150 Runs.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
-	 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
-	 	"Don't touch any rails or climbable pipes at the Outer Wall.\n"
+	 	"Don't touch any rails or\nclimbable pipes at the Outer Wall.\n"
+	 	"Don't touch any rails or\nclimbable pipes at the Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
-		"Don't touch any of the air currents at the Inner Wall.\n"
-		"Don't touch any of the air currents at the Inner Wall.\n"
+		"Don't touch any of the air currents\nmore than 3 times at the Inner Wall.\n"
+		"Don't touch any of the air currents\nmore than 3 times at the Inner Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
-		"Don't take any environmental damage at the Sacred Grounds.\n"
-		"Don't take any environmental damage at the Sacred Grounds.\n"
+		"Don't take any environment\ndamage at the Sacred Grounds.\n"
+		"Don't take any environment\ndamage at the Sacred Grounds.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_WINDFORTRESS_NODOUBLEJUMPNODMG_DESC <- [
-		"Don't take any environmental damage and don't double jump at the Wind Fortress.\n"
-		"Don't take any environmental damage and don't double jump at the Wind Fortress.\n"
+		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
+		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
-		"Earn at least an A rank without using the radar at the Sand Pit.\n"
-		"Earn at least an A rank without using the radar at the Sand Pit.\n"
+		"Earn at least an A rank without\nusing the radar at the Sand Pit.\n"
+		"Earn at least an A rank without\nusing the radar at the Sand Pit.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_DESC <- [
-		"Find Smokey."
-		"Find Smokey."
+		"Find Smokey.\n\n"
+		"Find Smokey.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
-		"not funny\n"
-		"not funny\n"
+		"not funny\n\n"
+		"not funny\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
-		"Unlock Encore mode.\n"
-		"Unlock Encore mode.\n"
+		"Earn a rank in every course.\n\n"
+		"Earn a rank in every course.\n\n"
 	]
+	// ::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
+	// 	"Unlock Encore mode by earning a rank in every course.\n"
+	// 	"Unlock Encore mode by earning a rank in every course.\n"
+	// ]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
-		"Earn an A Rank on each course.\n"
-		"Earn an A Rank on each course.\n"
+		"Earn an A Rank on each course.\n\n"
+		"Earn an A Rank on each course.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
-		"Earn an S Rank on each course.\n"
-		"Earn an S Rank on each course.\n"
+		"Earn an S Rank on each course.\n\n"
+		"Earn an S Rank on each course.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
 		"Complete 100 extra laps.\n"
 		"Complete 100 extra laps.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
-		"Don't take any environmental damage at Encore Outer Wall.\n"
-		"Don't take any environmental damage at Encore Outer Wall.\n"
+		"Don't take any environment damage at Encore Outer Wall.\n"
+		"Don't take any environment damage at Encore Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
 		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
@@ -479,8 +499,8 @@
 	"Main Stage"
 ]
 ::OUTERWALL_STATS_TIMES_BONUS <- [
-	"Bonus"
-	"Bonus"
+	"Bonus "
+	"Bonus "
 ]
 
 ::OUTERWALL_COSMETIC_TITLE <- [
@@ -500,6 +520,10 @@
 		"Mach Trail"
 		"Mach Trail"
 	]
+	::OUTERWALL_COSMETIC_VICTORY_NAME <- [
+		"Victory Lap"
+		"Victory Lap"
+	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_NAME <- [
 		"Rainbow Trail"
 		"Rainbow Trail"
@@ -515,16 +539,20 @@
 ]
 ::OUTERWALL_COSMETIC_DESC <- [
 	::OUTERWALL_COSMETIC_BOOSTER_DESC <- [
-		"This nozzle powered jetpack can\ncross any perilous gap you need."
-		"This nozzle powered jetpack can\ncross any perilous gap you need."
+		"This rocket powered jetpack can\ncross any perilous gap you need."
+		"This rocket powered jetpack can\ncross any perilous gap you need."
 	]
 	::OUTERWALL_COSMETIC_PURPLESHINE_DESC <- [
-		"Nobody knows where these coins\ncame from, but they sure are beautiful."
-		"Nobody knows where these coins\ncame from, but they sure are beautiful."
+		"Nobody knows where these coins\ncame from, but they sure are shiny."
+		"Nobody knows where these coins\ncame from, but they sure are shiny."
 	]
 	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
-		"Nothing compares!"
-		"Nothing compares!"
+		"Nothing compares!\n"
+		"Nothing compares!\n"
+	]
+	::OUTERWALL_COSMETIC_VICTORY_DESC <- [
+		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
+		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
 		"Perfect for the aftermath\nof a stormy night."
@@ -751,8 +779,12 @@
 			"That could've gone better, you"
 		]
 		::MESSAGE_4 <- [
-			"Atleast you got something, you"
-			"Atleast you got something, you"
+			"Atleast it's something, you"
+			"Atleast it's something, you"
+		]
+		::MESSAGE_5 <- [
+			"Better than nothing, you"
+			"Better than nothing, you"
 		]
 	]
 	::OUTERWALL_TIMER_MESSAGE_SILVER <- [
@@ -863,8 +895,8 @@
 		"Esté atento a las rutas alternativas a través de un curso, ¡pueden ayudarlo a lograr mejores tiempos!"
 	]
 	::TIP_4 <- [
-		"The computer at the start of each course can tell you what the Gold, Silver and Bronze times for that course are."
-		"La computadora al comienzo de cada curso puede decirle cuáles son los tiempos de oro, plata y bronce para ese curso."
+		"The computer at the start of each course can tell you what the rank times for that course are, aim for the best!"
+		"The computer at the start of each course can tell you what the rank times for that course are, aim for the best!"
 	]
 	::TIP_5 <- [
 		"Dying or falling off on a couse will have you conveniently respawn at the start to keep the momentum of the runs going!"
@@ -890,10 +922,10 @@
 		"Touching lava will actually send you twice as high as a spike does, while only dealing half the damage!"
 		"¡Tocar lava en realidad te enviará el doble de alto que un pico, mientras que solo inflige la mitad del daño!"
 	]
-	::TIP_11 <- [
-		"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
-		"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
-	]
+	// ::TIP_11 <- [
+	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
+	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
+	// ]
 ]
 ::OUTERWALL_TIP_CRAP <- [
 	::TIP_1 <- [

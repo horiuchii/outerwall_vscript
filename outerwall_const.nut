@@ -1,19 +1,8 @@
 //shorten constants for sanity
-::MAX_PLAYERS <- Constants.Server.MAX_PLAYERS
-::TEAM_UNASSIGNED <- Constants.ETFTeam.TEAM_UNASSIGNED
-::TF_TEAM_RED <- Constants.ETFTeam.TF_TEAM_RED
-::TF_TEAM_BLUE <- Constants.ETFTeam.TF_TEAM_BLUE
-::TEAM_SPECTATOR <- Constants.ETFTeam.TEAM_SPECTATOR
-::HOLIDAY_SOLDIER <- Constants.EHoliday.kHoliday_Soldier
-::OBS_MODE_IN_EYE <- Constants.ESpectatorMode.OBS_MODE_IN_EYE
-::OBS_MODE_CHASE <- Constants.ESpectatorMode.OBS_MODE_CHASE
-::DMG_BURN <- Constants.FDmgType.DMG_BURN
-::HUD_PRINTTALK <- Constants.EHudNotify.HUD_PRINTTALK
-::IN_ATTACK <- Constants.FButtons.IN_ATTACK
-::IN_ATTACK2 <- Constants.FButtons.IN_ATTACK2
-::IN_ATTACK3 <- Constants.FButtons.IN_ATTACK3
-::TF_CLASS_SCOUT <- Constants.ETFClass.TF_CLASS_SCOUT
-::FL_ONGROUND <- Constants.FPlayer.FL_ONGROUND
+foreach (a,b in Constants)
+	foreach (k,v in b)
+		if (!(k in getroottable()))
+			getroottable()[k] <- v;
 
 const BUTTON_MOUSE1 = 1
 const BUTTON_MOUSE2 = 2
@@ -31,22 +20,27 @@ const OUTERWALL_MEDAL_SILVER = 1
 const OUTERWALL_MEDAL_GOLD = 2
 const OUTERWALL_MEDAL_IRI = 3
 
-const SMOKEY_TRIGGER_OUTERWALL = 1
-const SMOKEY_TRIGGER_LASTCAVE = 2
-const SMOKEY_TRIGGER_BALCONY = 4
-const SMOKEY_TRIGGER_INNERWALL = 8
-const SMOKEY_TRIGGER_HELL = 16
-const SMOKEY_TRIGGER_WINDFORTRESS = 32
-const SMOKEY_TRIGGER_SANDPIT = 64
+::SMOKEY_TRIGGER_ZONES <- [
+	1 //outerwall
+	2 //lastcave
+	4 //balcony
+	8 //innerwall
+	16 //hell
+	32 //windfortress
+	64 //sandpit
+]
+
 const SMOKEY_TRIGGER_ALL = 127
 
 const MAT_MENU_MEDALTIMES = "outerwall/hud/hud_menu1.vmt"
 const MAT_MENU_SETTINGS = "outerwall/hud/hud_menu2.vmt"
+const MAT_MENU_SETTINGS_LONGER = "outerwall/hud/hud_menu3.vmt"
 
 const MAT_ENCOREHUD = "outerwall/hud/hud_encore.vmt"
 const MAT_ENCOREHUD_RADAR = "outerwall/hud/hud_encore_radar.vmt"
 const MAT_ENCOREHUD_MENU_MEDALTIMES_ENCORE = "outerwall/hud/hud_encore_menu1.vmt"
 const MAT_ENCOREHUD_MENU_SETTINGS_ENCORE = "outerwall/hud/hud_encore_menu2.vmt"
+const MAT_ENCOREHUD_MENU_SETTINGS_LONGER_ENCORE = "outerwall/hud/hud_encore_menu3.vmt"
 const MAT_ENCOREHUD_ACTIVE_TIMELERPING = "outerwall/hud/hud_encore_timelerping.vmt"
 const MAT_ENCOREHUD_ACTIVE_TIMELERPING_LAPUP = "outerwall/hud/hud_encore_timelerping_lapup.vmt"
 
@@ -84,6 +78,7 @@ enum eCourses{
 
 enum eAchievements{
 	HurtAlot
+	RunsAlot
 	NormalOuterWallNoParkour
 	NormalInnerWallNoBoost
 	NormalHellNoDmg
@@ -94,16 +89,16 @@ enum eAchievements{
 	EncoreUnlock
 	NormalGold
 	NormalIri
-	LapsAlot
-	EncoreOsideNoDmg
-	EncoreBalconyClock
-	EncoreHellTime
-	EncorePurpleCoinNoRadar
-	EncoreFinish
-	EncoreGold
-	EncoreIri
-	AllGold
-	AllIri
+	// LapsAlot
+	// EncoreOsideNoDmg
+	// EncoreBalconyClock
+	// EncoreHellTime
+	// EncorePurpleCoinNoRadar
+	// EncoreFinish
+	// EncoreGold
+	// EncoreIri
+	// AllGold
+	// AllIri
 	MAX
 }
 
@@ -142,9 +137,11 @@ enum eCosmetics{
 	Booster
 	PurpleCoin
 	MachTrail
-	RainbowTrail
-	RaveStory
-	WhimsicalStar
+	Victory
+	// 	RainbowTrail
+	// 	RaveStory
+	// 	WhimsicalStar
+	MAX
 }
 
 ::Cosmetic_Requirement <-
@@ -152,9 +149,10 @@ enum eCosmetics{
 	eAchievements.NormalInnerWallNoBoost //booster spritetrail
     eAchievements.NormalPurpleCoinNoRadar //purple shine
 	eAchievements.EncoreUnlock //mach trail
-	eAchievements.EncoreOsideNoDmg //rainbow trail
-    eAchievements.EncoreBalconyClock //rave story
-	eAchievements.AllGold //whimsical star
+	eAchievements.NormalIri //victory
+	// eAchievements.EncoreOsideNoDmg //rainbow trail
+    // eAchievements.EncoreBalconyClock //rave story
+	// eAchievements.AllGold //whimsical star
 ]
 
 ::ResetProfile_Answers <-
@@ -174,12 +172,11 @@ enum eCosmetics{
 	".Remastered",
 	".Ridiculon",
 	".Organya",
-	".Plus",
-	".Remixed",
-	".Keromix"
+	".Plus"
+	//".Remixed",
+	//".Keromix"
 ]
 
-//TODO: ENUM THIS BITCH, FUCK
 ::Tracks <-
 [
 	"White", //0
@@ -212,8 +209,8 @@ enum eCosmetics{
 	"ridic"
 	"organya"
 	"plus"
-	"remixed"
-	"kero"
+	//"remixed"
+	//"kero"
 ]
 
 ::PrecacheTrackNames <-
@@ -227,4 +224,14 @@ enum eCosmetics{
 	"hell",
 	"kaze",
 	"mdown2"
+]
+
+::SoundtrackAuthors <-
+[
+	"Danny Baranowsky"
+	"Matthias Bossi & Jon Evans"
+	"Daisuke Amaya (Pixel)"
+	"Yann van der Cruyssen"
+	"iFlicky & Cornetto"
+	"Daisuke Amaya (Pixel)"
 ]

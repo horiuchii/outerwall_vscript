@@ -37,11 +37,11 @@ const NO_MEDAL_COLOR = "008B8B";
 [
 	// bronze, silver, gold, iridescence
 	[2, 3, 5, 6], //oside
-	[1, 2, 3, 5], //last cave
-	[1, 2, 3, 4], //balcony
-	[1, 2, 3, 4], //inner wall
-	[1, 2, 3, 4], //hell
-	[1, 2, 3, 4], //wind fortress
+	[2, 2, 3, 5], //last cave
+	[2, 2, 3, 4], //balcony
+	[2, 2, 3, 4], //inner wall
+	[2, 2, 3, 4], //hell
+	[2, 2, 3, 4], //wind fortress
 	[155, 135, 115, 100], //sand pit
 ]
 
@@ -253,7 +253,9 @@ const NO_MEDAL_COLOR = "008B8B";
 
 	if(bSetHUD)
 	{
-		if(PlayerCurrentSettingQuery[player_index] == null)
+		local current_setting = PlayerCurrentSettingQuery[player_index];
+
+		if(current_setting == null || current_setting == eSettingQuerys.Profile || current_setting == eSettingQuerys.Leaderboard || current_setting == eSettingQuerys.Achievement)
 			EmitSoundOnClient(SND_CHECKPOINT, activator);
 		else
 			EmitSoundOnClient(SND_MENU_PROMPT, activator);

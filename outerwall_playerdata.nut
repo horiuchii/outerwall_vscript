@@ -103,7 +103,7 @@ enum PlayerDataTypes
 	PlayerBestSandPitTimeEncoreArray[player_index] = 5000;
 
 	for(local i = 0; i < eAchievements.MAX; i++)
-		PlayerAchievements[player_index][i] = 0;
+		PlayerAchievements[player_index][i] = "0";
 
 	foreach(i, stats in PlayerMiscStats)
 		PlayerMiscStats[i][player_index] = 0;
@@ -212,7 +212,7 @@ enum PlayerDataTypes
 	save += PlayerBestSandPitTimeEncoreArray[player_index] + ",;,";
 
 	foreach(playerdata in PlayerAchievements[player_index])
-		save += playerdata.tointeger() + ",";
+		save += playerdata.tostring() + ",";
 
 	save += ";,";
 
@@ -328,7 +328,7 @@ enum PlayerDataTypes
 					}
 					case PlayerDataTypes.achievements:
 					{
-						PlayerAchievements[player_index][load_data] = !!savebuffer.tointeger();
+						PlayerAchievements[player_index][load_data] = savebuffer.tostring();
 						break;
 					}
 					case PlayerDataTypes.misc_stats:
@@ -376,10 +376,10 @@ enum PlayerDataTypes
 	}
 
 	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null)
-	{
-		if(!IsPlayerEncorable(player_index))
-			return;
-	}
+		return;
+
+	if(!IsPlayerEncorable(player_index))
+		return;
 
 	local name = AddEscapeChars(NetProps.GetPropString(player, "m_szNetname"));
 
@@ -403,7 +403,7 @@ enum PlayerDataTypes
 	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
 
 	// get back list of entries
-	if(entry_list_string != null)
+	if(entry_list_string != null && entry_list_string != "empty")
 	{
 		local load_data = 0;
 
@@ -474,7 +474,7 @@ enum PlayerDataTypes
 {
 	local entry_list_string = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE);
 
-	if(entry_list_string == null)
+	if(entry_list_string == null || entry_list_string == "empty")
 		return;
 
 	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
@@ -519,24 +519,34 @@ enum PlayerDataTypes
 	//save the file
 	local save = "";
 
-	foreach(leaderboard_entry in entry_list_array)
+	if(entry_list_array[0] == "-1")
+		save = "empty";
+	else
 	{
-		save += leaderboard_entry + ",";
+		foreach(leaderboard_entry in entry_list_array)
+		{
+			save += leaderboard_entry + ",";
+		}
 	}
 
 	StringToFile(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE, save);
+	PopulateLeaderboard();
 }
 
 ::PopulateLeaderboard <- function()
 {
+	PlayerCachedLeaderboardPosition = array(MAX_PLAYERS, null);
 	local entry_list_string = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_SAVELEADERBOARD + OUTERWALL_SAVETYPE);
 
-	if(entry_list_string == null)
+	if(entry_list_string == null || entry_list_string == "empty")
 	{
+		leaderboard_loaded = false;
 		EntFire("leaderboard_*", "SetText", "");
+		EntFire("leaderboard_*", "SetColor", "255 255 255");
+		EntFire("leaderboard_*", "SetRainbow", "0");
+		EntFire("leaderboard_" + round(LEADERBOARD_PAGE_SIZE / 2, 0), "SetText", "                                      [NO ENTRIES]");
 		return;
 	}
-
 
 	//parse leaderboard_entries
 	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
@@ -659,13 +669,13 @@ enum PlayerDataTypes
 		entry_data_array[entry_index] = entry_data;
 	}
 
-	if(true)
+	if(false)
 	{
 		for(local i = 0; i < MAX_LEADERBOARD_ENTRIES; i++)
 		{
 			dummy_entry_data <- {
 				account_id = null,
-				steam_name = "the fox jumped over the lazy dog",
+				steam_name = i % 2 ? "the fox jumped over the lazy dog" : UniqueString(i.tostring()),
 				total_time = RandomFloat(LEADERBOARD_IRI - 30, LEADERBOARD_BRONZE + 250)
 			}
 
@@ -680,7 +690,6 @@ enum PlayerDataTypes
 	}
 
 	leaderboard_array = entry_data_array;
-	PlayerCachedLeaderboardPosition = array(MAX_PLAYERS, null);
 	SetLeaderboardPage(1);
 	leaderboard_loaded = true;
 }
