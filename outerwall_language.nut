@@ -97,8 +97,8 @@
 	"Toggle"
 ]
 ::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
-	"[LOCKED] Requires a time on each course"
-	"[LOCKED] Requires a time on each course"
+	"[LOCKED] Requires a rank on each course"
+	"[LOCKED] Requires a rank on each course"
 ]
 ::OUTERWALL_SETTING_NEXTPAGE <- [
 	"Next"
@@ -107,6 +107,10 @@
 ::OUTERWALL_SETTING_PREVPAGE <- [
 	"Previous"
 	"Previous"
+]
+::OUTERWALL_SETTING_EDIT <- [
+	"Edit"
+	"Edit"
 ]
 ::OUTERWALL_SETTING_EQUIP <- [
 	"Equip"
@@ -177,7 +181,7 @@
 ]
 ::OUTERWALL_SETTING_DESC <- [
 	::OUTERWALL_SETTING_FINALTIME_DESC <- [
-		"Shows a run's final time,\ncolor representing the rank."
+		"Shows a run's final time\nwhen completing one."
 		"Shows a run's final time,\ncolor representing the rank."
 	]
 	::OUTERWALL_SETTING_CHECKPOINTTIME_DESC <- [
@@ -189,8 +193,8 @@
 		"The soundtrack variant that\nis currently playing."
 	]
 	::OUTERWALL_SETTING_ENCORE_DESC <- [
-		"Encore Mode remixes every course\nand adds a time limit for an extra challenge!"
-		"Encore Mode remixes every course\nand adds a time limit for an extra challenge!"
+		"Encore Mode remixes every course into\na time trial where you run multiple laps\nfor the ultimate challenge!"
+		"Encore Mode remixes every course into\na time trial where you run multiple laps\nfor the ultimate challenge!"
 	]
 ]
 ::OUTERWALL_SETTING_CHECKPOINTTIME_OPTION <- [
@@ -294,29 +298,25 @@
 		"Let The Wind Guide You"
 		"Let The Wind Guide You"
 	]
-	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_NAME <- [
-		"Non Volatile Memory"
-		"Non Volatile Memory"
-	]
 	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_NAME <- [
 		"Secret Smokester"
 		"Secret Smokester"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_NAME <- [
-		"Breaking The Fourth (Outer) Wall"
-		"Breaking The Fourth (Outer) Wall"
+		"Fuck You, Pyro!"
+		"Fuck You, Pyro!"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
 		"Encore, Encore!"
 		"Encore, Encore!"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
-		"Golden God"
-		"Golden God"
+		"Outer Ace"
+		"Outer Ace"
 	]
 	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
-		"Incandescent Iridescence"
-		"Incandescent Iridescence"
+		"Outer God"
+		"Outer God"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
 		"Island Collapse Ad Infinitum"
@@ -333,10 +333,6 @@
 	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
 		"Nikumaru Masta"
 		"Nikumaru Masta"
-	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_NAME <- [
-		"NAND Flash"
-		"NAND Flash"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
 		"Mimiga Death March"
@@ -369,8 +365,8 @@
 		"Complete 150 Runs.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
-	 	"Don't touch any rails or\nclimbable pipes at the Outer Wall.\n"
-	 	"Don't touch any rails or\nclimbable pipes at the Outer Wall.\n"
+	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
+	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
 		"Don't touch any of the air currents\nmore than 3 times at the Inner Wall.\n"
@@ -384,17 +380,13 @@
 		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
 		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_SANDPIT_NORADAR_DESC <- [
-		"Earn at least an A rank without\nusing the radar at the Sand Pit.\n"
-		"Earn at least an A rank without\nusing the radar at the Sand Pit.\n"
-	]
 	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_DESC <- [
 		"Find Smokey.\n\n"
 		"Find Smokey.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
-		"not funny\n\n"
-		"not funny\n\n"
+		"Meet the Pyro.\n\n"
+		"Meet the Pyro.\n\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
 		"Earn a rank in every course.\n\n"
@@ -427,10 +419,6 @@
 	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
 		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
 		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
-	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_SANDPIT_NORADAR_DESC <- [
-		"Earn atleast an A rank without using the radar at Encore Sand Pit.\n"
-		"Earn atleast an A rank without using the radar at Encore Sand Pit.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
 		"Earn a rank in every Encore course.\n"
@@ -516,13 +504,13 @@
 		"Purple Shine"
 		"Purple Shine"
 	]
-	::OUTERWALL_COSMETIC_MACHTRAIL_NAME <- [
-		"Mach Trail"
-		"Mach Trail"
-	]
 	::OUTERWALL_COSMETIC_VICTORY_NAME <- [
 		"Victory Lap"
 		"Victory Lap"
+	]
+	::OUTERWALL_COSMETIC_MACHTRAIL_NAME <- [
+		"Mach Trail"
+		"Mach Trail"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_NAME <- [
 		"Rainbow Trail"
@@ -543,16 +531,16 @@
 		"This rocket powered jetpack can\ncross any perilous gap you need."
 	]
 	::OUTERWALL_COSMETIC_PURPLESHINE_DESC <- [
-		"Nobody knows where these coins\ncame from, but they sure are shiny."
-		"Nobody knows where these coins\ncame from, but they sure are shiny."
-	]
-	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
-		"Nothing compares!\n"
-		"Nothing compares!\n"
+		"Nobody knows where these cion\ncame from, but they sure are shiny."
+		"Nobody knows where these cion\ncame from, but they sure are shiny."
 	]
 	::OUTERWALL_COSMETIC_VICTORY_DESC <- [
 		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
 		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
+	]
+	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
+		"Nothing compares!\n"
+		"Nothing compares!\n"
 	]
 	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
 		"Perfect for the aftermath\nof a stormy night."
@@ -598,8 +586,8 @@
 ]
 
 ::OUTERWALL_HUD_COIN <- [
-	"Coin\nx"
-	"Coin\nx"
+	"Cion\nx"
+	"Cion\nx"
 ]
 ::OUTERWALL_HUD_COINRADAR_READY <- [
 	::MSG1 <- [
@@ -620,8 +608,8 @@
 	"Vuelta "
 ]
 ::OUTERWALL_TIMETRIAL_FINALLAP <- [
-	"FINAL \nLAP"
-	"FINAL \nLAP"
+	"Lap\nFINAL"
+	"Lap\nFINAL"
 ]
 ::OUTERWALL_TIMER_ENCORE <- [
 	"Encore "
@@ -697,20 +685,20 @@
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
 	::BRONZE <- [
-		"C Rank: "
-		"C Rank: "
+		"C Rank"
+		"C Rank"
 	]
 	::SILVER <- [
-		"B Rank: "
-		"B Rank: "
+		"B Rank"
+		"B Rank"
 	]
 	::GOLD <- [
-		"A Rank: "
-		"A Rank: "
+		"A Rank"
+		"A Rank"
 	]
 	::IRIDESCENT <- [
-		"S Rank: "
-		"S Rank: "
+		"S Rank"
+		"S Rank"
 	]
 ]
 ::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [

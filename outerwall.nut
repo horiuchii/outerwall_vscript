@@ -31,6 +31,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 {
 	DebugPrint("OUTERWALL INIT STARTED");
 
+	const MDL_SCOUT_TRAIL = "models/outerwall/player/scout.mdl";
+	//const MDL_SCOUT_TRAIL_WHIMSICALSTAR = "models/outerwall/player/scout_whimsicalstar.mdl";
+
 	//Precache soundscript sounds
 	PrecacheSound("outerwall/snd_quote_walk.mp3");
 
@@ -52,7 +55,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	PrecacheSound("outerwall/checkpoint.mp3");
 	const SND_CHECKPOINT = "Outerwall.Checkpoint";
 
-	PrecacheSound("outerwall/snd_purplecometcoin_collect.mp3");
+	PrecacheSound("outerwall/snd_cion_collect.mp3");
 	const SND_PURPLECOIN_COLLECT = "Outerwall.PurpleCometCoinCollect";
 
 	PrecacheSound("outerwall/radar_ping.mp3");
@@ -164,7 +167,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 ::OuterwallClientThink <- function()
 {
-	//CheckForCheating(self);
+	CheckForCheating(self);
 
 	PlaySpectatorTrackThink(self);
 
@@ -172,7 +175,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	CheckPurpleCoinAnnotateButton(self);
 
-	PlayerTimeTrialThink(self);
+	//PlayerTimeTrialThink(self);
 
 	PurpleCoinHudThink(self);
 
@@ -201,6 +204,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 	ResetPlayerTimeTrialArenaArray(player_index);
 	//reset medal times
 	ResetPlayerDataArrays(player_index);
+	//make sure menus dont persist
+	ResetPlayerMenuArrays(player_index);
 
 	DebugPrint("Reset global arrays for player " + player_index);
 }
@@ -302,7 +307,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	PlayerSoundtrackList[player_index] = iTrack;
-	PlayTrack(PlayerTrackList[player_index], client);
+	PlaySoundscape("outerwall." + Tracks[PlayerTrackList[player_index]] + Soundtracks[PlayerSoundtrackList[player_index]], client);
 
 	DebugPrint("Player " + player_index + "'s soundtrack is: " + Soundtracks[PlayerSoundtrackList[player_index]]);
 }
@@ -313,6 +318,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	local player_index = client.GetEntityIndex();
+
+	if(iTrack == PlayerTrackList[player_index])
+		return;
 
 	PlayerTrackList[player_index] = iTrack;
 
@@ -399,6 +407,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	// display overlay hud
 	if(encore_hud_active) // encore / normal bonus6
 	{
+		/*
 		if(PlayerTimeTrialActive[target_index]) // blinking timer
 		{
 			if(IsTimeLerping(target_index)) // time going up
@@ -444,6 +453,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 				return;
 			}
 		}
+		*/
 		if(MedalTimeHUDGameTextEntity) // encore medal times / settings menu
 		{
 			local setting = PlayerCurrentSettingQuery[target_index];
@@ -529,25 +539,13 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(!client || PlayerCheatedCurrentRun[player_index] == true)
 		return;
 
-	if(bGlobalCheated)
-	{
-		PlayerCheatedCurrentRun[player_index] = true;
-		return;
-	}
-
-	if(Convars.GetBool("sv_cheats"))
-	{
-		PlayerCheatedCurrentRun[player_index] = true;
-		return;
-	}
-
 	if(client.IsNoclipping())
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
 		return;
 	}
 
-	local Distance = (client.GetOrigin() - PlayerLastPosition[player_index]).Length()
+	local Distance = (client.GetOrigin() - PlayerLastPosition[player_index]).Length();
 
 	if(Distance > 96)
 	{
@@ -555,15 +553,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 	}
 
-	PlayerLastPosition[player_index] = client.GetOrigin()
-
-	if(NetProps.GetPropInt(client, "m_PlayerClass.m_iClass") != TF_CLASS_SCOUT)
-	{
-		PlayerCheatedCurrentRun[player_index] = true;
-		return;
-	}
-
-	//todo: block sm_goto
+	PlayerLastPosition[player_index] = client.GetOrigin();
 }
 
 ::PlayerLastIsJumpingState <- array(MAX_PLAYERS, false)
@@ -585,7 +575,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 	else if(PlayerLastGroundedState[player_index] == false && grounded_state == true)
 		client.EmitSound(SND_QUOTE_THUD);
 
-	else if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1)
+	//todo: this plays on wallrun and similar actions, fix me!
+	else if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1 && !client.IsNoclipping())
 		client.EmitSound(SND_BOOSTER);
 
 	PlayerLastIsJumpingState[player_index] = jump_state;
@@ -605,48 +596,63 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	NetProps.SetPropVector(client, "m_Local.m_skybox3d.origin", SkyCameraLocation);
 }
+
 ::PlayerLastCosmeticSpawn <-
 [
 	::PlayerLastSpawnCosmeticA <- array(MAX_PLAYERS, 0)
 	::PlayerLastSpawnCosmeticB <- array(MAX_PLAYERS, 0)
 ]
 
+::PlayerCosmeticLastMachColor <- array(MAX_PLAYERS, 0)
+
 ::PlayerCosmeticThink <- function(client)
 {
 	local player_index = client.GetEntityIndex();
 
-	if(!IsPlayerAlive(client) || client.IsNoclipping())
+	if(!IsPlayerAlive(client))
 		return;
 
 	switch(PlayerCosmeticEquipped[player_index])
 	{
 		case eCosmetics.Booster:
 		{
-			PlayerDispatchCosmeticParticle(client, 0, 249, 0.05, "outerwall_cosmetic_booster", client.GetOrigin() + Vector(0,0,42), Vector(0,0,0));
+			PlayerDispatchCosmeticParticle(client, 0, 419, 0.05, "outerwall_cosmetic_booster", client.GetOrigin() + Vector(0,0,42), Vector(0,0,0));
 			break;
 		}
 		case eCosmetics.PurpleCoin:
 		{
 			PlayerDispatchCosmeticParticle(client, 0, 0, 0.25, "outerwall_cosmetic_purplecoin", client.GetOrigin() + Vector(0,0,42), Vector(0,90,0));
-			PlayerDispatchCosmeticParticle(client, 1, 249, 0.0, "outerwall_cosmetic_purplecoin_dash_" + (PlayerEncoreStatus[player_index] ? "blue" : "red"), client.GetOrigin(), Vector(0,90,0));
+			PlayerDispatchCosmeticParticle(client, 1, 419, 0.0, "outerwall_cosmetic_purplecoin_dash_" + (PlayerEncoreStatus[player_index] ? "blue" : "red"), client.GetOrigin(), Vector(0,90,0));
 			break;
 		}
+		// case eCosmetics.WhimsicalStar:
+		// {
+		// 	PlayerSpawnAttachedCosmeticParticle(client, 0, 0, 1, "outerwall_cosmetic_whimsicalstar_0", client.GetOrigin() + Vector(0,0,42), Vector(0,0,0));
+		// 	break;
+		// }
 		case eCosmetics.MachTrail:
 		{
-			PlayerSpawnCosmeticModelTrail(client, 0, 249, false);
+			if(MachTrailColors[PlayerCosmeticLastMachColor[player_index]][player_index] == "000 000 000")
+				PlayerCosmeticLastMachColor[player_index] = (PlayerCosmeticLastMachColor[player_index] + 1) % 3;
+
+			if(PlayerSpawnCosmeticModelTrail(client, 0, 249, 0.125, MDL_SCOUT_TRAIL, MachTrailColors[PlayerCosmeticLastMachColor[player_index]][player_index]))
+			{
+				PlayerCosmeticLastMachColor[player_index]++;
+				if(PlayerCosmeticLastMachColor[player_index] > MachTrailColors.len() - 1)
+					PlayerCosmeticLastMachColor[player_index] = 0;
+			}
 			break;
 		}
 		case eCosmetics.Victory:
 		{
-			PlayerDispatchCosmeticParticle(client, 0, 249, 0.05, "outerwall_cosmetic_victory_" + PlayerZoneList[player_index], client.GetOrigin() + Vector(0,0,6), Vector(0,180,0));
+			PlayerDispatchCosmeticParticle(client, 1, 419, 0.1, "outerwall_cosmetic_victory_" + PlayerZoneList[player_index], client.GetOrigin() + Vector(0,0,6), Vector(0,180,0));
 			break;
 		}
-		// case eCosmetics.RainbowTrail:
-		// {
-		// 	PlayerSpawnCosmeticModelTrail(client, 0, 249, true);
-		// 	break;
-		// }
-		default: break;
+		case eCosmetics.RainbowTrail:
+		{
+			PlayerSpawnCosmeticModelTrail(client, 0, 249, 0.125, MDL_SCOUT_TRAIL, RainbowTrail());
+			break;
+		}
 	}
 }
 
@@ -655,32 +661,58 @@ IncludeScript("outerwall_gameevents.nut", this);
 	local player_index = client.GetEntityIndex();
 
 	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + delay > Time())
-		return;
+		return false;
 
 	if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
-		return;
+		return false;
 
 	local string_pos = "Vector(" + position.x + "," + position.y + "," + position.z + ")"
 	local string_rot = "Vector(" + rotation.x + "," + rotation.y + "," + rotation.z + ")"
 
 	EntFireByHandle(client, "RunScriptCode", "DispatchParticleEffect(\"" + particle + "\", " + string_pos + ", " + string_rot + ");", 0.0, null, null);
 	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
+	return true;
 }
 
-::PlayerSpawnCosmeticModelTrail <- function(client, cosmeticindex, speedrequired, bRainbow)
+//todo: this doesnt work, fix this for v5 / whimsical star
+::PlayerSpawnAttachedCosmeticParticle <- function(client, cosmeticindex, speedrequired, delay, particle, position, rotation)
 {
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + 0.125 > Time())
-		return;
+	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + delay > Time())
+		return false;
+
+	// if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
+	// 	return false;
+
+	local trail = SpawnEntityFromTable("info_particle_system",
+	{
+		parentname = "outerwall_player_" + player_index,
+		cpoint1 = "outerwall_player_" + player_index,
+		effect_name = particle,
+		origin = position,
+		angles = rotation,
+		start_active = true
+	})
+	Entities.DispatchSpawn(trail);
+	EntFireByHandle(trail, "Kill", "", 15, client, null);
+	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
+	return true;
+}
+
+::PlayerSpawnCosmeticModelTrail <- function(client, cosmeticindex, speedrequired, delay, modelname, color)
+{
+	local player_index = client.GetEntityIndex();
+
+	if(PlayerLastCosmeticSpawn[cosmeticindex][player_index] + delay > Time())
+		return false;
 
 	if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
-		return;
+		return false;
 
 	local trail = SpawnEntityFromTable("prop_dynamic",
 	{
-		model = client.GetModelName(),
-		skin = 0,
+		model = modelname,
 		origin = client.GetOrigin(),
 		angles = client.GetLocalAngles(),
 		solid = 0,
@@ -689,15 +721,16 @@ IncludeScript("outerwall_gameevents.nut", this);
 		disablereceiveshadows = true,
 		rendermode = 5,
 		renderamt = 0,
-		rendercolor = bRainbow ? RainbowTrail() : Time() % 0.25 >= 0.125 ? "0 255 0" : PlayerEncoreStatus[player_index] ? "0 0 255" : "255 0 0",
+		rendercolor = color,
 		DefaultAnim = client.GetSequenceName(client.GetSequence())
 	})
 	Entities.DispatchSpawn(trail);
-	EntFireByHandle(trail, "SetCycle", round(client.GetCycle(), 1).tostring(), 0.0, client, null);
+
 	EntFireByHandle(trail, "SetPlayBackRate", "0", 0.05, client, null);
-	EntFireByHandle(trail, "Alpha", "50", 0.05, client, null);
-	EntFireByHandle(trail, "Kill", "", 0.5, client, null);
+	EntFireByHandle(trail, "Alpha", "30", 0.1, client, null);
+	EntFireByHandle(trail, "Kill", "", 0.75, client, null);
 	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
+	return true;
 }
 
 ::SetPlayerZone <- function(iZone)
@@ -722,8 +755,12 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	local current_checkpoint = PlayerCheckpointStatus[player_index];
 
-	if(iNewCheckpoint != current_checkpoint + 1 && (iNewCheckpoint != 0 && iNewCheckpoint != 3) || activator.IsNoclipping())
-		return;
+	//todo: im lazy..... zzzzzzz
+	if(PlayerZoneList[player_index] != eCourses.SandPit)
+	{
+		if(iNewCheckpoint != current_checkpoint + 1 && (iNewCheckpoint != 0 && iNewCheckpoint != 3) || activator.IsNoclipping())
+			return;
+	}
 
 	PlayerCheckpointStatus[player_index] = iNewCheckpoint;
 
@@ -782,6 +819,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	client.SetOrigin(TeleportDest.GetOrigin());
 	client.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
+	NetProps.SetPropVector(client, "m_vecAbsVelocity", Vector(0,0,0));
 }
 
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
@@ -809,20 +847,26 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(!client)
 		client = activator;
 
-	local player_index = activator.GetEntityIndex();
+	local player_index = client.GetEntityIndex();
 
-	if(activator.IsNoclipping() || PlayerZoneList[player_index] != iZoneGoal || PlayerCheckpointStatus[player_index] == 3)
+	//lets run this a little late to let the cheating check do its thing!
+	EntFireByHandle(client, "RunScriptCode", "DoGoalPost(" + iZoneGoal + "," + player_index + ");", 0.1, null, null);
+}
+
+::DoGoalPost <- function(iZoneGoal, player_index)
+{
+	if(client.IsNoclipping() || PlayerZoneList[player_index] != iZoneGoal || PlayerCheckpointStatus[player_index] == 3)
 		return;
 
 	if(PlayerEncoreStatus[player_index] == 1 && PlayerTimeTrialActive[player_index] == false)
 		return;
 
-	PlayerActivateTimeTrial(activator, false);
+	PlayerActivateTimeTrial(client, false);
 
 	if(PlayerCheatedCurrentRun[player_index] ||(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{
-		ClientPrint(activator, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
-		EmitSoundOnClient(SND_MEDAL_NONE, activator);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
+		EmitSoundOnClient(SND_MEDAL_NONE, client);
 		return;
 	}
 
@@ -832,7 +876,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		EntFire("logic_relay_goal_bonus" + iZoneGoal, "Trigger");
 
 	PlayerRunsRan[player_index]++;
-	CheckPlayerMedal(iZoneGoal, activator);
+	CheckPlayerMedal(iZoneGoal, client);
 	CheckAchievementBatch_PostRun(player_index);
 
 	if(!!!PlayerEncoreStatus[player_index])

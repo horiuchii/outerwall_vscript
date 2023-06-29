@@ -18,31 +18,64 @@ function OnGameEvent_player_death(eventdata)
 	EntFireByHandle(client, "RunScriptCode", "activator.ForceRespawn()", 1.0, client, client);
 }
 
-function OnGameEvent_player_team(eventdata)
-{
-	local client = GetPlayerFromUserID(eventdata.userid);
-
-	if(client == null)
-        return;
-
-	EncoreTeamCheck(client);
-}
-
-function OnGameEvent_server_cvar(eventdata)
-{
-	if(bGlobalCheated)
-		return;
-
-	if(eventdata.cvarname == "sv_cheats")
-	{
-		bGlobalCheated = true;
-		ClientPrint(null, HUD_PRINTTALK, "\x07" + "FF0000" + "WARNING: Cvar \"" + eventdata.cvarname + "\" has been changed. Scoring has been disabled.")
-	}
-}
-
 function OnGameEvent_player_connect(eventdata)
 {
 	ResetPlayerGlobalArrays(eventdata.index + 1);
+}
+
+function OnGameEvent_player_say(eventdata)
+{
+	local client = GetPlayerFromUserID(eventdata.userid);
+	local player_index = client.GetEntityIndex();
+
+	if(PlayerCosmeticColorEdit[player_index] > 0)
+	{
+		local message = eventdata.text;
+		if(message.len() != 11)
+		{
+			ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Color contains incorrect number of characters.");
+			return;
+		}
+
+		try
+		{
+			local message_array = split(message, " ");
+			local color1 = clamp(message_array[0].tointeger(), 0, 255);
+
+			if(color1 == 0)
+				color1 = "000";
+			else if(color1 < 10)
+				color1 = "00" + color1;
+			else if(color1 < 100)
+				color1 = "0" + color1;
+
+			local color2 = clamp(message_array[1].tointeger(), 0, 255);
+
+			if(color2 == 0)
+				color2 = "000";
+			else if(color2 < 10)
+				color2 = "00" + color2;
+			else if(color2 < 100)
+				color2 = "0" + color2;
+
+			local color3 = clamp(message_array[2].tointeger(), 0, 255);
+
+			if(color3 == 0)
+				color3 = "000";
+			else if(color3 < 10)
+				color3 = "00" + color3;
+			else if(color3 < 100)
+				color3 = "0" + color3;
+
+			MachTrailColors[PlayerCosmeticColorEdit[player_index] - 1][player_index] = color1 + " " + color2 + " " + color3;
+			UpdateCosmeticEquipText(client);
+			PlayerSaveGame(client);
+		}
+		catch (exception)
+		{
+			ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Failed to parse chat message: " + exception);
+		}
+	}
 }
 
 function OnGameEvent_player_spawn(eventdata)
@@ -56,9 +89,7 @@ function OnGameEvent_player_spawn(eventdata)
 
 	local player_index = client.GetEntityIndex();
 
-	ResetPlayerPurpleCoinArenaArray(player_index);
-	ResetPlayerTimeTrialArenaArray(player_index);
-    EncoreTeamCheck(client);
+	NetProps.SetPropString(client, "m_iName", "outerwall_player_" + player_index);
 
 	if(PlayerZoneList[player_index] == null) //player's first spawn
 	{
@@ -73,6 +104,10 @@ function OnGameEvent_player_spawn(eventdata)
 		DebugPrint("Player " + player_index + " had their first spawn\n");
 		return;
 	}
+
+	ResetPlayerPurpleCoinArenaArray(player_index);
+	ResetPlayerTimeTrialArenaArray(player_index);
+	EncoreTeamCheck(client);
 
 	TeleportPlayerToZone(PlayerZoneList[player_index], client, null, false, false);
 

@@ -7,8 +7,9 @@ foreach (a,b in Constants)
 const BUTTON_MOUSE1 = 1
 const BUTTON_MOUSE2 = 2
 const BUTTON_MOUSE3 = 3
+const BUTTON_RELOAD = 4
 
-::DEBUG_OUTPUT <- true
+::DEBUG_OUTPUT <- !IsDedicatedServer()
 
 ::OUTERWALL_SKYCAMERA_LOCATION <- Vector(1024, -5120, 140)
 ::OUTERWALL_SKYCAMERA_OFFSET <- Vector(0, 0, 340)
@@ -83,7 +84,6 @@ enum eAchievements{
 	NormalInnerWallNoBoost
 	NormalHellNoDmg
 	NormalWindFortressNoDoubleJumpDmg
-	NormalPurpleCoinNoRadar
 	SecretSmokey
 	SecretClimb
 	EncoreUnlock
@@ -93,7 +93,6 @@ enum eAchievements{
 	// EncoreOsideNoDmg
 	// EncoreBalconyClock
 	// EncoreHellTime
-	// EncorePurpleCoinNoRadar
 	// EncoreFinish
 	// EncoreGold
 	// EncoreIri
@@ -136,9 +135,9 @@ enum eCosmetics{
 	None
 	Booster
 	PurpleCoin
-	MachTrail
 	Victory
-	// 	RainbowTrail
+	MachTrail
+	RainbowTrail
 	// 	RaveStory
 	// 	WhimsicalStar
 	MAX
@@ -147,10 +146,10 @@ enum eCosmetics{
 ::Cosmetic_Requirement <-
 [
 	eAchievements.NormalInnerWallNoBoost //booster spritetrail
-    eAchievements.NormalPurpleCoinNoRadar //purple shine
-	eAchievements.EncoreUnlock //mach trail
-	eAchievements.NormalIri //victory
-	// eAchievements.EncoreOsideNoDmg //rainbow trail
+    eAchievements.NormalHellNoDmg //purple shine
+	eAchievements.EncoreUnlock //victory
+	eAchievements.NormalGold //mach trail
+	eAchievements.NormalIri //rainbow trail
     // eAchievements.EncoreBalconyClock //rave story
 	// eAchievements.AllGold //whimsical star
 ]

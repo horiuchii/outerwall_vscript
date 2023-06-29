@@ -1,7 +1,6 @@
 ::PlayerUseInnerWallBoosterDuringRun <- array(MAX_PLAYERS, 0)
 ::PlayerDamagedDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerClocksCollectedDuringRun <- array(MAX_PLAYERS, 0)
-::PlayerUseRadarDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerTouchedForbiddenZoneDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerDoubleJumpDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerSmokeyProgress <- array(MAX_PLAYERS, 0)
@@ -11,7 +10,6 @@
     PlayerUseInnerWallBoosterDuringRun[player_index] = 0;
     PlayerDamagedDuringRun[player_index] = false;
     PlayerClocksCollectedDuringRun[player_index] = 0;
-    PlayerUseRadarDuringRun[player_index] = false;
     PlayerTouchedForbiddenZoneDuringRun[player_index] = false;
     PlayerDoubleJumpDuringRun[player_index] = false;
 }
@@ -73,7 +71,13 @@
     if(HasAchievement(achievement_index, client_index))
         return;
 
-    PlayerAchievements[client_index][achievement_index] = FormatAchievementDataTime();
+    local CurrentTime = {};
+    LocalTime(CurrentTime);
+
+    PlayerAchievementsMonth[client_index][achievement_index] = (CurrentTime.month < 10 ? ("0" + (CurrentTime.month).tostring()) : (CurrentTime.month).tostring());
+    PlayerAchievementsDay[client_index][achievement_index] = (CurrentTime.day < 10 ? ("0" + (CurrentTime.day).tostring()) : (CurrentTime.day).tostring());
+    PlayerAchievementsYearOne[client_index][achievement_index] = CurrentTime.year.tostring().slice(0, 2);
+    PlayerAchievementsYearTwo[client_index][achievement_index] = CurrentTime.year.tostring().slice(2, 4);
 
     if(!bHidden)
     {
@@ -111,12 +115,10 @@
     CheckAchievement_NormalInnerWallNoBoost(player_index);
     CheckAchievement_NormalHellNoDmg(player_index);
     CheckAchievement_NormalWindFortressNoDoubleJumpNoDmg(player_index);
-    CheckAchievement_NormalPurpleCoinNoRadar(player_index);
     CheckAchievement_EncoreUnlock(player_index);
     // CheckAchievement_EncoreOsideNoDmg(player_index);
     // CheckAchievement_EncoreBalconyClock(player_index);
     // CheckAchievement_EncoreHellTime(player_index);
-    // CheckAchievement_EncorePurpleCoinNoRadar(player_index);
     // CheckAchievement_EncoreFinish(player_index);
 }
 
@@ -172,15 +174,6 @@
 
     if(!PlayerDamagedDuringRun[player_index] && !PlayerDoubleJumpDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.WindFortress && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalWindFortressNoDoubleJumpDmg, player_index);
-}
-
-::CheckAchievement_NormalPurpleCoinNoRadar <- function(player_index)
-{
-    if(HasAchievement(eAchievements.NormalPurpleCoinNoRadar, player_index))
-        return;
-
-    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.SandPit && !!!PlayerEncoreStatus[player_index])
-        UnlockPlayerAchievement(eAchievements.NormalPurpleCoinNoRadar, player_index);
 }
 
 ::AwardAchievement_SecretClimb <- function()
@@ -277,15 +270,6 @@
 
     if(PlayerTimeTrialTime[player_index] >= 200 && PlayerZoneList[player_index] == eCourses.Hell && !!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.EncoreHellTime, player_index);
-}
-
-::CheckAchievement_EncorePurpleCoinNoRadar <- function(player_index)
-{
-    if(HasAchievement(eAchievements.EncorePurpleCoinNoRadar, player_index))
-        return;
-
-    if(!PlayerUseRadarDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.SandPit && !!PlayerEncoreStatus[player_index])
-        UnlockPlayerAchievement(eAchievements.EncorePurpleCoinNoRadar, player_index);
 }
 
 ::CheckAchievement_EncoreFinish <- function(player_index)

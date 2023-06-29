@@ -52,3 +52,20 @@
     pyro.EmitSound("weapons/flame_thrower_airblast.wav");
     pyro.EmitSound("Pyro.LaughEvil01");
 }
+
+/*
+::GoalParticleZone1 <-
+[
+
+]
+
+::GoalParticleZone2 <-
+[
+
+]
+
+::SpawnGoalParticle <- function(iZone)
+{
+
+}
+*/

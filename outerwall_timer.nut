@@ -24,35 +24,35 @@ const NO_MEDAL_COLOR = "008B8B";
 ::ZoneTimes <-
 [
 	// bronze, silver, gold, iridescence
-	[85, 70, 50, 40], //oside
-	[60, 45, 35, 30], //last cave
-	[75, 65, 55, 42], //balcony
-	[65, 45, 35, 25], //inner wall
-	[135, 100, 85, 65], //hell
-	[145, 110, 95, 85], //wind fortress
-	[155, 135, 115, 95], //sand pit
+	[100, 70, 50, 40], //oside
+	[75, 45, 35, 30], //last cave
+	[90, 65, 55, 42], //balcony
+	[70, 45, 35, 25], //inner wall
+	[165, 100, 85, 65], //hell
+	[175, 110, 95, 85], //wind fortress
+	[185, 135, 115, 95], //sand pit
 ]
 
 ::ZoneLaps_Encore <-
 [
 	// bronze, silver, gold, iridescence
-	[2, 3, 5, 6], //oside
-	[2, 2, 3, 5], //last cave
-	[2, 2, 3, 4], //balcony
-	[2, 2, 3, 4], //inner wall
-	[2, 2, 3, 4], //hell
-	[2, 2, 3, 4], //wind fortress
+	[2, 3, 4, 5], //oside
+	[2, 3, 4, 5], //last cave
+	[2, 3, 4, 5], //balcony
+	[2, 3, 4, 5], //inner wall
+	[2, 3, 4, 5], //hell
+	[2, 3, 4, 5], //wind fortress
 	[155, 135, 115, 100], //sand pit
 ]
 
 ::MedalLocations <-
 [
 	Vector(2328,896,-11928), //oside
-	Vector(5472,-2688,12056), //lastcave
-	Vector(4704,-4368,14056), //balcony
+	Vector(5472,-4736,12056), //lastcave
+	Vector(4704,-6416,14056), //balcony
 	Vector(-4736,-4456,-12728), //inner wall
 	Vector(-5696,-1247,12457), //hell
-	Vector(5663,4704,14856), //wind fortress
+	Vector(2079,4704,14856), //wind fortress
 	Vector(4928,6944,-13392) //sand pit
 ]
 
@@ -124,7 +124,9 @@ const NO_MEDAL_COLOR = "008B8B";
 		personal_best_text = TranslateString(OUTERWALL_TIMER_PERSONALBEST, player_index) + personal_diff;
 	}
 
-	PrintToPlayerAndSpectators(player_index, "\x07" + messagecolor + TranslateString(OUTERWALL_TIMER_FINALTIME, player_index) + "\x01" + FormatTime(time) + personal_best_text);
+	local rankmessage = "(" + (iMedal == null || iMedal == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[iMedal], player_index)) + ")";
+
+	PrintToPlayerAndSpectators(player_index, "\x01" + TranslateString(OUTERWALL_TIMER_FINALTIME, player_index) + FormatTime(time) + personal_best_text + " " + "\x07" + messagecolor + rankmessage);
 }
 
 ::DisplayTimeEncore <- function(player_index, time, iMedal)
@@ -132,8 +134,9 @@ const NO_MEDAL_COLOR = "008B8B";
 	local messagecolor = iMedal == null || iMedal == -1 ? NO_MEDAL_COLOR : MedalColors[iMedal];
 	local lapmessage = PlayerCurrentLapCount[player_index] == 1 ? OUTERWALL_TIMER_FINALTIME_LAPCOUNT[0] : OUTERWALL_TIMER_FINALTIME_LAPCOUNT[1];
 	local laptext = format(TranslateString(lapmessage, player_index), PlayerCurrentLapCount[player_index]);
+	local rankmessage = "(" + (iMedal == null || iMedal == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[iMedal], player_index)) + ")";
 
-	PrintToPlayerAndSpectators(player_index, "\x07" + messagecolor + TranslateString(OUTERWALL_TIMER_FINALTIME, player_index) + "\x01" + FormatTime(time) + laptext);
+	PrintToPlayerAndSpectators(player_index, "\x01" + TranslateString(OUTERWALL_TIMER_FINALTIME, player_index) + FormatTime(time) + laptext + " " + "\x07" + messagecolor + rankmessage);
 }
 
 ::DisplayLapEncore <- function(player_index)
@@ -209,7 +212,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	local MedalTimesText = format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES, player_index), (!!PlayerEncoreStatus[player_index] ? TranslateString(OUTERWALL_TIMER_ENCORE, player_index) + ZoneNames[iZone] : ZoneNames[iZone]), ZoneSuffixes[iZone]) + "\n";
 	for(local medal_index = 3; medal_index > -1; medal_index--)
 	{
-		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index)
+		MedalTimesText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY[medal_index], player_index) + ": ";
 		MedalTimesText += (!!PlayerEncoreStatus[player_index] && iZone != 6) ? (TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_LAP, player_index) + ZoneLaps_Encore[iZone][medal_index]) : FormatTime(ZoneTimes[iZone][medal_index]);
 
 		MedalTimesText += "\n";
@@ -235,7 +238,7 @@ const NO_MEDAL_COLOR = "008B8B";
 
 		for(local i = 0; i < 2; i++)
 		{
-			MedalTimesText += "\n" + format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT, player_index), i + 1)
+			MedalTimesText += "\n" + format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT, player_index), i + 1);
 			if(PlayerBestTimeArray[player_index][iZone] == 5000)
 				MedalTimesText += TranslateString(OUTERWALL_TIMER_NONE, player_index);
 			else

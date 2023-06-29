@@ -5,6 +5,8 @@
 	local player_index = activator.GetEntityIndex();
 	PlayerCurrentSettingQuery[player_index] = iSetting;
 	ResetProfileProgress[player_index] = 0;
+	PlayerCosmeticSubMenuActive[player_index] = false;
+	PlayerCosmeticColorEdit[player_index] = 0;
 	UpdateSettingsText(player_index);
 }
 
@@ -13,9 +15,22 @@ const LEADERBOARD_RESET_TIME = 300
 ::ProfileSelection <- array(MAX_PLAYERS, 0)
 ::AchievementSelection <- array(MAX_PLAYERS, 0)
 ::CosmeticSelection <- array(MAX_PLAYERS, 0)
+::PlayerCosmeticSubMenuActive <- array(MAX_PLAYERS, false)
+::PlayerCosmeticColorEdit <- array(MAX_PLAYERS, 0)
 ::ResetProfileProgress <- array(MAX_PLAYERS, 0)
 ::LastUpdatedLeaderboard <- 0
 //todo: think of adding setting for player sounds, individual or all together
+
+::ResetPlayerMenuArrays <- function(player_index)
+{
+	ProfileSelection[player_index] = 0;
+	AchievementSelection[player_index] = 0;
+	CosmeticSelection[player_index] = 0;
+	PlayerCurrentSettingQuery[player_index] = null;
+	PlayerCosmeticSubMenuActive[player_index] = false;
+	PlayerCosmeticColorEdit[player_index] = 0;
+}
+
 ::CheckSettingButton <- function(client)
 {
 	local player_index = client.GetEntityIndex();
@@ -110,7 +125,7 @@ const LEADERBOARD_RESET_TIME = 300
 				return;
 
 			//TODO: REPLACE ME WHEN WE RELEASE WITH ENCORE
-			//if(IsPlayerEncorable(player_index) || IsPlayerSpecial(player_index))
+			//if(IsPlayerEncorable(player_index))
 			if(false)
 				PlayerEncoreStatus[player_index] = (!!!PlayerEncoreStatus[player_index]).tointeger();
 			else
@@ -167,31 +182,58 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Cosmetic:
 		{
-			if(ButtonPressed == BUTTON_MOUSE1)
+			if(!PlayerCosmeticSubMenuActive[player_index])
 			{
-				if(CosmeticSelection[player_index] == eCosmetics.MAX - 2)
-					CosmeticSelection[player_index] = 0;
-				else
-					CosmeticSelection[player_index]++;
+				if(ButtonPressed == BUTTON_MOUSE1)
+				{
+					if(CosmeticSelection[player_index] == eCosmetics.MAX - 2)
+						CosmeticSelection[player_index] = 0;
+					else
+						CosmeticSelection[player_index]++;
+				}
+				else if(ButtonPressed == BUTTON_MOUSE2)
+				{
+					if(CosmeticSelection[player_index] == 0)
+						CosmeticSelection[player_index] = eCosmetics.MAX - 2;
+					else
+						CosmeticSelection[player_index]--;
+				}
+				else if(ButtonPressed == BUTTON_MOUSE3)
+				{
+					if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
+					{
+						if(CosmeticSelection[player_index] == eCosmetics.MachTrail - 1)
+							PlayerCosmeticSubMenuActive[player_index] = true;
+						else if(PlayerCosmeticEquipped[player_index] - 1 == CosmeticSelection[player_index])
+							PlayerCosmeticEquipped[player_index] = 0;
+						else
+							PlayerCosmeticEquipped[player_index] = CosmeticSelection[player_index] + 1;
+					}
+					else
+						return;
+				}
 			}
-			else if(ButtonPressed == BUTTON_MOUSE2)
+			else
 			{
-				if(CosmeticSelection[player_index] == 0)
-					CosmeticSelection[player_index] = eCosmetics.MAX - 2;
-				else
-					CosmeticSelection[player_index]--;
-			}
-			else if(ButtonPressed == BUTTON_MOUSE3)
-			{
-				if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
+				if(ButtonPressed == BUTTON_MOUSE1)
+				{
+					if(PlayerCosmeticColorEdit[player_index] == 3)
+						PlayerCosmeticColorEdit[player_index] = 0;
+					else
+						PlayerCosmeticColorEdit[player_index]++;
+				}
+				else if(ButtonPressed == BUTTON_MOUSE2)
+				{
+					PlayerCosmeticSubMenuActive[player_index] = false;
+					PlayerCosmeticColorEdit[player_index] = 0;
+				}
+				else if(ButtonPressed == BUTTON_MOUSE3)
 				{
 					if(PlayerCosmeticEquipped[player_index] - 1 == CosmeticSelection[player_index])
 						PlayerCosmeticEquipped[player_index] = 0;
 					else
 						PlayerCosmeticEquipped[player_index] = CosmeticSelection[player_index] + 1;
 				}
-				else
-					return;
 			}
 
 			UpdateCosmeticEquipText(client);
@@ -457,8 +499,10 @@ const LEADERBOARD_RESET_TIME = 300
 
 	if(HasAchievement(AchievementSelection[player_index], player_index))
 	{
-		local achievementdate = PlayerAchievements[player_index][AchievementSelection[player_index]].tostring();
-		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_UNLOCKDATE, player_index) + achievementdate.slice(0,2) + "/" + achievementdate.slice(2,4) + "/" + achievementdate.slice(4,8) + "\n";
+		local month = PlayerAchievementsMonth[player_index][AchievementSelection[player_index]];
+		local day = PlayerAchievementsDay[player_index][AchievementSelection[player_index]];
+		local year = PlayerAchievementsYearOne[player_index][AchievementSelection[player_index]] + PlayerAchievementsYearTwo[player_index][AchievementSelection[player_index]];
+		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_UNLOCKDATE, player_index) + month + "/" + day + "/" + year + "\n";
 	}
 
 	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
@@ -477,23 +521,38 @@ const LEADERBOARD_RESET_TIME = 300
 	local EquipText = "";
 
 	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index) + " ";
-	EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
 
-	EquipText += "[" + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
-	EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n";
+	if(!PlayerCosmeticSubMenuActive[player_index])
+	{
+		EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
 
-	EquipText += "\n";
+		EquipText += "[" + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
+		EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n";
 
-	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-	EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+		EquipText += "\n";
 
-	//if our cosmetic achievement isnt met, display the not unlocked message
-	if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
-		EquipText += format(TranslateString(OUTERWALL_COSMETIC_REQUIREMENT, player_index), TranslateString(OUTERWALL_ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
-	else if(CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index])
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_UNEQUIP, player_index);
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+
+		//if our cosmetic achievement isnt met, display the not unlocked message
+		if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
+			EquipText += format(TranslateString(OUTERWALL_COSMETIC_REQUIREMENT, player_index), TranslateString(OUTERWALL_ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
+		else if(CosmeticSelection[player_index] == eCosmetics.MachTrail - 1)
+			EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_EDIT, player_index) + " / " + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+		else
+			EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+	}
 	else
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_EQUIP, player_index);
+	{
+		EquipText += "- Edit Mach Trail\n";
+		EquipText += "Color 1: " + PlayerMachTrailColor1[player_index] + (PlayerCosmeticColorEdit[player_index] == 1 ? " < EDITING" : "") + "\n";
+		EquipText += "Color 2: " + PlayerMachTrailColor2[player_index] + (PlayerCosmeticColorEdit[player_index] == 2 ? " < EDITING" : "") + "\n";
+		EquipText += "Color 3: " + PlayerMachTrailColor3[player_index] + (PlayerCosmeticColorEdit[player_index] == 3 ? " < EDITING" : "") + "\n";
+		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : "Type color in chat as \"RRR GGG BBB\"") + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? "Stop Editing" : "Edit Color " + (PlayerCosmeticColorEdit[player_index] + 1)) + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + "Return" + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", EquipText);

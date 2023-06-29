@@ -237,7 +237,7 @@
 {
 	local player_index = client.GetEntityIndex();
 
-	if (client == null || client.IsPlayer() == false || !IsPlayerAlive(client))
+	if (client == null)
 		return;
 
 	if (client.GetTeam() == TEAM_UNASSIGNED || client.GetTeam() == TEAM_SPECTATOR)
@@ -333,22 +333,9 @@
 	return input_time.tostring();
 }
 
-::FormatAchievementDataTime <- function()
-{
-	local CurrentTime = {};
-    LocalTime(CurrentTime);
-	local date = "";
-
-	date += (CurrentTime.month < 10 ? ("0" + (CurrentTime.month).tostring()) : (CurrentTime.month).tostring());
-	date += (CurrentTime.day < 10 ? ("0" + (CurrentTime.day).tostring()) : (CurrentTime.day).tostring());
-	date += (CurrentTime.year).tostring();
-
-	return date;
-}
-
 ::HasAchievement <- function(achievement_index, player_index)
 {
-	if(PlayerAchievements[player_index][achievement_index] == "0")
+	if(PlayerAchievementsMonth[player_index][achievement_index] == "00")
 		return false;
 
 	return true;

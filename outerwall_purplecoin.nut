@@ -10,6 +10,8 @@ const COINTOUCHRADIUS = 64;
 ::PlayerCoinStatus <- ConstructTwoDimArray(MAX_PLAYERS, PURPLECOIN_COUNT, false)
 ::PlayerCoinCount <- array(MAX_PLAYERS, PURPLECOIN_COUNT)
 
+::SetTransmitCoinActive <- false;
+
 const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 
 ::PlayerLastRadarReadyMessageSet <- array(MAX_PLAYERS, 0)
@@ -33,6 +35,9 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 		PlayerCoinStatus[player_index][iArrayIndex] = true;
 		//DebugPrint("Array Index: " + iArrayIndex + " = " + PlayerCoinStatus[player_index][iArrayIndex]);
 	}
+
+	if(SetTransmitCoinActive)
+		PluginResetPlayerCoinCount(player_index);
 }
 
 ::PurpleCoinHudThink <- function(client)
@@ -51,30 +56,35 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 
 	local radar_message = "";
 
-	if(PlayerRadarReady[player_index])
+	if(!SetTransmitCoinActive)
 	{
-		if(PlayerLastRadarReadyMessageSet[player_index] + PURPLECOIN_READY_MESSAGE_LENGTH <= Time())
+		if(PlayerRadarReady[player_index])
 		{
-			PlayerLastRadarReadyMessageSet[player_index] = Time();
-			PlayerCurrentRadarMessage[player_index] = PlayerCurrentRadarMessage[player_index] == 0 ? 1 : 0;
+			if(PlayerLastRadarReadyMessageSet[player_index] + PURPLECOIN_READY_MESSAGE_LENGTH <= Time())
+			{
+				PlayerLastRadarReadyMessageSet[player_index] = Time();
+				PlayerCurrentRadarMessage[player_index] = PlayerCurrentRadarMessage[player_index] == 0 ? 1 : 0;
+			}
+
+			radar_message = TranslateString(OUTERWALL_HUD_COINRADAR_READY[PlayerCurrentRadarMessage[player_index]], player_index);
 		}
-
-		radar_message = TranslateString(OUTERWALL_HUD_COINRADAR_READY[PlayerCurrentRadarMessage[player_index]], player_index);
+		else
+		{
+			local time = round((PlayerLastUseRadar[player_index] - Time()) + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN, 1);
+			local pretime = time < 10 ? "0" : "";
+			local posttime = time == time.tointeger() ? ".0" : "";
+			radar_message = format(TranslateString(OUTERWALL_HUD_COINRADAR_NOTREADY, player_index), (pretime + time.tostring() + posttime).tostring());
+		}
 	}
-	else
-	{
-		local time = round((PlayerLastUseRadar[player_index] - Time()) + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN, 1);
-		local pretime = time < 10 ? "0" : "";
-		local posttime = time == time.tointeger() ? ".0" : "";
-		radar_message = format(TranslateString(OUTERWALL_HUD_COINRADAR_NOTREADY, player_index), (pretime + time.tostring() + posttime).tostring());
-	}
-
 
 	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + radar_message + "\n\n" + TranslateString(OUTERWALL_HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
 }
 
 ::CheckPurpleCoinAnnotateButton <- function(client)
 {
+	if(SetTransmitCoinActive)
+		return;
+
 	local player_index = client.GetEntityIndex();
 
 	if(PlayerZoneList[player_index] != eCourses.SandPit)
@@ -129,9 +139,8 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	}
 
 	PlayerLastUseRadar[player_index] = Time();
-	EmitSoundOnClient(SND_PURPLECOIN_RADAR, client);
-	PlayerClocksCollectedDuringRun[player_index] = true;
 	PlayerRadarReady[player_index] = false;
+	EmitSoundOnClient(SND_PURPLECOIN_RADAR, client);
 }
 
 ::CoinTouch <- function()
@@ -158,18 +167,21 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	if(!CoinHandle)
 		return;
 
-	local strTriggerName = NetProps.GetPropString(CoinHandle, "m_iName");
+	local strCoinName = NetProps.GetPropString(CoinHandle, "m_iName");
 
-	local TriggerID = strTriggerName.slice(PURPLECOIN_COINPATH.len()).tointeger() - 1;
+	local TriggerID = strCoinName.slice(PURPLECOIN_COINPATH.len()).tointeger() - 1;
 
 	if(PlayerCoinStatus[player_index][TriggerID] == false)
 		return;
 
 	PlayerCoinStatus[player_index][TriggerID] = false;
-	DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatus[player_index][TriggerID]);
+	//DebugPrint("Set Trigger ID " + (TriggerID + 1) + " to " + PlayerCoinStatus[player_index][TriggerID]);
+
+	if(SetTransmitCoinActive)
+		PluginCollectCoin(player_index, TriggerID);
 
 	PlayerCoinCount[player_index] -= 1;
-	DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
+	//DebugPrint("Coins Collected for player " + player_index + ": " + PlayerCoinCount[player_index]);
 
 	//show particle and play sound
 	local coin_location = CoinHandle.GetOrigin();
@@ -182,6 +194,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	{
 		DebugPrint("All Coins Collected for player " + player_index);
 		DoGoal(6, activator);
+		//todo: this doesnt seem to teleport the player, find out why
 		TeleportPlayerToZone(6, activator);
 	}
 	else if(PlayerCoinCount[player_index] == 80)
@@ -193,8 +206,11 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 		SetPlayerCheckpoint(2);
 	}
 
-	local annotate_data = {
-		id = (player_index.tostring() + TriggerID.tostring()).tointeger()
-	};
-	SendGlobalGameEvent("hide_annotation", annotate_data);
+	if(!SetTransmitCoinActive)
+	{
+		local annotate_data = {
+			id = (player_index.tostring() + TriggerID.tostring()).tointeger()
+		};
+		SendGlobalGameEvent("hide_annotation", annotate_data);
+	}
 }

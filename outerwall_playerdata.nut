@@ -1,12 +1,5 @@
 ::PlayerAccountID <- array(MAX_PLAYERS, null)
 
-::SpecialPlayerAccountID <-
-[
-	"283216923" //Horiuchi
-	"123928992" //Bradasparky
-	"40068780" //Lucas
-]
-
 enum PlayerLeaderboardDataTypes
 {
 	steam_name
@@ -37,7 +30,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 ::PlayerBestLapCountEncoreArray <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT_ENCORE, 0)
 ::PlayerBestSandPitTimeEncoreArray <- array(MAX_PLAYERS, 5000)
 
-::PlayerAchievements <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, 0)
+//these are split up so much because the sourcemod cookie limit is 100 bytes
+::PlayerAchievementsMonth <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
+::PlayerAchievementsDay <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
+::PlayerAchievementsYearOne <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
+::PlayerAchievementsYearTwo <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
 
 ::PlayerMiscStats <-
 [
@@ -54,6 +51,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
 	::PlayerEncoreStatus <- array(MAX_PLAYERS, 0)
 	::PlayerCosmeticEquipped <- array(MAX_PLAYERS, 0)
+	::MachTrailColors <- [
+		::PlayerMachTrailColor1 <- array(MAX_PLAYERS, "255 000 000")
+		::PlayerMachTrailColor2 <- array(MAX_PLAYERS, "000 255 000")
+		::PlayerMachTrailColor3 <- array(MAX_PLAYERS, "127 000 127")
+	]
 ]
 
 enum PlayerDataTypes
@@ -64,15 +66,13 @@ enum PlayerDataTypes
 	best_checkpoint_time_two
 	best_lapcount_encore
 	best_sandpit_time_encore
-	achievements
+	achievements_month
+	achievements_day
+	achievements_year_one
+	achievements_year_two
 	misc_stats
 	settings
 	MAX
-}
-
-::IsPlayerSpecial <- function(player_index)
-{
-	return SpecialPlayerAccountID.find(PlayerAccountID[player_index]) != null;
 }
 
 ::PerformAutosave <- function()
@@ -103,13 +103,27 @@ enum PlayerDataTypes
 	PlayerBestSandPitTimeEncoreArray[player_index] = 5000;
 
 	for(local i = 0; i < eAchievements.MAX; i++)
-		PlayerAchievements[player_index][i] = "0";
+	{
+		PlayerAchievementsMonth[player_index][i] = "00";
+		PlayerAchievementsDay[player_index][i] = "00";
+		PlayerAchievementsYearOne[player_index][i] = "00";
+		PlayerAchievementsYearTwo[player_index][i] = "00";
+	}
 
 	foreach(i, stats in PlayerMiscStats)
 		PlayerMiscStats[i][player_index] = 0;
 
 	foreach(i, setting in PlayerSettings)
-		PlayerSettings[i][player_index] = 0;
+	{
+		if(i == 5) // mach trail colors
+		{
+			PlayerMachTrailColor1[player_index] = "255 000 000";
+			PlayerMachTrailColor2[player_index] = "000 255 000";
+			PlayerMachTrailColor3[player_index] = "127 000 127";
+		}
+		else
+			PlayerSettings[i][player_index] = 0;
+	}
 
 	DebugPrint("Reset Data Arrays for player " + player_index);
 }
@@ -211,7 +225,22 @@ enum PlayerDataTypes
 
 	save += PlayerBestSandPitTimeEncoreArray[player_index] + ",;,";
 
-	foreach(playerdata in PlayerAchievements[player_index])
+	foreach(playerdata in PlayerAchievementsMonth[player_index])
+		save += playerdata.tostring() + ",";
+
+	save += ";,";
+
+	foreach(playerdata in PlayerAchievementsDay[player_index])
+		save += playerdata.tostring() + ",";
+
+	save += ";,";
+
+	foreach(playerdata in PlayerAchievementsYearOne[player_index])
+		save += playerdata.tostring() + ",";
+
+	save += ";,";
+
+	foreach(playerdata in PlayerAchievementsYearTwo[player_index])
 		save += playerdata.tostring() + ",";
 
 	save += ";,";
@@ -222,7 +251,16 @@ enum PlayerDataTypes
 	save += ";,";
 
 	foreach(i, setting in PlayerSettings)
-		save += setting[player_index].tointeger() + ",";
+	{
+		if(i == 5)
+		{
+			save += setting[0][player_index].tostring() + ",";
+			save += setting[1][player_index].tostring() + ",";
+			save += setting[2][player_index].tostring() + ",";
+		}
+		else
+			save += setting[player_index].tointeger() + ",";
+	}
 
 	save += ";,;";
 
@@ -326,9 +364,24 @@ enum PlayerDataTypes
 						PlayerBestSandPitTimeEncoreArray[player_index] = savebuffer.tofloat();
 						break;
 					}
-					case PlayerDataTypes.achievements:
+					case PlayerDataTypes.achievements_month:
 					{
-						PlayerAchievements[player_index][load_data] = savebuffer.tostring();
+						PlayerAchievementsMonth[player_index][load_data] = savebuffer.tostring();
+						break;
+					}
+					case PlayerDataTypes.achievements_day:
+					{
+						PlayerAchievementsDay[player_index][load_data] = savebuffer.tostring();
+						break;
+					}
+					case PlayerDataTypes.achievements_year_one:
+					{
+						PlayerAchievementsYearOne[player_index][load_data] = savebuffer.tostring();
+						break;
+					}
+					case PlayerDataTypes.achievements_year_two:
+					{
+						PlayerAchievementsYearTwo[player_index][load_data] = savebuffer.tostring();
 						break;
 					}
 					case PlayerDataTypes.misc_stats:
@@ -338,8 +391,12 @@ enum PlayerDataTypes
 					}
 					case PlayerDataTypes.settings:
 					{
-						PlayerSettings[load_data][player_index] = savebuffer.tointeger();
-						break;
+						if(load_data >= 5)
+							MachTrailColors[load_data - 5][player_index] = savebuffer.tostring();
+						else
+							PlayerSettings[load_data][player_index] = savebuffer.tointeger();
+
+							break;
 					}
 				}
 
@@ -375,10 +432,7 @@ enum PlayerDataTypes
 		return;
 	}
 
-	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null)
-		return;
-
-	if(!IsPlayerEncorable(player_index))
+	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null && !IsPlayerEncorable(player_index))
 		return;
 
 	local name = AddEscapeChars(NetProps.GetPropString(player, "m_szNetname"));
@@ -675,7 +729,7 @@ enum PlayerDataTypes
 		{
 			dummy_entry_data <- {
 				account_id = null,
-				steam_name = i % 2 ? "the fox jumped over the lazy dog" : UniqueString(i.tostring()),
+				steam_name = "dummy entry " + i,
 				total_time = RandomFloat(LEADERBOARD_IRI - 30, LEADERBOARD_BRONZE + 250)
 			}
 
