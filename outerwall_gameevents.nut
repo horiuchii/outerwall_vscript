@@ -28,53 +28,64 @@ function OnGameEvent_player_say(eventdata)
 	local client = GetPlayerFromUserID(eventdata.userid);
 	local player_index = client.GetEntityIndex();
 
-	if(PlayerCosmeticColorEdit[player_index] > 0)
+	//TODO: REMOVE ME AFTER THE PLAYTEST
+	if(eventdata.text == "hellogivemealltheachievements")
+		DebugUnlockAllAchievements(player_index);
+
+	if(PlayerCosmeticColorEdit[player_index] == 0)
+		return;
+
+	if(eventdata.text.len() != 11)
 	{
-		local message = eventdata.text;
-		if(message.len() != 11)
+		ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Color contains incorrect number of characters.");
+		return;
+	}
+
+	try
+	{
+		local message_array = split(eventdata.text, " ");
+
+		if(message_array.len() != 3)
 		{
-			ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Color contains incorrect number of characters.");
+			ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Color contains incorrect number of spaces.");
 			return;
 		}
 
-		try
-		{
-			local message_array = split(message, " ");
-			local color1 = clamp(message_array[0].tointeger(), 0, 255);
+		//todo: condence this dogshit copy paste
+		local color1 = clamp(message_array[0].tointeger(), 0, 255);
 
-			if(color1 == 0)
-				color1 = "000";
-			else if(color1 < 10)
-				color1 = "00" + color1;
-			else if(color1 < 100)
-				color1 = "0" + color1;
+		if(color1 == 0)
+			color1 = "000";
+		else if(color1 < 10)
+			color1 = "00" + color1;
+		else if(color1 < 100)
+			color1 = "0" + color1;
 
-			local color2 = clamp(message_array[1].tointeger(), 0, 255);
+		local color2 = clamp(message_array[1].tointeger(), 0, 255);
 
-			if(color2 == 0)
-				color2 = "000";
-			else if(color2 < 10)
-				color2 = "00" + color2;
-			else if(color2 < 100)
-				color2 = "0" + color2;
+		if(color2 == 0)
+			color2 = "000";
+		else if(color2 < 10)
+			color2 = "00" + color2;
+		else if(color2 < 100)
+			color2 = "0" + color2;
 
-			local color3 = clamp(message_array[2].tointeger(), 0, 255);
+		local color3 = clamp(message_array[2].tointeger(), 0, 255);
 
-			if(color3 == 0)
-				color3 = "000";
-			else if(color3 < 10)
-				color3 = "00" + color3;
-			else if(color3 < 100)
-				color3 = "0" + color3;
+		if(color3 == 0)
+			color3 = "000";
+		else if(color3 < 10)
+			color3 = "00" + color3;
+		else if(color3 < 100)
+			color3 = "0" + color3;
 
-			MachTrailColors[PlayerCosmeticColorEdit[player_index] - 1][player_index] = color1 + " " + color2 + " " + color3;
-			UpdateCosmeticEquipText(client);
-			PlayerSaveGame(client);
-		}
-		catch (exception)
-		{
-			ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Failed to parse chat message: " + exception);
-		}
+		MachTrailColors[PlayerCosmeticColorEdit[player_index] - 1][player_index] = color1 + " " + color2 + " " + color3;
+		UpdateCosmeticEquipText(client);
+		PlayerSaveGame(client);
+	}
+	catch (exception)
+	{
+		ClientPrint(client, HUD_PRINTTALK, "\x07FF0000" + "ERROR: Failed to parse chat message: " + exception);
 	}
 }
 

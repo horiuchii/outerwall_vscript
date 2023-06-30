@@ -520,16 +520,14 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local EquipText = "";
 
-	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index) + " ";
+	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index);
 
 	if(!PlayerCosmeticSubMenuActive[player_index])
 	{
-		EquipText += "(" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
+		EquipText += " (" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
 
 		EquipText += "[" + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
-		EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n";
-
-		EquipText += "\n";
+		EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n\n";
 
 		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
 		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
@@ -544,13 +542,13 @@ const LEADERBOARD_RESET_TIME = 300
 	}
 	else
 	{
-		EquipText += "- Edit Mach Trail\n";
-		EquipText += "Color 1: " + PlayerMachTrailColor1[player_index] + (PlayerCosmeticColorEdit[player_index] == 1 ? " < EDITING" : "") + "\n";
-		EquipText += "Color 2: " + PlayerMachTrailColor2[player_index] + (PlayerCosmeticColorEdit[player_index] == 2 ? " < EDITING" : "") + "\n";
-		EquipText += "Color 3: " + PlayerMachTrailColor3[player_index] + (PlayerCosmeticColorEdit[player_index] == 3 ? " < EDITING" : "") + "\n";
-		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : "Type color in chat as \"RRR GGG BBB\"") + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? "Stop Editing" : "Edit Color " + (PlayerCosmeticColorEdit[player_index] + 1)) + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + "Return" + "\n";
+		EquipText += TranslateString(OUTERWALL_COSMETIC_EDIT, player_index) + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "\n";
+		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 1) + PlayerMachTrailColor1[player_index] + (PlayerCosmeticColorEdit[player_index] == 1 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
+		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 2) + PlayerMachTrailColor2[player_index] + (PlayerCosmeticColorEdit[player_index] == 2 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
+		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 3) + PlayerMachTrailColor3[player_index] + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
+		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : TranslateString(OUTERWALL_COSMETIC_EDIT_COLORHOWTO, player_index)) + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(OUTERWALL_SETTING_EDITSTOP, player_index) : format(TranslateString(OUTERWALL_SETTING_EDITCOLOR, player_index), (PlayerCosmeticColorEdit[player_index] + 1))) + "\n";
+		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_RETURN, player_index) + "\n";
 		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
 	}
 

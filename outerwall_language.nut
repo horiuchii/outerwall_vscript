@@ -108,9 +108,21 @@
 	"Previous"
 	"Previous"
 ]
+::OUTERWALL_SETTING_RETURN <- [
+	"Return"
+	"Return"
+]
 ::OUTERWALL_SETTING_EDIT <- [
 	"Edit"
 	"Edit"
+]
+::OUTERWALL_SETTING_EDITSTOP <- [
+	"Stop Editing"
+	"Stop Editing"
+]
+::OUTERWALL_SETTING_EDITCOLOR <- [
+	"Edit Color %i"
+	"Edit Color %i"
 ]
 ::OUTERWALL_SETTING_EQUIP <- [
 	"Equip"
@@ -193,8 +205,8 @@
 		"The soundtrack variant that\nis currently playing."
 	]
 	::OUTERWALL_SETTING_ENCORE_DESC <- [
-		"Encore Mode remixes every course into\na time trial where you run multiple laps\nfor the ultimate challenge!"
-		"Encore Mode remixes every course into\na time trial where you run multiple laps\nfor the ultimate challenge!"
+		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
+		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
 	]
 ]
 ::OUTERWALL_SETTING_CHECKPOINTTIME_OPTION <- [
@@ -369,8 +381,8 @@
 	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
-		"Don't touch any of the air currents\nmore than 3 times at the Inner Wall.\n"
-		"Don't touch any of the air currents\nmore than 3 times at the Inner Wall.\n"
+		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
+		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 	]
 	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
 		"Don't take any environment\ndamage at the Sacred Grounds.\n"
@@ -494,6 +506,22 @@
 ::OUTERWALL_COSMETIC_TITLE <- [
 	"Cosmetics"
 	"Cosmetics"
+]
+::OUTERWALL_COSMETIC_EDIT <- [
+	" - Edit "
+	" - Edit "
+]
+::COSMETIC_EDIT_COLOR <- [
+	"Color %i: "
+	"Color %i: "
+]
+::COSMETIC_EDIT_CURRENT <- [
+	" < EDITING"
+	" < EDITING"
+]
+::OUTERWALL_COSMETIC_EDIT_COLORHOWTO <- [
+	"Type color in chat as \"RRR GGG BBB\""
+	"Type color in chat as \"RRR GGG BBB\""
 ]
 ::OUTERWALL_COSMETIC_NAME <- [
 	::OUTERWALL_COSMETIC_BOOSTER_NAME <- [
@@ -874,10 +902,10 @@
 		"Touching a spike can grant a vertical boost! Combine it with a long jump to reach new heights!"
 		"¡Tocar un pico puede otorgar un impulso vertical! ¡Combínalo con un salto de longitud para alcanzar nuevas alturas!"
 	]
-	// ::TIP_2 <- [
-	// 	"Obtaining the glorious iridescent medal requires you to prove mastery over a course by getting a time even faster than gold. Only for those zealous challengers out there!"
-	// 	"Obtener la gloriosa medalla iridiscente requiere que demuestres el dominio de un curso al obtener un tiempo incluso más rápido que el oro. ¡Solo para esos entusiastas retadores por ahí!"
-	// ]
+	::TIP_2 <- [
+		"Earning an S Rank isn't easy! It's for the best of the best, only obtainable for those zealous challengers out there!"
+		"Earning an S Rank isn't easy! It's for the best of the best, only obtainable for those zealous challengers out there!"
+	]
 	::TIP_3 <- [
 		"Keep an eye out for alternative routes through a course, they can help you achieve better times!"
 		"Esté atento a las rutas alternativas a través de un curso, ¡pueden ayudarlo a lograr mejores tiempos!"
@@ -911,9 +939,13 @@
 		"¡Tocar lava en realidad te enviará el doble de alto que un pico, mientras que solo inflige la mitad del daño!"
 	]
 	// ::TIP_11 <- [
-	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
-	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a medal on each course."
+	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a rank on each course."
+	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a rank on each course."
 	// ]
+	::TIP_10 <- [
+		"The air currents at the Inner Wall will allow you to double jump after touching one. Use this to make extra distance you couldn't before!"
+		"The air currents at the Inner Wall will allow you to double jump after touching one. Use this to make extra distance you couldn't before!"
+	]
 ]
 ::OUTERWALL_TIP_CRAP <- [
 	::TIP_1 <- [
@@ -921,12 +953,12 @@
 		"No necesitas ninguno de estos consejos, ¿verdad?"
 	]
 	::TIP_2 <- [
-		"Those eyes in the stone have seen everything you've done."
-		"Esos ojos en la piedra han visto todo lo que has hecho."
+		"You're going to die here, but don't fret! Once you do, its permanent!"
+		"You're going to die here, but don't fret! Once you do, its permanent!"
 	]
 	::TIP_3 <- [
-		"I would watch my back if I were you."
-		"Cuidaría mi espalda si fuera tú."
+		"Those spikes littered everywhere weren't always red!"
+		"Those spikes littered everywhere weren't always red!"
 	]
 	::TIP_4 <- [
 		"Don't you have anything better to do?"
@@ -956,29 +988,25 @@
 		"Ever wonder what happens when a teleporter turns off halfway during teleportation? Lets find out!"
 		"Ever wonder what happens when a teleporter turns off halfway during teleportation? Lets find out!"
 	]
-	::TIP_11 <- [
-		"The mystery is of Story or Cave. And where does the solution lie? The island welcomes visitors for the depth they bring as they enter."
-		"The mystery is of Story or Cave. And where does the solution lie? The island welcomes visitors for the depth they bring as they enter."
-	]
 	::TIP_12 <- [
 		"TIP SERVER UNAVAILABLE TRY AGAIN LATER"
 		"SERVIDOR DE CONSEJOS NO DISPONIBLE INTÉNTELO DE NUEVO MÁS TARDE"
 	]
-	::TIP_13 <- [
-		"Anything you do in the simulation is logged and can never be undone."
-		"Anything you do in the simulation is logged and can never be undone."
+	::TIP_17 <- [
+		"Take a big whiff of fresh air outside! Let me know how it smells!"
+		"Take a big whiff of fresh air outside! Let me know how it smells!"
 	]
-	::TIP_14 <- [
-		"Your actions in the simulation will have consequences beyone your comprehension."
-		"Your actions in the simulation will have consequences beyone your comprehension."
+	::TIP_18 <- [
+		"Break some of those bones of yours! They'll grow back twice as stong!"
+		"Break some of those bones of yours! They'll grow back twice as stong!"
 	]
-	::TIP_15 <- [
-		"Beware of angering those you cannot see."
-		"Beware of angering those you cannot see."
+	::TIP_19 <- [
+		"If you die enough, you may not respawn!"
+		"If you die enough, you may not respawn!"
 	]
-	::TIP_16 <- [
-		"You cannot escape the simulation."
-		"You cannot escape the simulation."
+	::TIP_20 <- [
+		"I'm bored! Jump off that cliff and kill yourself for my amusement!"
+		"I'm bored! Jump off that cliff and kill yourself for my amusement!"
 	]
 ]
 ::OUTERWALL_TIP_PARKOUR <- [

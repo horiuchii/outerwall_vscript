@@ -587,12 +587,20 @@ IncludeScript("outerwall_gameevents.nut", this);
 ::PlayerUpdateSkyboxState <- function(client)
 {
 	local player_index = client.GetEntityIndex();
-	local SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION;
+	local SkyCameraLocation = Vector(0, 0, 0);
+	local curr_zone = PlayerZoneList[player_index];
 
-	if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_GOLD])
-		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_TIER2LAPPING;
-	else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[PlayerZoneList[player_index]][OUTERWALL_MEDAL_BRONZE])
-		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_TIER1LAPPING;
+	if(curr_zone == eCourses.OuterWall || curr_zone == eCourses.LastCave || curr_zone == eCourses.Balcony)
+		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION;
+	else if(curr_zone == eCourses.InnerWall || curr_zone == eCourses.Hell)
+		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_INNERWALL_HELL;
+	else if(curr_zone == eCourses.WindFortress || curr_zone == eCourses.SandPit)
+		SkyCameraLocation = OUTERWALL_SKYCAMERA_LOCATION_WINDFORTRESS_SANDPIT;
+
+	if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[curr_zone][OUTERWALL_MEDAL_GOLD])
+		SkyCameraLocation += OUTERWALL_SKYCAMERA_OFFSET_LAPPING * 2;
+	else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[curr_zone][OUTERWALL_MEDAL_BRONZE])
+		SkyCameraLocation += OUTERWALL_SKYCAMERA_OFFSET_LAPPING;
 
 	NetProps.SetPropVector(client, "m_Local.m_skybox3d.origin", SkyCameraLocation);
 }
@@ -635,7 +643,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 			if(MachTrailColors[PlayerCosmeticLastMachColor[player_index]][player_index] == "000 000 000")
 				PlayerCosmeticLastMachColor[player_index] = (PlayerCosmeticLastMachColor[player_index] + 1) % 3;
 
-			if(PlayerSpawnCosmeticModelTrail(client, 0, 249, 0.125, MDL_SCOUT_TRAIL, MachTrailColors[PlayerCosmeticLastMachColor[player_index]][player_index]))
+			if(PlayerSpawnCosmeticModelTrail(client, 0, 419, 0.125, MDL_SCOUT_TRAIL, MachTrailColors[PlayerCosmeticLastMachColor[player_index]][player_index]))
 			{
 				PlayerCosmeticLastMachColor[player_index]++;
 				if(PlayerCosmeticLastMachColor[player_index] > MachTrailColors.len() - 1)
@@ -650,7 +658,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		}
 		case eCosmetics.RainbowTrail:
 		{
-			PlayerSpawnCosmeticModelTrail(client, 0, 249, 0.125, MDL_SCOUT_TRAIL, RainbowTrail());
+			PlayerSpawnCosmeticModelTrail(client, 0, 419, 0.125, MDL_SCOUT_TRAIL, RainbowTrail());
 			break;
 		}
 	}
@@ -825,6 +833,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
 {
 	local player_index = activator.GetEntityIndex();
+	PlayerUpdateSkyboxState(activator);
 
 	local Action = bTouch ? "StartTouch" : "EndTouch";
 
@@ -838,23 +847,22 @@ IncludeScript("outerwall_gameevents.nut", this);
 		ResetTimeTrialArena(player_index);
 		PlayerActivateTimeTrial(activator, false);
 		ResetPlayerAchievementArrays(player_index);
-		PlayerUpdateSkyboxState(activator);
 	}
 }
 
 ::DoGoal <- function(iZoneGoal, client = null)
 {
-	if(!client)
+	if(client == null)
 		client = activator;
 
-	local player_index = client.GetEntityIndex();
-
 	//lets run this a little late to let the cheating check do its thing!
-	EntFireByHandle(client, "RunScriptCode", "DoGoalPost(" + iZoneGoal + "," + player_index + ");", 0.1, null, null);
+	EntFireByHandle(client, "RunScriptCode", "DoGoalPost(" + iZoneGoal + "," + client.GetEntityIndex() + ");", 0.1, null, null);
 }
 
 ::DoGoalPost <- function(iZoneGoal, player_index)
 {
+	local client = PlayerInstanceFromIndex(player_index);
+
 	if(client.IsNoclipping() || PlayerZoneList[player_index] != iZoneGoal || PlayerCheckpointStatus[player_index] == 3)
 		return;
 
@@ -862,6 +870,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	PlayerActivateTimeTrial(client, false);
+	PlayerCheckpointStatus[player_index] = 3;
 
 	if(PlayerCheatedCurrentRun[player_index] ||(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{

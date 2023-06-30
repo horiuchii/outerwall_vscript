@@ -47,10 +47,10 @@ const NO_MEDAL_COLOR = "008B8B";
 
 ::MedalLocations <-
 [
-	Vector(2328,896,-11928), //oside
+	Vector(2336,896,-11928), //oside
 	Vector(5472,-4736,12056), //lastcave
 	Vector(4704,-6416,14056), //balcony
-	Vector(-4736,-4456,-12728), //inner wall
+	Vector(-4640,-8352,-12728), //inner wall
 	Vector(-5696,-1247,12457), //hell
 	Vector(2079,4704,14856), //wind fortress
 	Vector(4928,6944,-13392) //sand pit
@@ -155,6 +155,10 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerCheckpointTimes[player_index][1] = 5000;
 	PlayerCheatedCurrentRun[player_index] = false;
 	PlayerLastUseRadar[player_index] = 0;
+
+	//detect if this bitch has the timer off.
+	if(NetProps.GetPropFloat(client, "m_flMaxspeed") < 255)
+		PlayerCheatedCurrentRun[player_index] = true;
 }
 
 ::PlayerSetCheckpointTime <- function(player_index)
