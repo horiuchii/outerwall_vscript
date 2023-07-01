@@ -66,18 +66,18 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 				PlayerCurrentRadarMessage[player_index] = PlayerCurrentRadarMessage[player_index] == 0 ? 1 : 0;
 			}
 
-			radar_message = TranslateString(OUTERWALL_HUD_COINRADAR_READY[PlayerCurrentRadarMessage[player_index]], player_index);
+			radar_message = TranslateString(HUD_COINRADAR_READY[PlayerCurrentRadarMessage[player_index]], player_index);
 		}
 		else
 		{
 			local time = round((PlayerLastUseRadar[player_index] - Time()) + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN, 1);
 			local pretime = time < 10 ? "0" : "";
 			local posttime = time == time.tointeger() ? ".0" : "";
-			radar_message = format(TranslateString(OUTERWALL_HUD_COINRADAR_NOTREADY, player_index), (pretime + time.tostring() + posttime).tostring());
+			radar_message = format(TranslateString(HUD_COINRADAR_NOTREADY, player_index), (pretime + time.tostring() + posttime).tostring());
 		}
 	}
 
-	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + radar_message + "\n\n" + TranslateString(OUTERWALL_HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
+	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + radar_message + "\n\n" + TranslateString(HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
 }
 
 ::CheckPurpleCoinAnnotateButton <- function(client)

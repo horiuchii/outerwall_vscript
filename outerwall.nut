@@ -518,16 +518,16 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	local player_index = client.GetEntityIndex();
 
-	message += TranslateString(OUTERWALL_TIP_PREFIX[RandomInt(0, OUTERWALL_TIP_PREFIX.len() - 1)], player_index) + "\x01" + " ";
+	message += TranslateString(TIP_PREFIX[RandomInt(0, TIP_PREFIX.len() - 1)], player_index) + "\x01" + " ";
 
 	if(chance <= 1) //Crude Text 1%
-		message += TranslateString(OUTERWALL_TIP_CRUDE[RandomInt(0, OUTERWALL_TIP_CRUDE.len() - 1)], player_index);
+		message += TranslateString(TIP_CRUDE[RandomInt(0, TIP_CRUDE.len() - 1)], player_index);
 	else if(chance <= 11) //ParkourText 10%
-		message += TranslateString(OUTERWALL_TIP_PARKOUR[RandomInt(0, OUTERWALL_TIP_PARKOUR.len() - 1)], player_index);
+		message += TranslateString(TIP_PARKOUR[RandomInt(0, TIP_PARKOUR.len() - 1)], player_index);
 	else if(chance <= 21) //CrapText 10%
-		message += TranslateString(OUTERWALL_TIP_CRAP[RandomInt(0, OUTERWALL_TIP_CRAP.len() - 1)], player_index);
+		message += TranslateString(TIP_CRAP[RandomInt(0, TIP_CRAP.len() - 1)], player_index);
 	else
-		message += TranslateString(OUTERWALL_TIP_REGULAR[RandomInt(0, OUTERWALL_TIP_REGULAR.len() - 1)], player_index);
+		message += TranslateString(TIP_REGULAR[RandomInt(0, TIP_REGULAR.len() - 1)], player_index);
 
 	ClientPrint(client, HUD_PRINTTALK, message);
 }
@@ -536,21 +536,10 @@ IncludeScript("outerwall_gameevents.nut", this);
 {
 	local player_index = client.GetEntityIndex();
 
-	if(!client || PlayerCheatedCurrentRun[player_index] == true)
-		return;
-
-	if(client.IsNoclipping())
+	if((client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 185)
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
-		return;
-	}
-
-	local Distance = (client.GetOrigin() - PlayerLastPosition[player_index]).Length();
-
-	if(Distance > 96)
-	{
-		PlayerCheatedCurrentRun[player_index] = true;
-		return;
+		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - POSITION");
 	}
 
 	PlayerLastPosition[player_index] = client.GetOrigin();
@@ -576,17 +565,16 @@ IncludeScript("outerwall_gameevents.nut", this);
 		client.EmitSound(SND_QUOTE_THUD);
 
 	//todo: this plays on wallrun and similar actions, fix me!
-	else if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1 && !client.IsNoclipping())
-		client.EmitSound(SND_BOOSTER);
+	//else if(PlayerLastAirDashCount[player_index] != airdash_count && PlayerLastAirDashCount[player_index] != 1 && !client.IsNoclipping())
+	//	client.EmitSound(SND_BOOSTER);
 
 	PlayerLastIsJumpingState[player_index] = jump_state;
 	PlayerLastGroundedState[player_index] = grounded_state;
 	PlayerLastAirDashCount[player_index] = airdash_count;
 }
 
-::PlayerUpdateSkyboxState <- function(client)
+::PlayerUpdateSkyboxState <- function(player_index)
 {
-	local player_index = client.GetEntityIndex();
 	local SkyCameraLocation = Vector(0, 0, 0);
 	local curr_zone = PlayerZoneList[player_index];
 
@@ -602,7 +590,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[curr_zone][OUTERWALL_MEDAL_BRONZE])
 		SkyCameraLocation += OUTERWALL_SKYCAMERA_OFFSET_LAPPING;
 
-	NetProps.SetPropVector(client, "m_Local.m_skybox3d.origin", SkyCameraLocation);
+	NetProps.SetPropVector(PlayerInstanceFromIndex(player_index), "m_Local.m_skybox3d.origin", SkyCameraLocation);
 }
 
 ::PlayerLastCosmeticSpawn <-
@@ -833,7 +821,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
 {
 	local player_index = activator.GetEntityIndex();
-	PlayerUpdateSkyboxState(activator);
+	EntFireByHandle(activator, "RunScriptCode", "PlayerUpdateSkyboxState(" + activator.GetEntityIndex() + ");", 0.0, null, null);
 
 	local Action = bTouch ? "StartTouch" : "EndTouch";
 
@@ -874,7 +862,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	if(PlayerCheatedCurrentRun[player_index] ||(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(OUTERWALL_TIMER_CHEATED, player_index));
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(TIMER_CHEATED, player_index));
 		EmitSoundOnClient(SND_MEDAL_NONE, client);
 		return;
 	}

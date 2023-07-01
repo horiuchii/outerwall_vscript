@@ -23,11 +23,11 @@
 	"spanish"
 ]
 
-::OUTERWALL_RESET_PROFILE_TITLE <- [
+::RESET_PROFILE_TITLE <- [
 	"Reset Profile"
 	"Reset Profile"
 ]
-::OUTERWALL_RESET_PROFILE_QUESTIONS <- [
+::RESET_PROFILE_QUESTIONS <- [
 	::QUESTION_1 <- [
 		"You got some busniness with me?\n\n"
 		"You got some busniness with me?\n\n"
@@ -61,155 +61,155 @@
 		"Pressing yes will irreversably\ndelete all your save data!\nThis is your final warning!"
 	]
 ]
-::OUTERWALL_RESET_PROFILE_NORESET <- [
+::RESET_PROFILE_NORESET <- [
 	"Then scram!"
 	"Then scram!"
 ]
-::OUTERWALL_RESET_PROFILE_RESET <- [
+::RESET_PROFILE_RESET <- [
 	"The deed has been done."
 	"The deed has been done."
 ]
 
-::OUTERWALL_SETTING_OPTION <- [
-	::OUTERWALL_SETTING_OFF <- [
+::SETTING_OPTION <- [
+	::SETTING_OFF <- [
 		"OFF"
 		"APAGADA"
 	]
-	::OUTERWALL_SETTING_ON <- [
+	::SETTING_ON <- [
 		"ON"
 		"ENCENDIDA"
 	]
 ]
-::OUTERWALL_SETTING_BUTTON_ATTACK <- [
+::SETTING_BUTTON_ATTACK <- [
 	"[ATTACK] "
 	"[ATTACK] "
 ]
-::OUTERWALL_SETTING_BUTTON_ALTATTACK <- [
+::SETTING_BUTTON_ALTATTACK <- [
 	"[ALT-ATTACK] "
 	"[ALT-ATTACK] "
 ]
-::OUTERWALL_SETTING_BUTTON_SPECIALATTACK <- [
+::SETTING_BUTTON_SPECIALATTACK <- [
 	"[SPEC-ATTACK] "
 	"[SPEC-ATTACK] "
 ]
-::OUTERWALL_SETTING_TOGGLE <- [
+::SETTING_TOGGLE <- [
 	"Toggle"
 	"Toggle"
 ]
-::OUTERWALL_SETTING_ENCORE_NOQUALIFY <- [
+::SETTING_ENCORE_NOQUALIFY <- [
 	"[LOCKED] Requires a rank on each course"
 	"[LOCKED] Requires a rank on each course"
 ]
-::OUTERWALL_SETTING_NEXTPAGE <- [
+::SETTING_NEXTPAGE <- [
 	"Next"
 	"Next"
 ]
-::OUTERWALL_SETTING_PREVPAGE <- [
+::SETTING_PREVPAGE <- [
 	"Previous"
 	"Previous"
 ]
-::OUTERWALL_SETTING_RETURN <- [
+::SETTING_RETURN <- [
 	"Return"
 	"Return"
 ]
-::OUTERWALL_SETTING_EDIT <- [
+::SETTING_EDIT <- [
 	"Edit"
 	"Edit"
 ]
-::OUTERWALL_SETTING_EDITSTOP <- [
+::SETTING_EDITSTOP <- [
 	"Stop Editing"
 	"Stop Editing"
 ]
-::OUTERWALL_SETTING_EDITCOLOR <- [
+::SETTING_EDITCOLOR <- [
 	"Edit Color %i"
 	"Edit Color %i"
 ]
-::OUTERWALL_SETTING_EQUIP <- [
+::SETTING_EQUIP <- [
 	"Equip"
 	"Equip"
 ]
-::OUTERWALL_SETTING_UNEQUIP <- [
+::SETTING_UNEQUIP <- [
 	"Unequip"
 	"Unequip"
 ]
-::OUTERWALL_COSMETIC_REQUIREMENT <- [
+::COSMETIC_REQUIREMENT <- [
 	"[LOCKED] REQ: [%s]"
 	"[LOCKED] REQ: [%s]"
 ]
-::OUTERWALL_SETTING_YES <- [
+::SETTING_YES <- [
 	"Yes"
 	"Yes"
 ]
-::OUTERWALL_SETTING_NO <- [
+::SETTING_NO <- [
 	"No"
 	"No"
 ]
-::OUTERWALL_SETTING_ENCORETUTORIAL <- [
+::SETTING_ENCORETUTORIAL <- [
 	"Tutorial"
 	"Tutorial"
 ]
-::OUTERWALL_SETTING_REFRESHLEADERBOARD <- [
+::SETTING_REFRESHLEADERBOARD <- [
 	"Refresh"
 	"Refresh"
 ]
-::OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT <- [
+::LEADERBOARD_BUTTON_REFRESHWAIT <- [
 	"[LOCKED] Refresh (Cooldown %s)"
 	"[LOCKED] Refresh (Cooldown %s)"
 ]
-::OUTERWALL_SETTING_CURRENT <- [
+::SETTING_CURRENT <- [
 	"Current Setting: "
 	"Current Setting: "
 ]
-::OUTERWALL_SOUNDTRACK_AUTHOR <- [
+::SOUNDTRACK_AUTHOR <- [
 	"Author: "
 	"Author: "
 ]
-::OUTERWALL_LEADERBOARD_NOENTRIES <- [
+::LEADERBOARD_NOENTRIES <- [
 	"[NO ENTRIES]"
 	"[NO ENTRIES]"
 ]
 
-::OUTERWALL_SETTING_TITLE <- [
+::SETTING_TITLE <- [
 	"Settings"
 	"Settings"
 ]
-::OUTERWALL_SETTING_NAME <- [
-	::OUTERWALL_SETTING_FINALTIME_NAME <- [
+::SETTING_NAME <- [
+	::SETTING_FINALTIME_NAME <- [
 		"Final Time Display"
 		"Final Time Display"
 	]
-	::OUTERWALL_SETTING_CHECKPOINTTIME_NAME <- [
+	::SETTING_CHECKPOINTTIME_NAME <- [
 		"Checkpoint Time Display"
 		"Checkpoint Time Display"
 	]
-	::OUTERWALL_SETTING_SOUNDTRACK <- [
+	::SETTING_SOUNDTRACK <- [
 		"Soundtrack"
 		"Soundtrack"
 	]
-	::OUTERWALL_SETTING_ENCORE <- [
+	::SETTING_ENCORE <- [
 		"Encore Mode"
 		"Encore Mode"
 	]
 ]
-::OUTERWALL_SETTING_DESC <- [
-	::OUTERWALL_SETTING_FINALTIME_DESC <- [
+::SETTING_DESC <- [
+	::SETTING_FINALTIME_DESC <- [
 		"Shows a run's final time\nwhen completing one."
 		"Shows a run's final time,\ncolor representing the rank."
 	]
-	::OUTERWALL_SETTING_CHECKPOINTTIME_DESC <- [
+	::SETTING_CHECKPOINTTIME_DESC <- [
 		"Display's your checkpoint time\nwhen you reach one."
 		"Display's your checkpoint time\nwhen you reach one."
 	]
-	::OUTERWALL_SETTING_SOUNDTRACK_DESC <- [
+	::SETTING_SOUNDTRACK_DESC <- [
 		"The soundtrack variant that\nis currently playing."
 		"The soundtrack variant that\nis currently playing."
 	]
-	::OUTERWALL_SETTING_ENCORE_DESC <- [
+	::SETTING_ENCORE_DESC <- [
 		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
 		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
 	]
 ]
-::OUTERWALL_SETTING_CHECKPOINTTIME_OPTION <- [
+::SETTING_CHECKPOINTTIME_OPTION <- [
 	BONUS <- [
 		"BONUSES ONLY"
 		"BONUSES ONLY"
@@ -223,7 +223,7 @@
 		"NEVER"
 	]
 ]
-::OUTERWALL_SETTING_FINALTIME_OPTION <- [
+::SETTING_FINALTIME_OPTION <- [
 	ENCORE <- [
 		"ENCORE ONLY"
 		"ENCORE ONLY"
@@ -237,7 +237,7 @@
 		"NEVER"
 	]
 ]
-::OUTERWALL_SETTING_SOUNDTRACK_OPTION <- [
+::SETTING_SOUNDTRACK_OPTION <- [
 	::REMASTERED <- [
 		"REMASTERED (2011)"
 		"REMASTERED (2011)"
@@ -264,250 +264,242 @@
 	]
 ]
 
-::OUTERWALL_LEADERBOARD_TITLE <- [
+::LEADERBOARD_TITLE <- [
 	"Leaderboard"
 	"Leaderboard"
 ]
-::OUTERWALL_LEADERBOARD_PAGE <- [
+::LEADERBOARD_PAGE <- [
 	"Page "
 	"Page "
 ]
-::OUTERWALL_LEADERBOARD_RANK <- [
+::LEADERBOARD_RANK <- [
 	"Your Rank: "
 	"Your Rank: "
 ]
 
-::OUTERWALL_ACHIEVEMENT_TITLE <- [
+::ACHIEVEMENT_TITLE <- [
 	"Achievements"
 	"Achievements"
 ]
-::OUTERWALL_ACHIEVEMENT_UNLOCKDATE <- [
+::ACHIEVEMENT_UNLOCKDATE <- [
 	" Achieved: "
 	" Achieved: "
 ]
-::OUTERWALL_ACHIEVEMENT_NAME <- [
-	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_NAME <- [
+::ACHIEVEMENT_NAME <- [
+	::ACHIEVEMENT_HURT_ALOT_NAME <- [
 		"Pain O' Plenty"
 		"Pain O' Plenty"
 	]
-	::OUTERWALL_ACHIEVEMENT_RUNS_ALOT_NAME <- [
+	::ACHIEVEMENT_RUNS_ALOT_NAME <- [
 		"Moonside Marathon"
 		"Moonside Marathon"
 	]
-	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_NAME <- [
+	::ACHIEVEMENT_NOPARKOUR_NAME <- [
 		"Climber's Clamber"
 		"Climber's Clamber"
 	]
-	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
+	::ACHIEVEMENT_INNERWALL_NOBOOSTER_NAME <- [
 		"No Booster Required"
 		"No Booster Required"
 	]
-	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_NAME <- [
+	::ACHIEVEMENT_HELL_NODMG_NAME <- [
 		"Heavenly Trip Through Hell"
 		"Heavenly Trip Through Hell"
 	]
-	::OUTERWALL_ACHIEVEMENT_WINDFORTRESS_NODOUBLEJUMPNODMG_NAME <- [
-		"Let The Wind Guide You"
-		"Let The Wind Guide You"
-	]
-	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_NAME <- [
+	::ACHIEVEMENT_SECRETSMOKEY_NAME <- [
 		"Secret Smokester"
 		"Secret Smokester"
 	]
-	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_NAME <- [
+	::ACHIEVEMENT_SECRETCLIMB_NAME <- [
 		"Fuck You, Pyro!"
 		"Fuck You, Pyro!"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
+	::ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
 		"Encore, Encore!"
 		"Encore, Encore!"
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
+	::ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
 		"Outer Ace"
 		"Outer Ace"
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
+	::ACHIEVEMENT_NORMAL_ALLIRI_NAME <- [
 		"Outer God"
 		"Outer God"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
+	::ACHIEVEMENT_ENCORE_LAPS_ALOT_NAME <- [
 		"Island Collapse Ad Infinitum"
 		"Island Collapse Ad Infinitum"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
+	::ACHIEVEMENT_ENCORE_OSIDE_NODMG_NAME <- [
 		"Moonside Madness"
 		"Moonside Madness"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_NAME <- [
+	::ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_NAME <- [
 		"Clock Block"
 		"Clock Block"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
+	::ACHIEVEMENT_ENCORE_HELL_TIME_NAME <- [
 		"Nikumaru Masta"
 		"Nikumaru Masta"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_NAME <- [
+	::ACHIEVEMENT_ENCORE_ALL_NAME <- [
 		"Mimiga Death March"
 		"Mimiga Death March"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_NAME <- [
+	::ACHIEVEMENT_ENCORE_ALLGOLD_NAME <- [
 		"Lapping Hell"
 		"Lapping Hell"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_NAME <- [
+	::ACHIEVEMENT_ENCORE_ALLIRI_NAME <- [
 		"Hedonistic Lapping"
 		"Hedonistic Lapping"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLGOLD_NAME <- [
+	::ACHIEVEMENT_ALLGOLD_NAME <- [
 		"Whimsical Superstar"
 		"Whimsical Superstar"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLIRI_NAME <- [
+	::ACHIEVEMENT_ALLIRI_NAME <- [
 		"End All Be All Of Outer Wall"
 		"End All Be All Of Outer Wall"
 	]
 ]
-::OUTERWALL_ACHIEVEMENT_DESC <- [
-	::OUTERWALL_ACHIEVEMENT_HURT_ALOT_DESC <- [
+::ACHIEVEMENT_DESC <- [
+	::ACHIEVEMENT_HURT_ALOT_DESC <- [
 		"Take damage from the\nenvironment 5000 times.\n"
 		"Take damage from the\nenvironment 5000 times.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_RUNS_ALOT_DESC <- [
+	::ACHIEVEMENT_RUNS_ALOT_DESC <- [
 		"Complete 150 Runs.\n\n"
 		"Complete 150 Runs.\n\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_OUTERWALL_NOPARKOUR_DESC <- [
+	::ACHIEVEMENT_NOPARKOUR_DESC <- [
 	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
 	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
+	::ACHIEVEMENT_INNERWALL_NOBOOSTER_DESC <- [
 		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_HELL_NODMG_DESC <- [
+	::ACHIEVEMENT_HELL_NODMG_DESC <- [
 		"Don't take any environment\ndamage at the Sacred Grounds.\n"
 		"Don't take any environment\ndamage at the Sacred Grounds.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_WINDFORTRESS_NODOUBLEJUMPNODMG_DESC <- [
-		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
-		"Avoid environment damage without\ndouble jumping at the Wind Fortress.\n"
-	]
-	::OUTERWALL_ACHIEVEMENT_SECRETSMOKEY_DESC <- [
+	::ACHIEVEMENT_SECRETSMOKEY_DESC <- [
 		"Find Smokey.\n\n"
 		"Find Smokey.\n\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_SECRETCLIMB_DESC <- [
+	::ACHIEVEMENT_SECRETCLIMB_DESC <- [
 		"Meet the Pyro.\n\n"
 		"Meet the Pyro.\n\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
+	::ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
 		"Earn a rank in every course.\n\n"
 		"Earn a rank in every course.\n\n"
 	]
-	// ::OUTERWALL_ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
+	// ::ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
 	// 	"Unlock Encore mode by earning a rank in every course.\n"
 	// 	"Unlock Encore mode by earning a rank in every course.\n"
 	// ]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
+	::ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
 		"Earn an A Rank on each course.\n\n"
 		"Earn an A Rank on each course.\n\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
+	::ACHIEVEMENT_NORMAL_ALLIRI_DESC <- [
 		"Earn an S Rank on each course.\n\n"
 		"Earn an S Rank on each course.\n\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
+	::ACHIEVEMENT_ENCORE_LAPS_ALOT_DESC <- [
 		"Complete 100 extra laps.\n"
 		"Complete 100 extra laps.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
+	::ACHIEVEMENT_ENCORE_OSIDE_NODMG_DESC <- [
 		"Don't take any environment damage at Encore Outer Wall.\n"
 		"Don't take any environment damage at Encore Outer Wall.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
+	::ACHIEVEMENT_ENCORE_BALCONY_CLOCKPICKUP_DESC <- [
 		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
 		"Don't collect any more than 4 time clocks in a 3 lap run of Encore Balcony.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
+	::ACHIEVEMENT_ENCORE_HELL_TIME_DESC <- [
 		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
 		"Finish with atleast 200 or more seconds remaining at Encore Sacred Grounds.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALL_DESC <- [
+	::ACHIEVEMENT_ENCORE_ALL_DESC <- [
 		"Earn a rank in every Encore course.\n"
 		"Earn a rank in every Encore course.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
+	::ACHIEVEMENT_ENCORE_ALLGOLD_DESC <- [
 		"Earn an A Rank in each Encore course.\n"
 		"Earn an A Rank in each Encore course.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
+	::ACHIEVEMENT_ENCORE_ALLIRI_DESC <- [
 		"Earn an S Rank in each Encore course.\n"
 		"Earn an S Rank in each Encore course.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLGOLD_DESC <- [
+	::ACHIEVEMENT_ALLGOLD_DESC <- [
 		"Earn an A Rank in every Regular and Encore course.\n"
 		"Earn an A Rank in every Regular and Encore course.\n"
 	]
-	::OUTERWALL_ACHIEVEMENT_ALLIRI_DESC <- [
+	::ACHIEVEMENT_ALLIRI_DESC <- [
 		"Earn an S Rank in every Regular and Encore course.\n"
 		"Earn an S Rank in every Regular and Encore course.\n"
 	]
 ]
-::OUTERWALL_ACHIEVEMENT_ACHIEVED <- [
+::ACHIEVEMENT_ACHIEVED <- [
 	" has achieved: "
 	" has achieved: "
 ]
 
-::OUTERWALL_PROFILE_TITLE <- [
+::PROFILE_TITLE <- [
 	"Player Profile"
 	"Player Profile"
 ]
-::OUTERWALL_STATS_SUBTITLE_STATS <- [
+::STATS_SUBTITLE_STATS <- [
 	"Stats"
 	"Stats"
 ]
-::OUTERWALL_STATS_TIMEPLAYED <- [
+::STATS_TIMEPLAYED <- [
 	"Time Played: "
 	"Time Played: "
 ]
-::OUTERWALL_STATS_ACHIEVEMENTS <- [
+::STATS_ACHIEVEMENTS <- [
 	"Achievements: "
 	"Achievements: "
 ]
-::OUTERWALL_STATS_TIMESHURT <- [
+::STATS_TIMESHURT <- [
 	"Times hurt by environment: "
 	"Times hurt by environment: "
 ]
-::OUTERWALL_STATS_RUNSRAN <- [
+::STATS_RUNSRAN <- [
 	"Completed runs: "
 	"Completed runs: "
 ]
-::OUTERWALL_STATS_LAPSRAN <- [
+::STATS_LAPSRAN <- [
 	"Extra laps ran: "
 	"Extra laps ran: "
 ]
-::OUTERWALL_STATS_TOTALTIME <- [
+::STATS_TOTALTIME <- [
 	"Cumulative regular time: "
 	"Cumulative regular time: "
 ]
-::OUTERWALL_STATS_SUBTITLE_TIMES <- [
+::STATS_SUBTITLE_TIMES <- [
 	"Times"
 	"Times"
 ]
-::OUTERWALL_STATS_TIMES_MAINSTAGE <- [
+::STATS_TIMES_MAINSTAGE <- [
 	"Main Stage"
 	"Main Stage"
 ]
-::OUTERWALL_STATS_TIMES_BONUS <- [
+::STATS_TIMES_BONUS <- [
 	"Bonus "
 	"Bonus "
 ]
 
-::OUTERWALL_COSMETIC_TITLE <- [
+::COSMETIC_TITLE <- [
 	"Cosmetics"
 	"Cosmetics"
 ]
-::OUTERWALL_COSMETIC_EDIT <- [
+::COSMETIC_EDIT <- [
 	" - Edit "
 	" - Edit "
 ]
@@ -519,105 +511,105 @@
 	" < EDITING"
 	" < EDITING"
 ]
-::OUTERWALL_COSMETIC_EDIT_COLORHOWTO <- [
+::COSMETIC_EDIT_COLORHOWTO <- [
 	"Type color in chat as \"RRR GGG BBB\""
 	"Type color in chat as \"RRR GGG BBB\""
 ]
-::OUTERWALL_COSMETIC_NAME <- [
-	::OUTERWALL_COSMETIC_BOOSTER_NAME <- [
+::COSMETIC_NAME <- [
+	::COSMETIC_BOOSTER_NAME <- [
 		"Booster Trail"
 		"Booster Trail"
 	]
-	::OUTERWALL_COSMETIC_PURPLESHINE_NAME <- [
+	::COSMETIC_PURPLESHINE_NAME <- [
 		"Purple Shine"
 		"Purple Shine"
 	]
-	::OUTERWALL_COSMETIC_VICTORY_NAME <- [
+	::COSMETIC_VICTORY_NAME <- [
 		"Victory Lap"
 		"Victory Lap"
 	]
-	::OUTERWALL_COSMETIC_MACHTRAIL_NAME <- [
+	::COSMETIC_MACHTRAIL_NAME <- [
 		"Mach Trail"
 		"Mach Trail"
 	]
-	::OUTERWALL_COSMETIC_RAINBOWTRAIL_NAME <- [
+	::COSMETIC_RAINBOWTRAIL_NAME <- [
 		"Rainbow Trail"
 		"Rainbow Trail"
 	]
-	::OUTERWALL_COSMETIC_RAVESTORY_NAME <- [
+	::COSMETIC_RAVESTORY_NAME <- [
 		"Raving Lyrics"
 		"Raving Lyrics"
 	]
-	::OUTERWALL_COSMETIC_WHIMSICALSTAR_NAME <- [
+	::COSMETIC_WHIMSICALSTAR_NAME <- [
 		"Whimsical Star"
 		"Whimsical Star"
 	]
 ]
-::OUTERWALL_COSMETIC_DESC <- [
-	::OUTERWALL_COSMETIC_BOOSTER_DESC <- [
+::COSMETIC_DESC <- [
+	::COSMETIC_BOOSTER_DESC <- [
 		"This rocket powered jetpack can\ncross any perilous gap you need."
 		"This rocket powered jetpack can\ncross any perilous gap you need."
 	]
-	::OUTERWALL_COSMETIC_PURPLESHINE_DESC <- [
+	::COSMETIC_PURPLESHINE_DESC <- [
 		"Nobody knows where these cion\ncame from, but they sure are shiny."
 		"Nobody knows where these cion\ncame from, but they sure are shiny."
 	]
-	::OUTERWALL_COSMETIC_VICTORY_DESC <- [
+	::COSMETIC_VICTORY_DESC <- [
 		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
 		"Why only be a winner at the goal when\nyou can be a winner wherever you go!"
 	]
-	::OUTERWALL_COSMETIC_MACHTRAIL_DESC <- [
+	::COSMETIC_MACHTRAIL_DESC <- [
 		"Nothing compares!\n"
 		"Nothing compares!\n"
 	]
-	::OUTERWALL_COSMETIC_RAINBOWTRAIL_DESC <- [
+	::COSMETIC_RAINBOWTRAIL_DESC <- [
 		"Perfect for the aftermath\nof a stormy night."
 		"Perfect for the aftermath\nof a stormy night."
 	]
-	::OUTERWALL_COSMETIC_RAVESTORY_DESC <- [
+	::COSMETIC_RAVESTORY_DESC <- [
 		"Who wrote these, anyway?\nSounds like they belong in a rave."
 		"Who wrote these, anyway?\nSounds like they belong in a rave."
 	]
-	::OUTERWALL_COSMETIC_WHIMSICALSTAR_DESC <- [
+	::COSMETIC_WHIMSICALSTAR_DESC <- [
 		"A special reward for\nzealous challengers."
 		"A special reward for\nzealous challengers."
 	]
 ]
 
-::OUTERWALL_ENCORE_UNLOCK <- [
+::ENCORE_UNLOCK <- [
 	"You just unlocked Encore Mode! You can enable it in the teleporter room!"
 	"You just unlocked Encore Mode! You can enable it in the teleporter room!"
 ]
-::OUTERWALL_ENCORETUTORIAL_INTRO <- [
+::ENCORETUTORIAL_INTRO <- [
 	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
 	"Welcome to Encore Mode. Encore Mode remixes every stage into a more difficult, timed version."
 ]
-::OUTERWALL_ENCORETUTORIAL_TIMER_1 <- [
+::ENCORETUTORIAL_TIMER_1 <- [
 	"You will start with 15 seconds to complete the course. You can get more time by collecting the Time Clocks."
 	"You will start with 15 seconds to complete the course. You can get more time by collecting the Time Clocks."
 ]
-::OUTERWALL_ENCORETUTORIAL_TIMER_2 <- [
+::ENCORETUTORIAL_TIMER_2 <- [
 	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
 	"Running out of time will cause you to quickly bleed out. You won't lose your speed though, and gaining time by any means will stop the bleeding."
 ]
-::OUTERWALL_ENCORETUTORIAL_LAP_1 <- [
+::ENCORETUTORIAL_LAP_1 <- [
 	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 3/4 of what they were last lap and add an additional 30 seconds to your clock."
 	"At the end of each course lies a Lapping Teleporter. Lapping will cause Time Clocks to give 3/4 of what they were last lap and add an additional 30 seconds to your clock."
 ]
-::OUTERWALL_ENCORETUTORIAL_LAP_2 <- [
+::ENCORETUTORIAL_LAP_2 <- [
 	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
 	"However, reaching the 4th lap will cause Time Clocks to stop giving time."
 ]
-::OUTERWALL_ENCORETUTORIAL_LAP_3 <- [
+::ENCORETUTORIAL_LAP_3 <- [
 	"Higher tiers of ranks require running multiple laps through a course. Good Luck!"
 	"Higher tiers of ranks require running multiple laps through a course. Good Luck!"
 ]
 
-::OUTERWALL_HUD_COIN <- [
+::HUD_COIN <- [
 	"Cion\nx"
 	"Cion\nx"
 ]
-::OUTERWALL_HUD_COINRADAR_READY <- [
+::HUD_COINRADAR_READY <- [
 	::MSG1 <- [
 		"RADAR READY"
 		"RADAR READY"
@@ -627,43 +619,43 @@
 		"[ATTACK] TO USE"
 	]
 ]
-::OUTERWALL_HUD_COINRADAR_NOTREADY <- [
+::HUD_COINRADAR_NOTREADY <- [
 	"CHARGING RADAR [%s]"
 	"CHARGING RADAR [%s]"
 ]
-::OUTERWALL_TIMETRIAL_LAP <- [
+::TIMETRIAL_LAP <- [
 	"Lap "
 	"Vuelta "
 ]
-::OUTERWALL_TIMETRIAL_FINALLAP <- [
+::TIMETRIAL_FINALLAP <- [
 	"Lap\nFINAL"
 	"Lap\nFINAL"
 ]
-::OUTERWALL_TIMER_ENCORE <- [
+::TIMER_ENCORE <- [
 	"Encore "
 	"Encore "
 ]
-::OUTERWALL_TIMER_CHEATED <- [
+::TIMER_CHEATED <- [
 	"You seem to have cheated, your time has been invalidated."
 	"Parece que has hecho trampa, tu tiempo ha sido invalidado."
 ]
-::OUTERWALL_TIMER_CHECKPOINT <- [
+::TIMER_CHECKPOINT <- [
 	"%s Checkpoint "
 	"%s Checkpoint "
 ]
-::OUTERWALL_TIMER_PERSONALBEST <- [
+::TIMER_PERSONALBEST <- [
 	" Per. "
 	" Per. "
 ]
-::OUTERWALL_TIMER_LAPTIME <- [
+::TIMER_LAPTIME <- [
 	"Lap Time: "
 	"Tiempo de vuelta: "
 ]
-::OUTERWALL_TIMER_FINALTIME <- [
+::TIMER_FINALTIME <- [
 	"Final Time: "
 	"Tiempo final: "
 ]
-::OUTERWALL_TIMER_FINALTIME_LAPCOUNT <- [
+::TIMER_FINALTIME_LAPCOUNT <- [
 	::SINGULAR <- [
 		" (%i Lap)"
 		" (%i Lap)"
@@ -673,15 +665,15 @@
 		" (%i Laps)"
 	]
 ]
-::OUTERWALL_TIMER_NONE <- [
+::TIMER_NONE <- [
 	"N/A"
 	"N/A"
 ]
-::OUTERWALL_TIMER_MEDAL_NOMEDAL <- [
+::TIMER_MEDAL_NOMEDAL <- [
 	"D"
 	"D"
 ]
-::OUTERWALL_TIMER_MEDAL <- [
+::TIMER_MEDAL <- [
 	::BRONZE <- [
 		"C"
 		"C"
@@ -699,19 +691,19 @@
 		"S"
 	]
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES <- [
+::TIMER_MEDAL_DISPLAY_MEDALTIMES <- [
 	"%s%s Ranks"
 	"%s%s Ranks"
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_MEDALTIMES_ENCORE <- [
+::TIMER_MEDAL_DISPLAY_MEDALTIMES_ENCORE <- [
 	"%s%s Encore Ranks"
 	"%s%s Encore Ranks"
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_LAP <- [
+::TIMER_MEDAL_DISPLAY_LAP <- [
 	"Lap "
 	"Vuelta "
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY <- [
+::TIMER_MEDAL_DISPLAY <- [
 	::BRONZE <- [
 		"C Rank"
 		"C Rank"
@@ -729,40 +721,40 @@
 		"S Rank"
 	]
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL <- [
 	"Best Rank: "
 	"Best Rank: "
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE <- [
 	"Best Encore Rank: "
 	"Best Encore Rank: "
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_TIME <- [
 	"Best Time: "
 	"Best Time: "
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT <- [
 	"Checkpoint %i: "
 	"Checkpoint %i: "
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT_SKIPPED <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT_SKIPPED <- [
 	"Gooched!"
 	"Gooched!"
 ]
-::OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP <- [
+::TIMER_MEDAL_DISPLAY_SERVERBEST_LAP <- [
 	"Most Laps: "
 	"Most Laps: "
 ]
 
-::OUTERWALL_TIMER_ACHIEVED <- [
+::TIMER_ACHIEVED <- [
 	" achieved %s%s "
 	" lograda %s "
 ]
-::OUTERWALL_TIMER_FAILEDTOQUALIFY <- [
+::TIMER_FAILEDTOQUALIFY <- [
 	"D Rank."
 	"D Rank."
 ]
-::OUTERWALL_TIMER_MEDAL_ACHIEVED <- [
+::TIMER_MEDAL_ACHIEVED <- [
 	::BRONZE <- [
 		"C Rank."
 		"C Rank."
@@ -780,8 +772,8 @@
 		"S Rank!"
 	]
 ]
-::OUTERWALL_TIMER_MESSAGE <- [
-	::OUTERWALL_TIMER_MESSAGE_BRONZE <- [
+::TIMER_MESSAGE <- [
+	::TIMER_MESSAGE_BRONZE <- [
 		::MESSAGE_1 <- [
 			"Not bad, but not great either, you"
 			"Not bad, but not great either, you"
@@ -803,7 +795,7 @@
 			"Better than nothing, you"
 		]
 	]
-	::OUTERWALL_TIMER_MESSAGE_SILVER <- [
+	::TIMER_MESSAGE_SILVER <- [
 		::MESSAGE_1 <- [
 			"Now you're getting somewhere! You"
 			"Now you're getting somewhere! You"
@@ -817,7 +809,7 @@
 			"Not too shabby, you"
 		]
 	]
-	::OUTERWALL_TIMER_MESSAGE_GOLD <- [
+	::TIMER_MESSAGE_GOLD <- [
 		::MESSAGE_1 <- [
 			"Sweet! You"
 			"Sweet! You"
@@ -839,7 +831,7 @@
 			"That was fast! You"
 		]
 	]
-	::OUTERWALL_TIMER_MESSAGE_IRIDESCENT <- [
+	::TIMER_MESSAGE_IRIDESCENT <- [
 		::MESSAGE_1 <- [
 			"Faster than fast! You"
 			"Faster than fast! You"
@@ -861,7 +853,7 @@
 			"You've gotta be the best of the best! You"
 		]
 	]
-	::OUTERWALL_TIMER_MESSAGE_NOMEDAL <- [
+	::TIMER_MESSAGE_NOMEDAL <- [
 		::MESSAGE_1 <- [
 			"That was REALLY slow, you"
 			"That was REALLY slow, you"
@@ -897,7 +889,7 @@
 	]
 ]
 
-::OUTERWALL_TIP_REGULAR <- [
+::TIP_REGULAR <- [
 	::TIP_1 <- [
 		"Touching a spike can grant a vertical boost! Combine it with a long jump to reach new heights!"
 		"¡Tocar un pico puede otorgar un impulso vertical! ¡Combínalo con un salto de longitud para alcanzar nuevas alturas!"
@@ -947,7 +939,7 @@
 		"The air currents at the Inner Wall will allow you to double jump after touching one. Use this to make extra distance you couldn't before!"
 	]
 ]
-::OUTERWALL_TIP_CRAP <- [
+::TIP_CRAP <- [
 	::TIP_1 <- [
 		"You don't need any of these tips, do you?"
 		"No necesitas ninguno de estos consejos, ¿verdad?"
@@ -1009,7 +1001,7 @@
 		"I'm bored! Jump off that cliff and kill yourself for my amusement!"
 	]
 ]
-::OUTERWALL_TIP_PARKOUR <- [
+::TIP_PARKOUR <- [
 	::TIP_1 <- [
 		"helloserverplugintogglethirdpresononmeplease"
 		"helloserverplugintogglethirdpresononmeplease"
@@ -1047,13 +1039,13 @@
 		"¡Outer Wall+ ya está disponible en WiiWare por 1,200 Wii Points! ¡Cómpralo ahora o siéntete culpable para siempre por perdértelo!"
 	]
 ]
-::OUTERWALL_TIP_CRUDE <- [
+::TIP_CRUDE <- [
 	::TIP_1 <- [
 		"Fuck you!"
 		"Vete a la mierda!"
 	]
 ]
-::OUTERWALL_TIP_PREFIX <- [
+::TIP_PREFIX <- [
 	::PREFIX_1 <- [
 		"Tip:"
 		"Consejo:"

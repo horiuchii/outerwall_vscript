@@ -90,8 +90,8 @@
     {
         local player = PlayerInstanceFromIndex(player_index);
         if (!player) continue;
-        local achieved_string = TranslateString(OUTERWALL_ACHIEVEMENT_ACHIEVED, player_index);
-        local achievement_string = TranslateString(OUTERWALL_ACHIEVEMENT_NAME[achievement_index], player_index);
+        local achieved_string = TranslateString(ACHIEVEMENT_ACHIEVED, player_index);
+        local achievement_string = TranslateString(ACHIEVEMENT_NAME[achievement_index], player_index);
 
         ClientPrint(player, HUD_PRINTTALK, "\x01" + "\x07FFD700" + playername + "\x01" + achieved_string + "\x079EC34F" + achievement_string);
     }
@@ -114,7 +114,6 @@
     CheckAchievement_NormalOuterWallNoParkour(player_index);
     CheckAchievement_NormalInnerWallNoBoost(player_index);
     CheckAchievement_NormalHellNoDmg(player_index);
-    CheckAchievement_NormalWindFortressNoDoubleJumpNoDmg(player_index);
     CheckAchievement_EncoreUnlock(player_index);
     // CheckAchievement_EncoreOsideNoDmg(player_index);
     // CheckAchievement_EncoreBalconyClock(player_index);
@@ -154,7 +153,7 @@
     if(HasAchievement(eAchievements.NormalInnerWallNoBoost, player_index))
         return;
 
-    if(PlayerUseInnerWallBoosterDuringRun[player_index] <= 3 && PlayerZoneList[player_index] == eCourses.InnerWall && !!!PlayerEncoreStatus[player_index])
+    if(PlayerUseInnerWallBoosterDuringRun[player_index] <= 2 && PlayerZoneList[player_index] == eCourses.InnerWall && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalInnerWallNoBoost, player_index);
 }
 
@@ -165,15 +164,6 @@
 
     if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.Hell && !!!PlayerEncoreStatus[player_index])
         UnlockPlayerAchievement(eAchievements.NormalHellNoDmg, player_index);
-}
-
-::CheckAchievement_NormalWindFortressNoDoubleJumpNoDmg <- function(player_index)
-{
-    if(HasAchievement(eAchievements.NormalWindFortressNoDoubleJumpDmg, player_index))
-        return;
-
-    if(!PlayerDamagedDuringRun[player_index] && !PlayerDoubleJumpDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.WindFortress && !!!PlayerEncoreStatus[player_index])
-        UnlockPlayerAchievement(eAchievements.NormalWindFortressNoDoubleJumpDmg, player_index);
 }
 
 ::AwardAchievement_SecretClimb <- function()
@@ -198,7 +188,7 @@
     {
         UnlockPlayerAchievement(eAchievements.EncoreUnlock, player_index);
         //TODO: REENABLE FOR ENCORE UPDATE
-        //ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x01" + "\x07FFD700" + TranslateString(OUTERWALL_ENCORE_UNLOCK, player_index));
+        //ClientPrint(PlayerInstanceFromIndex(player_index), HUD_PRINTTALK, "\x01" + "\x07FFD700" + TranslateString(ENCORE_UNLOCK, player_index));
     }
 }
 

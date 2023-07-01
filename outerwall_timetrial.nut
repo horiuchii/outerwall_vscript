@@ -82,7 +82,7 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 
 	if(PlayerZoneList[player_index] != eCourses.SandPit)
 	{
-		local lapcount = "\n\n " + TranslateString(OUTERWALL_TIMETRIAL_LAP, player_index) + "\n  " + PlayerCurrentLapCount[player_index];
+		local lapcount = "\n\n " + TranslateString(TIMETRIAL_LAP, player_index) + "\n  " + PlayerCurrentLapCount[player_index];
 		EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", "message " + lapcount);
 	}
 
@@ -147,7 +147,7 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 		PlayerLapsRan[player_index] += 1;
 
 	EmitSoundOnClient(SND_WARTIMER_UP, activator);
-	PlayerUpdateSkyboxState(activator);
+	PlayerUpdateSkyboxState(player_index);
 }
 
 ::TimePickupTouch <- function()

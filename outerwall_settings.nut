@@ -328,29 +328,29 @@ const LEADERBOARD_RESET_TIME = 300
 	if(PlayerCurrentSettingQuery[player_index] > eSettingQuerys.Encore || PlayerCurrentSettingQuery[player_index] == null)
 		return;
 
-	SettingName = TranslateString(OUTERWALL_SETTING_TITLE, player_index) + " - " + TranslateString(OUTERWALL_SETTING_NAME[PlayerCurrentSettingQuery[player_index]], player_index);
-	SettingDesc = TranslateString(OUTERWALL_SETTING_DESC[PlayerCurrentSettingQuery[player_index]], player_index);
+	SettingName = TranslateString(SETTING_TITLE, player_index) + " - " + TranslateString(SETTING_NAME[PlayerCurrentSettingQuery[player_index]], player_index);
+	SettingDesc = TranslateString(SETTING_DESC[PlayerCurrentSettingQuery[player_index]], player_index);
 
 	switch(PlayerCurrentSettingQuery[player_index])
 	{
 		case eSettingQuerys.DisplayTime:
 		{
-			SettingOption = TranslateString(OUTERWALL_SETTING_OPTION[PlayerSettingDisplayTime[player_index].tointeger()], player_index);
+			SettingOption = TranslateString(SETTING_OPTION[PlayerSettingDisplayTime[player_index].tointeger()], player_index);
 			break;
 		}
 		case eSettingQuerys.DisplayCheckpoint:
 		{
-			SettingOption = TranslateString(OUTERWALL_SETTING_CHECKPOINTTIME_OPTION[PlayerSettingDisplayCheckpoint[player_index].tointeger()], player_index);
+			SettingOption = TranslateString(SETTING_CHECKPOINTTIME_OPTION[PlayerSettingDisplayCheckpoint[player_index].tointeger()], player_index);
 			break;
 		}
 		case eSettingQuerys.Soundtrack:
 		{
-			SettingOption = TranslateString(OUTERWALL_SETTING_SOUNDTRACK_OPTION[PlayerSoundtrackList[player_index]], player_index);
+			SettingOption = TranslateString(SETTING_SOUNDTRACK_OPTION[PlayerSoundtrackList[player_index]], player_index);
 			break;
 		}
 		case eSettingQuerys.Encore:
 		{
-			SettingOption = TranslateString(OUTERWALL_SETTING_OPTION[PlayerEncoreStatus[player_index].tointeger()], player_index);
+			SettingOption = TranslateString(SETTING_OPTION[PlayerEncoreStatus[player_index].tointeger()], player_index);
 			break;
 		}
 		default: break;
@@ -359,24 +359,24 @@ const LEADERBOARD_RESET_TIME = 300
 	if(SettingName == null || SettingDesc == null || SettingOption == null)
 		return;
 
-	local SettingsText = SettingName + "\n" + SettingDesc + "\n\n" + TranslateString(OUTERWALL_SETTING_CURRENT, player_index) + SettingOption + "\n";
+	local SettingsText = SettingName + "\n" + SettingDesc + "\n\n" + TranslateString(SETTING_CURRENT, player_index) + SettingOption + "\n";
 
 	if(!IsPlayerEncorable(player_index) && PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
-		SettingsText += TranslateString(OUTERWALL_SETTING_ENCORE_NOQUALIFY, player_index);
+		SettingsText += TranslateString(SETTING_ENCORE_NOQUALIFY, player_index);
 	else
 	{
 		if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Soundtrack)
 		{
-			SettingsText += TranslateString(OUTERWALL_SOUNDTRACK_AUTHOR, player_index) + SoundtrackAuthors[PlayerSoundtrackList[player_index]] + "\n";
-			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
+			SettingsText += TranslateString(SOUNDTRACK_AUTHOR, player_index) + SoundtrackAuthors[PlayerSoundtrackList[player_index]] + "\n";
+			SettingsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
+			SettingsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index);
 		}
 		else
 		{
-			SettingsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_TOGGLE, player_index);
+			SettingsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_TOGGLE, player_index);
 
 			if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
-				SettingsText += "\n" + TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_ENCORETUTORIAL, player_index);
+				SettingsText += "\n" + TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_ENCORETUTORIAL, player_index);
 		}
 
 	}
@@ -400,31 +400,31 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local StatsText = "";
 
-	StatsText += TranslateString(OUTERWALL_PROFILE_TITLE, player_index) + " (" + (ProfileSelection[player_index] + 1) + " / 8) - ";
+	StatsText += TranslateString(PROFILE_TITLE, player_index) + " (" + (ProfileSelection[player_index] + 1) + " / 8) - ";
 
 	if(ProfileSelection[player_index] == 0)
 	{
-		StatsText += TranslateString(OUTERWALL_STATS_SUBTITLE_STATS, player_index);
-		StatsText += "\n" + TranslateString(OUTERWALL_STATS_TIMEPLAYED, player_index) + FormatTimeHours(PlayerSecondsPlayed[player_index]) + "\n";
+		StatsText += TranslateString(STATS_SUBTITLE_STATS, player_index);
+		StatsText += "\n" + TranslateString(STATS_TIMEPLAYED, player_index) + FormatTimeHours(PlayerSecondsPlayed[player_index]) + "\n";
 
 		local achievement_count = 0;
 		for (local i = 0; i < eAchievements.MAX; i++)
 			achievement_count += (HasAchievement(i, player_index)).tointeger()
 
-		StatsText += TranslateString(OUTERWALL_STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + eAchievements.MAX + "\n";
-		StatsText += TranslateString(OUTERWALL_STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n";
-		StatsText += TranslateString(OUTERWALL_STATS_RUNSRAN, player_index) + PlayerRunsRan[player_index] + "\n"
+		StatsText += TranslateString(STATS_ACHIEVEMENTS, player_index) + achievement_count + " / " + eAchievements.MAX + "\n";
+		StatsText += TranslateString(STATS_TIMESHURT, player_index) + PlayerTimesHurt[player_index] + "\n";
+		StatsText += TranslateString(STATS_RUNSRAN, player_index) + PlayerRunsRan[player_index] + "\n"
 
 		if(IsPlayerEncorable(player_index))
 		{
 			StatsText += "\n";
-			//StatsText += TranslateString(OUTERWALL_STATS_LAPSRAN, player_index) + PlayerLapsRan[player_index] + "\n";
+			//StatsText += TranslateString(STATS_LAPSRAN, player_index) + PlayerLapsRan[player_index] + "\n";
 
 			local total_time = 0;
 			foreach(time in PlayerBestTimeArray[player_index])
 				total_time += time;
 
-			StatsText += TranslateString(OUTERWALL_STATS_TOTALTIME, player_index) + FormatTime(round(total_time, 2)) + "\n";
+			StatsText += TranslateString(STATS_TOTALTIME, player_index) + FormatTime(round(total_time, 2)) + "\n";
 		}
 		else
 			StatsText += "\n\n";
@@ -434,10 +434,10 @@ const LEADERBOARD_RESET_TIME = 300
 	else
 	{
 		local iZone = ProfileSelection[player_index] - 1;
-		StatsText += TranslateString(OUTERWALL_STATS_SUBTITLE_TIMES, player_index) + "\n";
-		StatsText += "[" + ZoneNames[iZone] + "] ~ " + (iZone == 0 ? TranslateString(OUTERWALL_STATS_TIMES_MAINSTAGE, player_index) : TranslateString(OUTERWALL_STATS_TIMES_BONUS, player_index) + iZone) + "\n";
-		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(OUTERWALL_TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index)) + "\n";
-		StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : FormatTime(PlayerBestTimeArray[player_index][iZone])) + "\n";
+		StatsText += TranslateString(STATS_SUBTITLE_TIMES, player_index) + "\n";
+		StatsText += "[" + ZoneNames[iZone] + "] ~ " + (iZone == 0 ? TranslateString(STATS_TIMES_MAINSTAGE, player_index) : TranslateString(STATS_TIMES_BONUS, player_index) + iZone) + "\n";
+		StatsText += TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(TIMER_NONE, player_index) : GetPlayerBestMedal(player_index, iZone, false) == -1 ? TranslateString(TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, false)], player_index)) + "\n";
+		StatsText += TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_TIME, player_index) + (PlayerBestTimeArray[player_index][iZone].tointeger() == 5000 ? TranslateString(TIMER_NONE, player_index) : FormatTime(PlayerBestTimeArray[player_index][iZone])) + "\n";
 
 		local checktime = [
 			PlayerBestCheckpointTimeArrayOne[player_index][iZone]
@@ -446,11 +446,11 @@ const LEADERBOARD_RESET_TIME = 300
 
 		for(local i = 0; i < 2; i++)
 		{
-			StatsText += format(TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT, player_index), i + 1);
+			StatsText += format(TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT, player_index), i + 1);
 			if(PlayerBestTimeArray[player_index][iZone] == 5000)
-				StatsText += TranslateString(OUTERWALL_TIMER_NONE, player_index);
+				StatsText += TranslateString(TIMER_NONE, player_index);
 			else
-				StatsText += checktime[i] == 5000 ? TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT_SKIPPED, player_index) : FormatTime(checktime[i]);
+				StatsText += checktime[i] == 5000 ? TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_CHECKPOINT_SKIPPED, player_index) : FormatTime(checktime[i]);
 
 			StatsText += "\n";
 		}
@@ -458,15 +458,15 @@ const LEADERBOARD_RESET_TIME = 300
 		if(IsPlayerEncorable(player_index))
 		{
 			StatsText += "\n\n";
-			//StatsText += TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : TranslateString(OUTERWALL_TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
-			//StatsText += (iZone != 6 ? ("\n" + TranslateString(OUTERWALL_TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(OUTERWALL_TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : "\n") + "\n";
+			//StatsText += TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_MEDAL_ENCORE, player_index) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(TIMER_NONE, player_index) : TranslateString(TIMER_MEDAL[GetPlayerBestMedal(player_index, iZone, true)], player_index));
+			//StatsText += (iZone != 6 ? ("\n" + TranslateString(TIMER_MEDAL_DISPLAY_SERVERBEST_LAP, player_index)) + (GetPlayerBestMedal(player_index, iZone, true) == -1 ? TranslateString(TIMER_NONE, player_index) : PlayerBestLapCountEncoreArray[player_index][iZone]) : "\n") + "\n";
 		}
 		else
 			StatsText += "\n\n";
 	}
 
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+	StatsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
+	StatsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", StatsText);
@@ -480,7 +480,7 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local StatsText = "";
 
-	StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_TITLE, player_index) + " ";
+	StatsText += TranslateString(ACHIEVEMENT_TITLE, player_index) + " ";
 	StatsText += "(" + (AchievementSelection[player_index] + 1) + " / " + eAchievements.MAX + ")\n";
 
 	if((!IsPlayerEncorable(player_index) && AchievementSelection[player_index] > eAchievements.NormalIri) ||
@@ -491,8 +491,8 @@ const LEADERBOARD_RESET_TIME = 300
 	}
 	else
 	{
-		StatsText += "[" + TranslateString(OUTERWALL_ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) + "]\n";
-		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_DESC[AchievementSelection[player_index]], player_index) + "\n";
+		StatsText += "[" + TranslateString(ACHIEVEMENT_NAME[AchievementSelection[player_index]], player_index) + "]\n";
+		StatsText += TranslateString(ACHIEVEMENT_DESC[AchievementSelection[player_index]], player_index) + "\n";
 	}
 
 	StatsText += HasAchievement(AchievementSelection[player_index], player_index) ? "[O]" : "[X]\n";
@@ -502,11 +502,11 @@ const LEADERBOARD_RESET_TIME = 300
 		local month = PlayerAchievementsMonth[player_index][AchievementSelection[player_index]];
 		local day = PlayerAchievementsDay[player_index][AchievementSelection[player_index]];
 		local year = PlayerAchievementsYearOne[player_index][AchievementSelection[player_index]] + PlayerAchievementsYearTwo[player_index][AchievementSelection[player_index]];
-		StatsText += TranslateString(OUTERWALL_ACHIEVEMENT_UNLOCKDATE, player_index) + month + "/" + day + "/" + year + "\n";
+		StatsText += TranslateString(ACHIEVEMENT_UNLOCKDATE, player_index) + month + "/" + day + "/" + year + "\n";
 	}
 
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-	StatsText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index);
+	StatsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
+	StatsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", StatsText);
@@ -520,36 +520,36 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local EquipText = "";
 
-	EquipText += TranslateString(OUTERWALL_COSMETIC_TITLE, player_index);
+	EquipText += TranslateString(COSMETIC_TITLE, player_index);
 
 	if(!PlayerCosmeticSubMenuActive[player_index])
 	{
 		EquipText += " (" + (CosmeticSelection[player_index] + 1) + " / " + (eCosmetics.MAX - 1) + ")\n";
 
-		EquipText += "[" + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
-		EquipText += TranslateString(OUTERWALL_COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n\n";
+		EquipText += "[" + TranslateString(COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "]\n";
+		EquipText += TranslateString(COSMETIC_DESC[CosmeticSelection[player_index]], player_index) + "\n\n";
 
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+		EquipText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
+		EquipText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
 
 		//if our cosmetic achievement isnt met, display the not unlocked message
 		if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
-			EquipText += format(TranslateString(OUTERWALL_COSMETIC_REQUIREMENT, player_index), TranslateString(OUTERWALL_ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
+			EquipText += format(TranslateString(COSMETIC_REQUIREMENT, player_index), TranslateString(ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
 		else if(CosmeticSelection[player_index] == eCosmetics.MachTrail - 1)
-			EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_EDIT, player_index) + " / " + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+			EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(SETTING_EDIT, player_index) + " / " + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 		else
-			EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+			EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 	}
 	else
 	{
-		EquipText += TranslateString(OUTERWALL_COSMETIC_EDIT, player_index) + TranslateString(OUTERWALL_COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "\n";
+		EquipText += TranslateString(COSMETIC_EDIT, player_index) + TranslateString(COSMETIC_NAME[CosmeticSelection[player_index]], player_index) + "\n";
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 1) + PlayerMachTrailColor1[player_index] + (PlayerCosmeticColorEdit[player_index] == 1 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 2) + PlayerMachTrailColor2[player_index] + (PlayerCosmeticColorEdit[player_index] == 2 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 3) + PlayerMachTrailColor3[player_index] + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
-		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : TranslateString(OUTERWALL_COSMETIC_EDIT_COLORHOWTO, player_index)) + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(OUTERWALL_SETTING_EDITSTOP, player_index) : format(TranslateString(OUTERWALL_SETTING_EDITCOLOR, player_index), (PlayerCosmeticColorEdit[player_index] + 1))) + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_RETURN, player_index) + "\n";
-		EquipText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? OUTERWALL_SETTING_UNEQUIP : OUTERWALL_SETTING_EQUIP), player_index);
+		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : TranslateString(COSMETIC_EDIT_COLORHOWTO, player_index)) + "\n";
+		EquipText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(SETTING_EDITSTOP, player_index) : format(TranslateString(SETTING_EDITCOLOR, player_index), (PlayerCosmeticColorEdit[player_index] + 1))) + "\n";
+		EquipText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_RETURN, player_index) + "\n";
+		EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
@@ -564,17 +564,17 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local ResetText = "";
 
-	ResetText += TranslateString(OUTERWALL_RESET_PROFILE_TITLE, player_index) + "\n";
+	ResetText += TranslateString(RESET_PROFILE_TITLE, player_index) + "\n";
 
 	if(ResetProfileProgress[player_index] == -1)
-		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_NORESET, player_index);
+		ResetText += TranslateString(RESET_PROFILE_NORESET, player_index);
 	else if(ResetProfileProgress[player_index] == -2)
-		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_RESET, player_index);
+		ResetText += TranslateString(RESET_PROFILE_RESET, player_index);
 	else
 	{
-		ResetText += TranslateString(OUTERWALL_RESET_PROFILE_QUESTIONS[ResetProfileProgress[player_index]], player_index) + "\n";
-		ResetText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_YES, player_index) + "\n";
-		ResetText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NO, player_index) + "\n";
+		ResetText += TranslateString(RESET_PROFILE_QUESTIONS[ResetProfileProgress[player_index]], player_index) + "\n";
+		ResetText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_YES, player_index) + "\n";
+		ResetText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_NO, player_index) + "\n";
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
@@ -591,13 +591,13 @@ const LEADERBOARD_RESET_TIME = 300
 
 	if(!leaderboard_loaded)
 	{
-		LeaderText = TranslateString(OUTERWALL_LEADERBOARD_TITLE, player_index) + "\n\n" + TranslateString(OUTERWALL_LEADERBOARD_NOENTRIES, player_index)
+		LeaderText = TranslateString(LEADERBOARD_TITLE, player_index) + "\n\n" + TranslateString(LEADERBOARD_NOENTRIES, player_index)
 		local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 		NetProps.SetPropString(text, "m_iszMessage", LeaderText);
 		return;
 	}
 
-	LeaderText += TranslateString(OUTERWALL_LEADERBOARD_TITLE, player_index) + " (" + TranslateString(OUTERWALL_LEADERBOARD_PAGE, player_index) + current_leaderboard_page + " / " + leaderboard_max_page + ")\n";
+	LeaderText += TranslateString(LEADERBOARD_TITLE, player_index) + " (" + TranslateString(LEADERBOARD_PAGE, player_index) + current_leaderboard_page + " / " + leaderboard_max_page + ")\n";
 
 	local player_rank = PlayerCachedLeaderboardPosition[player_index];
 	if(player_rank == null)
@@ -624,15 +624,15 @@ const LEADERBOARD_RESET_TIME = 300
 		DebugPrint("cached player " + player_index + "leaderboard rank: " + player_rank);
 	}
 
-	LeaderText += (TranslateString(OUTERWALL_LEADERBOARD_RANK, player_index) + (player_rank != -1 ? ("#" + player_rank) : TranslateString(OUTERWALL_TIMER_NONE, player_index))) + "\n\n";
+	LeaderText += (TranslateString(LEADERBOARD_RANK, player_index) + (player_rank != -1 ? ("#" + player_rank) : TranslateString(TIMER_NONE, player_index))) + "\n\n";
 
-	LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_ATTACK, player_index) + TranslateString(OUTERWALL_SETTING_NEXTPAGE, player_index) + "\n";
-	LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(OUTERWALL_SETTING_PREVPAGE, player_index) + "\n";
+	LeaderText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
+	LeaderText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
 
 	if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
-		LeaderText += format(TranslateString(OUTERWALL_LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
+		LeaderText += format(TranslateString(LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
 	else
-		LeaderText += TranslateString(OUTERWALL_SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(OUTERWALL_SETTING_REFRESHLEADERBOARD, player_index);
+		LeaderText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
 
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
