@@ -34,6 +34,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 	const MDL_SCOUT_TRAIL = "models/outerwall/player/scout.mdl";
 	//const MDL_SCOUT_TRAIL_WHIMSICALSTAR = "models/outerwall/player/scout_whimsicalstar.mdl";
 
+	PrecacheSound("outerwall/goal.mp3");
+
 	//Precache soundscript sounds
 	PrecacheSound("outerwall/snd_quote_walk.mp3");
 
@@ -536,10 +538,10 @@ IncludeScript("outerwall_gameevents.nut", this);
 {
 	local player_index = client.GetEntityIndex();
 
-	if((client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 185)
+	if(PlayerHasCheatImmunity[player_index] && (client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 190)
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
-		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - POSITION");
+		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - POSITION (" + (client.GetOrigin() - PlayerLastPosition[player_index]).Length() + ")");
 	}
 
 	PlayerLastPosition[player_index] = client.GetOrigin();
@@ -818,6 +820,25 @@ IncludeScript("outerwall_gameevents.nut", this);
 	NetProps.SetPropVector(client, "m_vecAbsVelocity", Vector(0,0,0));
 }
 
+::TeleportPlayerToCheckpoint <- function()
+{
+	local player_index = activator.GetEntityIndex();
+
+	PlayerHasCheatImmunity[player_index] = true;
+	activator.EmitSound(SND_QUOTE_HURT);
+
+	local TeleportDest = Entities.FindByName(null, "bonus" + PlayerZoneList[player_index].tostring() + "_teleport2");
+
+	if(TeleportDest == null)
+		return;
+
+	activator.SetOrigin(TeleportDest.GetOrigin());
+	activator.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
+	NetProps.SetPropVector(activator, "m_vecAbsVelocity", Vector(0,0,0));
+
+	EntFireByHandle(activator, "RunScriptCode", "PlayerHasCheatImmunity[" + player_index + "] = false;", 0.0, null, null);
+}
+
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
 {
 	local player_index = activator.GetEntityIndex();
@@ -844,7 +865,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 		client = activator;
 
 	//lets run this a little late to let the cheating check do its thing!
-	EntFireByHandle(client, "RunScriptCode", "DoGoalPost(" + iZoneGoal + "," + client.GetEntityIndex() + ");", 0.1, null, null);
+	EntFireByHandle(client, "RunScriptCode", "DoGoalPost(" + iZoneGoal + "," + client.GetEntityIndex() + ");", 0.05, null, null);
+	EntFireByHandle(client, "RunScriptCode", "PlayerCheckpointStatus[" + client.GetEntityIndex() + "] = 3;", 0.1, null, null);
 }
 
 ::DoGoalPost <- function(iZoneGoal, player_index)
@@ -858,9 +880,8 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 
 	PlayerActivateTimeTrial(client, false);
-	PlayerCheckpointStatus[player_index] = 3;
 
-	if(PlayerCheatedCurrentRun[player_index] ||(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
+	if(PlayerHasCheatImmunity[player_index] || PlayerCheatedCurrentRun[player_index] ||	(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(TIMER_CHEATED, player_index));
 		EmitSoundOnClient(SND_MEDAL_NONE, client);

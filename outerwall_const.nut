@@ -83,7 +83,6 @@ enum eAchievements{
 	NormalOuterWallNoParkour
 	NormalInnerWallNoBoost
 	NormalHellNoDmg
-	NormalWindFortressNoDoubleJumpDmg
 	SecretSmokey
 	SecretClimb
 	EncoreUnlock
@@ -122,14 +121,16 @@ enum eCheckpointOptions{
 
 enum eMapVersions{
 	v4a
+	v4b
 }
 
 ::MapVersionArray <-
 [
 	"v4a"
+	"v4b"
 ]
 
-::CURRENT_VERSION <- eMapVersions.v4a;
+::CURRENT_VERSION <- eMapVersions.v4b;
 
 enum eCosmetics{
 	None

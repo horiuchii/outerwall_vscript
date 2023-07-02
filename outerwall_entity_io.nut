@@ -53,19 +53,76 @@
     pyro.EmitSound("Pyro.LaughEvil01");
 }
 
-/*
-::GoalParticleZone1 <-
+::GoalParticleName <-
 [
-
+    "goal_confetti_oside"
+    "goal_confetti_lastcave"
+    "goal_confetti_balcony"
+    "goal_confetti_innerwall"
+    "goal_confetti_hell"
+    "goal_confetti_finalcave"
+    "goal_confetti_windfortress"
 ]
 
-::GoalParticleZone2 <-
+::GoalParticle1Position <-
 [
+    Vector(2218, 827, -11976)
+    Vector(5354, -4805, 12008)
+    Vector(4822, -6347, 14008)
+    Vector(-4709, -8234, -12776)
+    Vector(-5814, -1316, 12409)
+    Vector(2011, 4822, 14808)
+    Vector(5003, 6826, -13448)
+]
 
+::GoalParticle1Rotation <-
+[
+    Vector(0, 0, 30)
+    Vector(0, 30, 0)
+    Vector(0, 210, 0)
+    Vector(0, 300, 0)
+    Vector(0, 30, 0)
+    Vector(0, 300, 0)
+    Vector(0, 60, 0)
+]
+
+::GoalParticle2Position <-
+[
+    Vector(2454, 827, -11976)
+    Vector(5590, -4805, 12008)
+    Vector(4586, -6347, 14008)
+    Vector(-4709, -8470, -12776)
+    Vector(-5578, -1316, 12409)
+    Vector(2011, 4586, 14808)
+    Vector(5003, 7062, -13448)
+]
+
+::GoalParticle2Rotation <-
+[
+    Vector(0, 0, 150)
+    Vector(0, 150, 0)
+    Vector(0, 330, 0)
+    Vector(0, 60, 0)
+    Vector(0, 150, 0)
+    Vector(0, 60, 0)
+    Vector(0, 300, 0)
 ]
 
 ::SpawnGoalParticle <- function(iZone)
 {
+    DispatchParticleEffect(GoalParticleName[iZone], GoalParticle1Position[iZone], GoalParticle1Rotation[iZone] + Vector(0, 90, 0));
+    DispatchParticleEffect(GoalParticleName[iZone], GoalParticle2Position[iZone], GoalParticle2Rotation[iZone] + Vector(0, 90, 0));
 
+    local sound_data_1 = {
+        sound_name = "outerwall/goal.mp3",
+        origin = GoalParticle1Position[iZone]
+    };
+
+    local sound_data_2 = {
+        sound_name = "outerwall/goal.mp3",
+        origin = GoalParticle2Position[iZone]
+    };
+
+    EmitSoundEx(sound_data_1);
+    EmitSoundEx(sound_data_2);
 }
-*/

@@ -315,8 +315,8 @@
 		"Fuck You, Pyro!"
 	]
 	::ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
-		"Encore, Encore!"
-		"Encore, Encore!"
+		"A Worthy Performance"
+		"A Worthy Performance"
 	]
 	::ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
 		"Outer Ace"

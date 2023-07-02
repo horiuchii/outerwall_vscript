@@ -105,6 +105,7 @@ const NO_MEDAL_COLOR = "008B8B";
 ::PlayerCheckpointTimes <- ConstructTwoDimArray(MAX_PLAYERS, CHECKPOINT_COUNT, 5000)
 ::PlayerMedalTimeHUDStatusArray <- array(MAX_PLAYERS, false)
 ::PlayerCheatedCurrentRun <- array(MAX_PLAYERS, false)
+::PlayerHasCheatImmunity <- array(MAX_PLAYERS, false)
 
 ::DisplayTime <- function(player_index, time, iMedal, iZone)
 {

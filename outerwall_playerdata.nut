@@ -300,6 +300,8 @@ enum PlayerDataTypes
 
 	local savetype = PlayerDataTypes.map_version;
 
+	local save_version = "";
+
 	local savebuffer = "";
 
 	local save_length = save.len();
@@ -329,7 +331,8 @@ enum PlayerDataTypes
 				{
 					case PlayerDataTypes.map_version:
 					{
-						if(MapVersionArray.find(savebuffer.tostring()) == null)
+						save_version = savebuffer.tostring();
+						if(MapVersionArray.find(save_version) == null)
 						{
 							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Refusing to load your save, may be from a newer version of the map.");
 							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
