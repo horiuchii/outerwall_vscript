@@ -333,14 +333,26 @@
 	return input_time.tostring();
 }
 
+::FormatAchievementDataTime <- function()
+{
+	local CurrentTime = {};
+    LocalTime(CurrentTime);
+	local date = "";
+
+	date += (CurrentTime.month < 10 ? ("0" + (CurrentTime.month).tostring()) : (CurrentTime.month).tostring());
+	date += (CurrentTime.day < 10 ? ("0" + (CurrentTime.day).tostring()) : (CurrentTime.day).tostring());
+	date += (CurrentTime.year).tostring();
+
+	return date;
+}
+
 ::HasAchievement <- function(achievement_index, player_index)
 {
-	if(PlayerAchievementsMonth[player_index][achievement_index] == "00")
+	if(PlayerAchievements[player_index][achievement_index] == "00000000")
 		return false;
 
 	return true;
 }
-
 ::RainbowTrail <- function()
 {
 	local color = Vector(0, 0, 0);

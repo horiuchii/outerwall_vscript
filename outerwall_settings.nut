@@ -200,7 +200,7 @@ const LEADERBOARD_RESET_TIME = 300
 				}
 				else if(ButtonPressed == BUTTON_MOUSE3)
 				{
-					if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
+					if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index) || !!PlayerHasPlaytesterBonus[player_index])
 					{
 						if(CosmeticSelection[player_index] == eCosmetics.MachTrail - 1)
 							PlayerCosmeticSubMenuActive[player_index] = true;
@@ -241,6 +241,8 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.ResetProfile:
 		{
+			return;
+
 			if(ResetProfileProgress[player_index] == -1 || ResetProfileProgress[player_index] == -2 || ButtonPressed == BUTTON_MOUSE3)
 				return;
 
@@ -400,7 +402,7 @@ const LEADERBOARD_RESET_TIME = 300
 	local player_index = client.GetEntityIndex();
 	local StatsText = "";
 
-	StatsText += TranslateString(PROFILE_TITLE, player_index) + " (" + (ProfileSelection[player_index] + 1) + " / 8) - ";
+	StatsText += TranslateString(PROFILE_TITLE, player_index) + (!!PlayerHasPlaytesterBonus[player_index] ? " ★" : "") + " (" + (ProfileSelection[player_index] + 1) + " / 8) - ";
 
 	if(ProfileSelection[player_index] == 0)
 	{
@@ -499,10 +501,8 @@ const LEADERBOARD_RESET_TIME = 300
 
 	if(HasAchievement(AchievementSelection[player_index], player_index))
 	{
-		local month = PlayerAchievementsMonth[player_index][AchievementSelection[player_index]];
-		local day = PlayerAchievementsDay[player_index][AchievementSelection[player_index]];
-		local year = PlayerAchievementsYearOne[player_index][AchievementSelection[player_index]] + PlayerAchievementsYearTwo[player_index][AchievementSelection[player_index]];
-		StatsText += TranslateString(ACHIEVEMENT_UNLOCKDATE, player_index) + month + "/" + day + "/" + year + "\n";
+		local achievementdate = PlayerAchievements[player_index][AchievementSelection[player_index]].tostring();
+		StatsText += TranslateString(ACHIEVEMENT_UNLOCKDATE, player_index) + achievementdate.slice(0,2) + "/" + achievementdate.slice(2,4) + "/" + achievementdate.slice(4,8) + "\n";
 	}
 
 	StatsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";

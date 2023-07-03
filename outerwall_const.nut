@@ -119,19 +119,6 @@ enum eCheckpointOptions{
 	Never
 }
 
-enum eMapVersions{
-	v4a
-	v4b
-}
-
-::MapVersionArray <-
-[
-	"v4a"
-	"v4b"
-]
-
-::CURRENT_VERSION <- eMapVersions.v4b;
-
 enum eCosmetics{
 	None
 	Booster

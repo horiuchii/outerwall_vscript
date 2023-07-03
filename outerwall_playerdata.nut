@@ -24,56 +24,31 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
 
+::PlayerHasPlaytesterBonus <- array(MAX_PLAYERS, 0)
+
 ::PlayerBestTimeArray <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
 ::PlayerBestCheckpointTimeArrayOne <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
 ::PlayerBestCheckpointTimeArrayTwo <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT, 5000)
 ::PlayerBestLapCountEncoreArray <- ConstructTwoDimArray(MAX_PLAYERS, ZONE_COUNT_ENCORE, 0)
 ::PlayerBestSandPitTimeEncoreArray <- array(MAX_PLAYERS, 5000)
 
-//these are split up so much because the sourcemod cookie limit is 100 bytes
-::PlayerAchievementsMonth <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
-::PlayerAchievementsDay <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
-::PlayerAchievementsYearOne <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
-::PlayerAchievementsYearTwo <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00")
+::PlayerAchievements <- ConstructTwoDimArray(MAX_PLAYERS, eAchievements.MAX, "00000000")
 
-::PlayerMiscStats <-
-[
-	::PlayerSecondsPlayed <- array(MAX_PLAYERS, 0)
-	::PlayerTimesHurt <- array(MAX_PLAYERS, 0)
-	::PlayerRunsRan <- array(MAX_PLAYERS, 0)
-	::PlayerLapsRan <- array(MAX_PLAYERS, 0)
+::PlayerSecondsPlayed <- array(MAX_PLAYERS, 0)
+::PlayerTimesHurt <- array(MAX_PLAYERS, 0)
+::PlayerRunsRan <- array(MAX_PLAYERS, 0)
+::PlayerLapsRan <- array(MAX_PLAYERS, 0)
+
+::PlayerSettingDisplayTime <- array(MAX_PLAYERS, 0)
+::PlayerSettingDisplayCheckpoint <- array(MAX_PLAYERS, 0)
+::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
+::PlayerEncoreStatus <- array(MAX_PLAYERS, 0)
+::PlayerCosmeticEquipped <- array(MAX_PLAYERS, 0)
+::MachTrailColors <- [
+	::PlayerMachTrailColor1 <- array(MAX_PLAYERS, "255 000 000")
+	::PlayerMachTrailColor2 <- array(MAX_PLAYERS, "000 255 000")
+	::PlayerMachTrailColor3 <- array(MAX_PLAYERS, "127 000 127")
 ]
-
-::PlayerSettings <-
-[
-	::PlayerSettingDisplayTime <- array(MAX_PLAYERS, 0)
-	::PlayerSettingDisplayCheckpoint <- array(MAX_PLAYERS, 0)
-	::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
-	::PlayerEncoreStatus <- array(MAX_PLAYERS, 0)
-	::PlayerCosmeticEquipped <- array(MAX_PLAYERS, 0)
-	::MachTrailColors <- [
-		::PlayerMachTrailColor1 <- array(MAX_PLAYERS, "255 000 000")
-		::PlayerMachTrailColor2 <- array(MAX_PLAYERS, "000 255 000")
-		::PlayerMachTrailColor3 <- array(MAX_PLAYERS, "127 000 127")
-	]
-]
-
-enum PlayerDataTypes
-{
-	map_version
-	best_time
-	best_checkpoint_time_one
-	best_checkpoint_time_two
-	best_lapcount_encore
-	best_sandpit_time_encore
-	achievements_month
-	achievements_day
-	achievements_year_one
-	achievements_year_two
-	misc_stats
-	settings
-	MAX
-}
 
 ::PerformAutosave <- function()
 {
@@ -90,6 +65,8 @@ enum PlayerDataTypes
 	PlayerPreventSaving[player_index] = false;
 	PlayerAccountID[player_index] = null;
 
+	PlayerHasPlaytesterBonus[player_index] = 0;
+
 	for(local i = 0; i < ZONE_COUNT; i++)
 	{
 		PlayerBestTimeArray[player_index][i] = 5000;
@@ -104,26 +81,23 @@ enum PlayerDataTypes
 
 	for(local i = 0; i < eAchievements.MAX; i++)
 	{
-		PlayerAchievementsMonth[player_index][i] = "00";
-		PlayerAchievementsDay[player_index][i] = "00";
-		PlayerAchievementsYearOne[player_index][i] = "00";
-		PlayerAchievementsYearTwo[player_index][i] = "00";
+		PlayerAchievements[player_index][i] = "00000000";
 	}
 
-	foreach(i, stats in PlayerMiscStats)
-		PlayerMiscStats[i][player_index] = 0;
+	PlayerSecondsPlayed[player_index] = 0;
+	PlayerTimesHurt[player_index] = 0;
+	PlayerRunsRan[player_index] = 0;
+	PlayerLapsRan[player_index] = 0;
 
-	foreach(i, setting in PlayerSettings)
-	{
-		if(i == 5) // mach trail colors
-		{
-			PlayerMachTrailColor1[player_index] = "255 000 000";
-			PlayerMachTrailColor2[player_index] = "000 255 000";
-			PlayerMachTrailColor3[player_index] = "127 000 127";
-		}
-		else
-			PlayerSettings[i][player_index] = 0;
-	}
+	PlayerSettingDisplayTime[player_index] = 0;
+	PlayerSettingDisplayCheckpoint[player_index] = 0;
+	PlayerSoundtrackList[player_index] = 0;
+	PlayerEncoreStatus[player_index] = 0;
+	PlayerCosmeticEquipped[player_index] = 0;
+
+	PlayerMachTrailColor1[player_index] = "255 000 000";
+	PlayerMachTrailColor2[player_index] = "000 255 000";
+	PlayerMachTrailColor3[player_index] = "127 000 127";
 
 	DebugPrint("Reset Data Arrays for player " + player_index);
 }
@@ -186,83 +160,73 @@ enum PlayerDataTypes
 
 		if(PlayerAccountID[player_index] == null)
 		{
-			ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. AccountID is null even after attempting to grab again. Steam may be down.");
+			ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. PlayerAccountID is null even after attempting to grab again. Steam may be down.");
 			return;
 		}
 	}
 
-	local mapversion = split(GetMapName(), "_");
-
-	if(mapversion.len() != 3)
-	{
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "ERROR: Unable to save your game. Map name is invalid.");
-		return;
-	}
-
 	local save = "";
 
-	save += mapversion[2] + ",;,";
+	save += "playtester_bonus," + 1 + ";"
 
-	foreach(playerdata in PlayerBestTimeArray[player_index])
-		save += playerdata + ",";
+	save += "time_stage0," + PlayerBestTimeArray[player_index][0] + ";";
+	save += "time_bonus1," + PlayerBestTimeArray[player_index][1] + ";";
+	save += "time_bonus2," + PlayerBestTimeArray[player_index][2] + ";";
+	save += "time_bonus3," + PlayerBestTimeArray[player_index][3] + ";";
+	save += "time_bonus4," + PlayerBestTimeArray[player_index][4] + ";";
+	save += "time_bonus5," + PlayerBestTimeArray[player_index][5] + ";";
+	save += "time_bonus6," + PlayerBestTimeArray[player_index][6] + ";";
 
-	save += ";,";
+	save += "cp1_stage0," + PlayerBestCheckpointTimeArrayOne[player_index][0] + ";";
+	save += "cp1_bonus1," + PlayerBestCheckpointTimeArrayOne[player_index][1] + ";";
+	save += "cp1_bonus2," + PlayerBestCheckpointTimeArrayOne[player_index][2] + ";";
+	save += "cp1_bonus3," + PlayerBestCheckpointTimeArrayOne[player_index][3] + ";";
+	save += "cp1_bonus4," + PlayerBestCheckpointTimeArrayOne[player_index][4] + ";";
+	save += "cp1_bonus5," + PlayerBestCheckpointTimeArrayOne[player_index][5] + ";";
+	save += "cp1_bonus6," + PlayerBestCheckpointTimeArrayOne[player_index][6] + ";";
 
-	foreach(playerdata in PlayerBestCheckpointTimeArrayOne[player_index])
-		save += playerdata + ",";
+	save += "cp2_stage0," + PlayerBestCheckpointTimeArrayTwo[player_index][0] + ";";
+	save += "cp2_bonus1," + PlayerBestCheckpointTimeArrayTwo[player_index][1] + ";";
+	save += "cp2_bonus2," + PlayerBestCheckpointTimeArrayTwo[player_index][2] + ";";
+	save += "cp2_bonus3," + PlayerBestCheckpointTimeArrayTwo[player_index][3] + ";";
+	save += "cp2_bonus4," + PlayerBestCheckpointTimeArrayTwo[player_index][4] + ";";
+	save += "cp2_bonus5," + PlayerBestCheckpointTimeArrayTwo[player_index][5] + ";";
+	save += "cp2_bonus6," + PlayerBestCheckpointTimeArrayTwo[player_index][6] + ";";
 
-	save += ";,";
+	save += "lap_stage0," + PlayerBestLapCountEncoreArray[player_index][0] + ";";
+	save += "lap_bonus1," + PlayerBestLapCountEncoreArray[player_index][1] + ";";
+	save += "lap_bonus2," + PlayerBestLapCountEncoreArray[player_index][2] + ";";
+	save += "lap_bonus3," + PlayerBestLapCountEncoreArray[player_index][3] + ";";
+	save += "lap_bonus4," + PlayerBestLapCountEncoreArray[player_index][4] + ";";
+	save += "lap_bonus5," + PlayerBestLapCountEncoreArray[player_index][5] + ";";
 
-	foreach(playerdata in PlayerBestCheckpointTimeArrayTwo[player_index])
-		save += playerdata + ",";
+	save += "encoretime_bonus6," + PlayerBestSandPitTimeEncoreArray[player_index] + ";";
 
-	save += ";,";
+	//remove the pt_ after playtest
+	save += "pt_ach_hurtalot," + PlayerAchievements[player_index][eAchievements.HurtAlot] + ";";
+	save += "pt_ach_runsalot," + PlayerAchievements[player_index][eAchievements.RunsAlot] + ";";
+	save += "pt_ach_osidenoparkour," + PlayerAchievements[player_index][eAchievements.NormalOuterWallNoParkour] + ";";
+	save += "pt_ach_airboost," + PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost] + ";";
+	save += "pt_ach_hellnodmg," + PlayerAchievements[player_index][eAchievements.NormalHellNoDmg] + ";";
+	save += "pt_ach_smokey," + PlayerAchievements[player_index][eAchievements.SecretSmokey] + ";";
+	save += "pt_ach_pyro," + PlayerAchievements[player_index][eAchievements.SecretClimb] + ";";
+	save += "pt_ach_normalall," + PlayerAchievements[player_index][eAchievements.EncoreUnlock] + ";";
+	save += "pt_ach_normalgold," + PlayerAchievements[player_index][eAchievements.NormalGold] + ";";
+	save += "pt_ach_normaliri," + PlayerAchievements[player_index][eAchievements.NormalIri] + ";";
 
-	foreach(playerdata in PlayerBestLapCountEncoreArray[player_index])
-		save += playerdata + ",";
+	save += "stat_time," + PlayerSecondsPlayed[player_index] + ";";
+	save += "stat_hurt," + PlayerTimesHurt[player_index] + ";";
+	save += "stat_runs," + PlayerRunsRan[player_index] + ";";
+	save += "stat_laps," + PlayerLapsRan[player_index] + ";";
 
-	save += ";,";
-
-	save += PlayerBestSandPitTimeEncoreArray[player_index] + ",;,";
-
-	foreach(playerdata in PlayerAchievementsMonth[player_index])
-		save += playerdata.tostring() + ",";
-
-	save += ";,";
-
-	foreach(playerdata in PlayerAchievementsDay[player_index])
-		save += playerdata.tostring() + ",";
-
-	save += ";,";
-
-	foreach(playerdata in PlayerAchievementsYearOne[player_index])
-		save += playerdata.tostring() + ",";
-
-	save += ";,";
-
-	foreach(playerdata in PlayerAchievementsYearTwo[player_index])
-		save += playerdata.tostring() + ",";
-
-	save += ";,";
-
-	foreach(playerdata in PlayerMiscStats)
-		save += playerdata[player_index] + ",";
-
-	save += ";,";
-
-	foreach(i, setting in PlayerSettings)
-	{
-		if(i == 5)
-		{
-			save += setting[0][player_index].tostring() + ",";
-			save += setting[1][player_index].tostring() + ",";
-			save += setting[2][player_index].tostring() + ",";
-		}
-		else
-			save += setting[player_index].tointeger() + ",";
-	}
-
-	save += ";,;";
+	save += "setting_finaltime," + PlayerSettingDisplayTime[player_index] + ";";
+	save += "setting_checkpoint," + PlayerSettingDisplayCheckpoint[player_index] + ";";
+	save += "setting_soundtrack," + PlayerSoundtrackList[player_index] + ";";
+	save += "setting_encore," + PlayerEncoreStatus[player_index] + ";";
+	save += "setting_cosmetic," + PlayerCosmeticEquipped[player_index] + ";";
+	save += "setting_machcolor1," + PlayerMachTrailColor1[player_index] + ";";
+	save += "setting_machcolor2," + PlayerMachTrailColor2[player_index] + ";";
+	save += "setting_machcolor3," + PlayerMachTrailColor3[player_index] + ";";
 
 	StringToFile(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE, save);
 	DebugPrint("GAME SAVED FOR " + player_index)
@@ -294,122 +258,300 @@ enum PlayerDataTypes
 	if(save == null)
 		return;
 
-	local load_data = 0;
+	local save_length = save.len();
 
 	local i = 0;
-
-	local savetype = PlayerDataTypes.map_version;
-
-	local save_version = "";
-
-	local savebuffer = "";
-
-	local save_length = save.len();
+	//write to key buffer until we hit a comma
+	//read the value until we hit a semicolon
+	//do a switch into a case where we put the value into the array
+	local bReadingKey = true;
+	local key_buffer = "";
+	local value_buffer = "";
 
 	try
 	{
 		while(i < save_length)
 		{
-			if(savetype == PlayerDataTypes.MAX)
-				break;
-
-			if(save[i] == ',' || i == save_length) //we've gotten to the end
+			if(save[i] == ',') //we've got our key
 			{
-				if(savebuffer == "")
-					continue;
-
-				if(savebuffer == ";") //we've gotten to the end of the savetype
-				{
-					load_data = 0;
-					savebuffer = "";
-					i += 1;
-					savetype += 1;
-					continue;
-				}
-
-				switch(savetype)
-				{
-					case PlayerDataTypes.map_version:
-					{
-						save_version = savebuffer.tostring();
-						if(MapVersionArray.find(save_version) == null)
-						{
-							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Refusing to load your save, may be from a newer version of the map.");
-							ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
-							ResetPlayerDataArrays(player_index);
-							PlayerPreventSaving[player_index] = true;
-							return;
-						}
-						break;
-					}
-					case PlayerDataTypes.best_time:
-					{
-						PlayerBestTimeArray[player_index][load_data] = savebuffer.tofloat();
-						break;
-					}
-					case PlayerDataTypes.best_checkpoint_time_one:
-					{
-						PlayerBestCheckpointTimeArrayOne[player_index][load_data] = savebuffer.tofloat();
-						break;
-					}
-					case PlayerDataTypes.best_checkpoint_time_two:
-					{
-						PlayerBestCheckpointTimeArrayTwo[player_index][load_data] = savebuffer.tofloat();
-						break;
-					}
-					case PlayerDataTypes.best_lapcount_encore:
-					{
-						PlayerBestLapCountEncoreArray[player_index][load_data] = savebuffer.tointeger();
-						break;
-					}
-					case PlayerDataTypes.best_sandpit_time_encore:
-					{
-						PlayerBestSandPitTimeEncoreArray[player_index] = savebuffer.tofloat();
-						break;
-					}
-					case PlayerDataTypes.achievements_month:
-					{
-						PlayerAchievementsMonth[player_index][load_data] = savebuffer.tostring();
-						break;
-					}
-					case PlayerDataTypes.achievements_day:
-					{
-						PlayerAchievementsDay[player_index][load_data] = savebuffer.tostring();
-						break;
-					}
-					case PlayerDataTypes.achievements_year_one:
-					{
-						PlayerAchievementsYearOne[player_index][load_data] = savebuffer.tostring();
-						break;
-					}
-					case PlayerDataTypes.achievements_year_two:
-					{
-						PlayerAchievementsYearTwo[player_index][load_data] = savebuffer.tostring();
-						break;
-					}
-					case PlayerDataTypes.misc_stats:
-					{
-						PlayerMiscStats[load_data][player_index] = savebuffer.tointeger();
-						break;
-					}
-					case PlayerDataTypes.settings:
-					{
-						if(load_data >= 5)
-							MachTrailColors[load_data - 5][player_index] = savebuffer.tostring();
-						else
-							PlayerSettings[load_data][player_index] = savebuffer.tointeger();
-
-							break;
-					}
-				}
-
-				load_data += 1;
-				savebuffer = "";
+				bReadingKey = false;
 				i += 1;
+			}
+
+			if(save[i] == ';') //we've gotten to the end of the value
+			{
+				switch(key_buffer)
+				{
+					case "playtester_bonus":
+					{
+						PlayerHasPlaytesterBonus[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "time_stage0":
+					{
+						PlayerBestTimeArray[player_index][0] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus1":
+					{
+						PlayerBestTimeArray[player_index][1] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus2":
+					{
+						PlayerBestTimeArray[player_index][2] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus3":
+					{
+						PlayerBestTimeArray[player_index][3] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus4":
+					{
+						PlayerBestTimeArray[player_index][4] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus5":
+					{
+						PlayerBestTimeArray[player_index][5] = value_buffer.tofloat();
+						break;
+					}
+					case "time_bonus6":
+					{
+						PlayerBestTimeArray[player_index][6] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_stage0":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][0] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus1":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][1] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus2":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][2] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus3":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][3] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus4":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][4] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus5":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][5] = value_buffer.tofloat();
+						break;
+					}
+					case "cp1_bonus6":
+					{
+						PlayerBestCheckpointTimeArrayOne[player_index][6] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_stage0":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][0] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus1":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][1] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus2":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][2] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus3":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][3] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus4":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][4] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus5":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][5] = value_buffer.tofloat();
+						break;
+					}
+					case "cp2_bonus6":
+					{
+						PlayerBestCheckpointTimeArrayTwo[player_index][6] = value_buffer.tofloat();
+						break;
+					}
+					case "lap_stage0":
+					{
+						PlayerBestLapCountEncoreArray[player_index][0] = value_buffer.tointeger();
+						break;
+					}
+					case "lap_bonus1":
+					{
+						PlayerBestLapCountEncoreArray[player_index][1] = value_buffer.tointeger();
+						break;
+					}
+					case "lap_bonus2":
+					{
+						PlayerBestLapCountEncoreArray[player_index][2] = value_buffer.tointeger();
+						break;
+					}
+					case "lap_bonus3":
+					{
+						PlayerBestLapCountEncoreArray[player_index][3] = value_buffer.tointeger();
+						break;
+					}
+					case "lap_bonus4":
+					{
+						PlayerBestLapCountEncoreArray[player_index][4] = value_buffer.tointeger();
+						break;
+					}
+					case "lap_bonus5":
+					{
+						PlayerBestLapCountEncoreArray[player_index][5] = value_buffer.tointeger();
+						break;
+					}
+					case "encoretime_bonus6":
+					{
+						PlayerBestSandPitTimeEncoreArray[player_index] = value_buffer.tofloat();
+						break;
+					}
+					case "pt_ach_hurtalot":
+					{
+						PlayerAchievements[player_index][eAchievements.HurtAlot] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_runsalot":
+					{
+						PlayerAchievements[player_index][eAchievements.RunsAlot] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_osidenoparkour":
+					{
+						PlayerAchievements[player_index][eAchievements.NormalOuterWallNoParkour] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_airboost":
+					{
+						PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_hellnodmg":
+					{
+						PlayerAchievements[player_index][eAchievements.NormalHellNoDmg] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_smokey":
+					{
+						PlayerAchievements[player_index][eAchievements.SecretSmokey] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_pyro":
+					{
+						PlayerAchievements[player_index][eAchievements.SecretClimb] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_normalall":
+					{
+						PlayerAchievements[player_index][eAchievements.EncoreUnlock] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_normalgold":
+					{
+						PlayerAchievements[player_index][eAchievements.NormalGold] = value_buffer.tostring();
+						break;
+					}
+					case "pt_ach_normaliri":
+					{
+						PlayerAchievements[player_index][eAchievements.NormalIri] = value_buffer.tostring();
+						break;
+					}
+					case "stat_time":
+					{
+						PlayerSecondsPlayed[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "stat_hurt":
+					{
+						PlayerTimesHurt[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "stat_runs":
+					{
+						PlayerRunsRan[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "stat_laps":
+					{
+						PlayerLapsRan[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_finaltime":
+					{
+						PlayerSettingDisplayTime[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_checkpoint":
+					{
+						PlayerSettingDisplayCheckpoint[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_soundtrack":
+					{
+						PlayerSoundtrackList[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_encore":
+					{
+						PlayerEncoreStatus[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_cosmetic":
+					{
+						PlayerCosmeticEquipped[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "setting_machcolor1":
+					{
+						PlayerMachTrailColor1[player_index] = value_buffer.tostring();
+						break;
+					}
+					case "setting_machcolor2":
+					{
+						PlayerMachTrailColor2[player_index] = value_buffer.tostring();
+						break;
+					}
+					case "setting_machcolor3":
+					{
+						PlayerMachTrailColor3[player_index] = value_buffer.tostring();
+						break;
+					}
+				}
+
+				//clear everything and start reading the next key
+				key_buffer = "";
+				value_buffer = "";
+				i += 1;
+				bReadingKey = true;
 				continue;
 			}
 
-			savebuffer += save[i].tochar();
+			if(bReadingKey)
+				key_buffer += save[i].tochar();
+			else
+				value_buffer += save[i].tochar();
+
 			i += 1;
 		}
 
@@ -419,7 +561,7 @@ enum PlayerDataTypes
 	{
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. Please alert a server admin and have them post an issue on the \"horiuchii/outerwall_vscript\" GitHub with the text below and your save file.");
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nSave Type: " + savetype + "\nLoad Data: " + load_data + "\nIndex Location: " + i + "\nSave Buffer: " + savebuffer);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nIndex Location: " + i + "\nSave Buffer: " + savebuffer);
 		ResetPlayerDataArrays(player_index);
 		PlayerPreventSaving[player_index] = true;
 	}

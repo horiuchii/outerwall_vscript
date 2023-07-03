@@ -71,13 +71,7 @@
     if(HasAchievement(achievement_index, client_index))
         return;
 
-    local CurrentTime = {};
-    LocalTime(CurrentTime);
-
-    PlayerAchievementsMonth[client_index][achievement_index] = (CurrentTime.month < 10 ? ("0" + (CurrentTime.month).tostring()) : (CurrentTime.month).tostring());
-    PlayerAchievementsDay[client_index][achievement_index] = (CurrentTime.day < 10 ? ("0" + (CurrentTime.day).tostring()) : (CurrentTime.day).tostring());
-    PlayerAchievementsYearOne[client_index][achievement_index] = CurrentTime.year.tostring().slice(0, 2);
-    PlayerAchievementsYearTwo[client_index][achievement_index] = CurrentTime.year.tostring().slice(2, 4);
+    PlayerAchievements[client_index][achievement_index] = FormatAchievementDataTime();
 
     if(!bHidden)
     {

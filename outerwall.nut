@@ -835,8 +835,11 @@ IncludeScript("outerwall_gameevents.nut", this);
 	activator.SetOrigin(TeleportDest.GetOrigin());
 	activator.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
 	NetProps.SetPropVector(activator, "m_vecAbsVelocity", Vector(0,0,0));
+}
 
-	EntFireByHandle(activator, "RunScriptCode", "PlayerHasCheatImmunity[" + player_index + "] = false;", 0.0, null, null);
+::PlayerRemoveCheatImmunity <- function()
+{
+	PlayerHasCheatImmunity[activator.GetEntityIndex()] = false;
 }
 
 ::PlayerTouchTimerStartZone <- function(iZone, bTouch)
