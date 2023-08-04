@@ -346,6 +346,41 @@
 	return date;
 }
 
+::FormatChatColor <- function(color)
+{
+	local new_color = clamp(color.tointeger(), 0, 255);
+
+	if(new_color == 0)
+		new_color = "000";
+	else if(new_color < 10)
+		new_color = "00" + new_color;
+	else if(new_color < 100)
+		new_color = "0" + new_color;
+
+	return new_color;
+}
+
+::PlayVO <- function(player_index, vo_group)
+{
+	local sound_data = {
+		sound_name = vo_group[RandomInt(0, vo_group.len() - 1)]
+		entity = PlayerInstanceFromIndex(player_index)
+	};
+
+	EmitSoundEx(sound_data);
+}
+
+::DoRespawnEffects <- function(player_index)
+{
+	local client = PlayerInstanceFromIndex(player_index);
+
+	DispatchParticleEffect("teleportedin_outerwall", client.GetOrigin(), Vector(0,180,0));
+	EmitSoundOn("Halloween.EyeballBossTeleport", client);
+
+	if(RandomInt(1, 100) <= 25)
+		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + player_index + ",ScoutVO_Respawn);", RandomFloat(0.5, 2.5), null, null);
+}
+
 ::HasAchievement <- function(achievement_index, player_index)
 {
 	if(PlayerAchievements[player_index][achievement_index] == "00000000")

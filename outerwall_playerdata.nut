@@ -36,11 +36,13 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 ::PlayerSecondsPlayed <- array(MAX_PLAYERS, 0)
 ::PlayerTimesHurt <- array(MAX_PLAYERS, 0)
+::PlayerTipsRecieved <- array(MAX_PLAYERS, 0)
 ::PlayerRunsRan <- array(MAX_PLAYERS, 0)
 ::PlayerLapsRan <- array(MAX_PLAYERS, 0)
 
 ::PlayerSettingDisplayTime <- array(MAX_PLAYERS, 0)
 ::PlayerSettingDisplayCheckpoint <- array(MAX_PLAYERS, 0)
+::PlayerSettingPlayCharSounds <- array(MAX_PLAYERS, 1)
 ::PlayerSoundtrackList <- array(MAX_PLAYERS, 0)
 ::PlayerEncoreStatus <- array(MAX_PLAYERS, 0)
 ::PlayerCosmeticEquipped <- array(MAX_PLAYERS, 0)
@@ -91,8 +93,9 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 	PlayerSettingDisplayTime[player_index] = 0;
 	PlayerSettingDisplayCheckpoint[player_index] = 0;
-	PlayerSoundtrackList[player_index] = 0;
+	PlayerSettingPlayCharSounds[player_index] = 1;
 	PlayerEncoreStatus[player_index] = 0;
+	PlayerSoundtrackList[player_index] = 0;
 	PlayerCosmeticEquipped[player_index] = 0;
 
 	PlayerMachTrailColor1[player_index] = "255 000 000";
@@ -167,7 +170,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 	local save = "";
 
-	save += "playtester_bonus," + 1 + ";"
+	save += "playtester_bonus," + PlayerHasPlaytesterBonus[player_index] + ";"
 
 	save += "time_stage0," + PlayerBestTimeArray[player_index][0] + ";";
 	save += "time_bonus1," + PlayerBestTimeArray[player_index][1] + ";";
@@ -202,25 +205,26 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 	save += "encoretime_bonus6," + PlayerBestSandPitTimeEncoreArray[player_index] + ";";
 
-	//remove the pt_ after playtest
-	save += "pt_ach_hurtalot," + PlayerAchievements[player_index][eAchievements.HurtAlot] + ";";
-	save += "pt_ach_runsalot," + PlayerAchievements[player_index][eAchievements.RunsAlot] + ";";
-	save += "pt_ach_osidenoparkour," + PlayerAchievements[player_index][eAchievements.NormalOuterWallNoParkour] + ";";
-	save += "pt_ach_airboost," + PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost] + ";";
-	save += "pt_ach_hellnodmg," + PlayerAchievements[player_index][eAchievements.NormalHellNoDmg] + ";";
-	save += "pt_ach_smokey," + PlayerAchievements[player_index][eAchievements.SecretSmokey] + ";";
-	save += "pt_ach_pyro," + PlayerAchievements[player_index][eAchievements.SecretClimb] + ";";
-	save += "pt_ach_normalall," + PlayerAchievements[player_index][eAchievements.EncoreUnlock] + ";";
-	save += "pt_ach_normalgold," + PlayerAchievements[player_index][eAchievements.NormalGold] + ";";
-	save += "pt_ach_normaliri," + PlayerAchievements[player_index][eAchievements.NormalIri] + ";";
+	save += "ach_hurtalot," + PlayerAchievements[player_index][eAchievements.HurtAlot] + ";";
+	save += "ach_runsalot," + PlayerAchievements[player_index][eAchievements.RunsAlot] + ";";
+	save += "ach_osidenoparkour," + PlayerAchievements[player_index][eAchievements.NormalOuterWallNoParkour] + ";";
+	save += "ach_airboost," + PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost] + ";";
+	save += "ach_kazenodmg," + PlayerAchievements[player_index][eAchievements.NormalKazeNoDmg] + ";";
+	save += "ach_smokey," + PlayerAchievements[player_index][eAchievements.SecretSmokey] + ";";
+	save += "ach_pyro," + PlayerAchievements[player_index][eAchievements.SecretClimb] + ";";
+	save += "ach_normalall," + PlayerAchievements[player_index][eAchievements.EncoreUnlock] + ";";
+	save += "ach_normalgold," + PlayerAchievements[player_index][eAchievements.NormalGold] + ";";
+	save += "ach_normaliri," + PlayerAchievements[player_index][eAchievements.NormalIri] + ";";
 
 	save += "stat_time," + PlayerSecondsPlayed[player_index] + ";";
 	save += "stat_hurt," + PlayerTimesHurt[player_index] + ";";
+	save += "stat_tips," + PlayerTipsRecieved[player_index] + ";";
 	save += "stat_runs," + PlayerRunsRan[player_index] + ";";
 	save += "stat_laps," + PlayerLapsRan[player_index] + ";";
 
 	save += "setting_finaltime," + PlayerSettingDisplayTime[player_index] + ";";
 	save += "setting_checkpoint," + PlayerSettingDisplayCheckpoint[player_index] + ";";
+	save += "setting_charsound," + PlayerSettingPlayCharSounds[player_index] + ";";
 	save += "setting_soundtrack," + PlayerSoundtrackList[player_index] + ";";
 	save += "setting_encore," + PlayerEncoreStatus[player_index] + ";";
 	save += "setting_cosmetic," + PlayerCosmeticEquipped[player_index] + ";";
@@ -261,9 +265,6 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	local save_length = save.len();
 
 	local i = 0;
-	//write to key buffer until we hit a comma
-	//read the value until we hit a semicolon
-	//do a switch into a case where we put the value into the array
 	local bReadingKey = true;
 	local key_buffer = "";
 	local value_buffer = "";
@@ -427,52 +428,52 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 						PlayerBestSandPitTimeEncoreArray[player_index] = value_buffer.tofloat();
 						break;
 					}
-					case "pt_ach_hurtalot":
+					case "ach_hurtalot":
 					{
 						PlayerAchievements[player_index][eAchievements.HurtAlot] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_runsalot":
+					case "ach_runsalot":
 					{
 						PlayerAchievements[player_index][eAchievements.RunsAlot] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_osidenoparkour":
+					case "ach_osidenoparkour":
 					{
 						PlayerAchievements[player_index][eAchievements.NormalOuterWallNoParkour] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_airboost":
+					case "ach_airboost":
 					{
 						PlayerAchievements[player_index][eAchievements.NormalInnerWallNoBoost] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_hellnodmg":
+					case "ach_kazenodmg":
 					{
-						PlayerAchievements[player_index][eAchievements.NormalHellNoDmg] = value_buffer.tostring();
+						PlayerAchievements[player_index][eAchievements.NormalKazeNoDmg] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_smokey":
+					case "ach_smokey":
 					{
 						PlayerAchievements[player_index][eAchievements.SecretSmokey] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_pyro":
+					case "ach_pyro":
 					{
 						PlayerAchievements[player_index][eAchievements.SecretClimb] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_normalall":
+					case "ach_normalall":
 					{
 						PlayerAchievements[player_index][eAchievements.EncoreUnlock] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_normalgold":
+					case "ach_normalgold":
 					{
 						PlayerAchievements[player_index][eAchievements.NormalGold] = value_buffer.tostring();
 						break;
 					}
-					case "pt_ach_normaliri":
+					case "ach_normaliri":
 					{
 						PlayerAchievements[player_index][eAchievements.NormalIri] = value_buffer.tostring();
 						break;
@@ -485,6 +486,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 					case "stat_hurt":
 					{
 						PlayerTimesHurt[player_index] = value_buffer.tointeger();
+						break;
+					}
+					case "stat_tips":
+					{
+						PlayerTipsRecieved[player_index] = value_buffer.tointeger();
 						break;
 					}
 					case "stat_runs":
@@ -560,8 +566,8 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	catch(exception)
 	{
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "Your save failed to load. Please alert a server admin and have them post an issue on the \"horiuchii/outerwall_vscript\" GitHub with the text below and your save file.");
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save File: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
-		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nIndex Location: " + i + "\nSave Buffer: " + savebuffer);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Save: " + "tf/scriptdata/" + OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE);
+		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FFA500" + "Error: " + exception + "\nIndex: " + i + "\nReading Key?: " + bReadingKey + "\nKey: " + key_buffer + "\nValue: " + value_buffer);
 		ResetPlayerDataArrays(player_index);
 		PlayerPreventSaving[player_index] = true;
 	}

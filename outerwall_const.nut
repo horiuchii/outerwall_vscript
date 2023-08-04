@@ -6,8 +6,7 @@ foreach (a,b in Constants)
 
 const BUTTON_MOUSE1 = 1
 const BUTTON_MOUSE2 = 2
-const BUTTON_MOUSE3 = 3
-const BUTTON_RELOAD = 4
+const BUTTON_RELOAD = 3
 
 ::DEBUG_OUTPUT <- !IsDedicatedServer()
 
@@ -34,7 +33,7 @@ const OUTERWALL_MEDAL_IRI = 3
 const SMOKEY_TRIGGER_ALL = 127
 
 const MAT_MENU_MEDALTIMES = "outerwall/hud/hud_menu1.vmt"
-const MAT_MENU_SETTINGS = "outerwall/hud/hud_menu2.vmt"
+//const MAT_MENU_SETTINGS = "outerwall/hud/hud_menu2.vmt"
 const MAT_MENU_SETTINGS_LONGER = "outerwall/hud/hud_menu3.vmt"
 
 const MAT_ENCOREHUD = "outerwall/hud/hud_encore.vmt"
@@ -52,9 +51,10 @@ const MAT_ENCOREHUD_ACTIVE_SILVER = "outerwall/hud/hud_encore_active_silver.vmt"
 const MAT_ENCOREHUD_ACTIVE_GOLD = "outerwall/hud/hud_encore_active_gold.vmt"
 const MAT_ENCOREHUD_ACTIVE_IRI = "outerwall/hud/hud_encore_active_iri.vmt"
 
-const TIMER_PLAYERHUDTEXT = "outerwall_timer_gametext_"
-const BONUS_PLAYERHUDTEXT = "outerwall_bonus_gametext_"
-const ENCORE_PLAYERHUDTEXT = "outerwall_encore_gametext_"
+//stupid fucking const isnt registred fast enough???? having this const throws an exception on map start, SHUT THE FUCK UP
+::TIMER_PLAYERHUDTEXT <- "outerwall_timer_gametext_"
+::BONUS_PLAYERHUDTEXT <- "outerwall_bonus_gametext_"
+::ENCORE_PLAYERHUDTEXT <- "outerwall_encore_gametext_"
 
 const OUTERWALL_SAVEPATH = "pf_outerwall/"
 const OUTERWALL_SAVETYPE = ".sav"
@@ -82,7 +82,7 @@ enum eAchievements{
 	RunsAlot
 	NormalOuterWallNoParkour
 	NormalInnerWallNoBoost
-	NormalHellNoDmg
+	NormalKazeNoDmg
 	SecretSmokey
 	SecretClimb
 	EncoreUnlock
@@ -100,11 +100,17 @@ enum eAchievements{
 	MAX
 }
 
-enum eSettingQuerys{
+enum eMultiSettings{
 	DisplayTime
 	DisplayCheckpoint
+	PlayCharSound
 	Soundtrack
 	Encore
+	MAX
+}
+
+enum eSettingQuerys{
+	MultiSetting
 	Profile
 	Achievement
 	Cosmetic
@@ -134,7 +140,7 @@ enum eCosmetics{
 ::Cosmetic_Requirement <-
 [
 	eAchievements.NormalInnerWallNoBoost //booster spritetrail
-    eAchievements.NormalHellNoDmg //purple shine
+    eAchievements.NormalKazeNoDmg //purple shine
 	eAchievements.EncoreUnlock //victory
 	eAchievements.NormalGold //mach trail
 	eAchievements.NormalIri //rainbow trail
@@ -221,4 +227,110 @@ enum eCosmetics{
 	"Yann van der Cruyssen"
 	"iFlicky & Cornetto"
 	"Daisuke Amaya (Pixel)"
+]
+
+::ScoutVO_Medal <-
+[
+	"cm_scout_gamewon_01"
+	"cm_scout_gamewon_02"
+	"cm_scout_gamewon_03"
+	"cm_scout_gamewon_04"
+	"cm_scout_gamewon_05"
+	"cm_scout_gamewon_06"
+	"cm_scout_gamewon_07"
+	"cm_scout_gamewon_09"
+	"cm_scout_gamewon_10"
+	"cm_scout_gamewon_11"
+	"cm_scout_gamewon_12"
+	"cm_scout_gamewon_13"
+	"cm_scout_gamewon_14"
+	"cm_scout_gamewon_15"
+	"cm_scout_matchwon_01"
+	"cm_scout_matchwon_03"
+	"cm_scout_matchwon_04"
+	"cm_scout_matchwon_09"
+	"Scout.PositiveVocalization01"
+	"Scout.PositiveVocalization02"
+	"Scout.PositiveVocalization03"
+	"Scout.PositiveVocalization04"
+	"Scout.PositiveVocalization05"
+	"scout_mvm_loot_rare02"
+	"scout_mvm_loot_rare03"
+	"scout_mvm_loot_rare05"
+	"scout_sf12_goodmagic03"
+	"scout_sf12_goodmagic04"
+]
+
+::ScoutVO_MedalNone <-
+[
+	"Scout.Jeers04"
+	"Scout.Jeers09"
+	"Scout.Jeers10"
+	"cm_scout_pregamelostlast_03"
+	"Scout.AutoDejectedTie01"
+	"Scout.AutoDejectedTie02"
+	"Scout.AutoDejectedTie03"
+	"scout_sf13_magic_reac03"
+]
+
+::ScoutVO_MedalIri <-
+[
+	"scout_mvm_loot_rare07"
+	"scout_mvm_loot_rare08"
+	"scout_mvm_loot_godlike01"
+	"scout_mvm_loot_godlike02"
+	"scout_sf12_goodmagic05"
+	"cm_scout_gamewon_rare_02"
+	"cm_scout_pregamewonlast_rare_04"
+]
+
+::ScoutVO_Achievement <-
+[
+	"Scout.Award01"
+	"Scout.Award02"
+	"Scout.Award03"
+	"Scout.Award04"
+	"Scout.Award05"
+	"Scout.Award07"
+	"Scout.Award08"
+	"Scout.Award09"
+	"Scout.Award10"
+	"Scout.Award11"
+	"Scout.Award12"
+]
+
+::ScoutVO_CosmeticEquip <-
+[
+	"scout_mvm_loot_common01"
+	"scout_mvm_loot_common02"
+	"scout_mvm_loot_common03"
+	"scout_mvm_loot_common04"
+	"scout_mvm_loot_common05"
+	"scout_mvm_loot_common06"
+]
+
+::ScoutVO_JumpPad <-
+[
+	"Scout.TripleJump01"
+	"Scout.TripleJump02"
+	"Scout.TripleJump03"
+	"Scout.TripleJump04"
+]
+
+::ScoutVO_Respawn <-
+[
+	"scout_mvm_resurrect01"
+	"scout_mvm_resurrect02"
+	"scout_mvm_resurrect03"
+	"scout_mvm_resurrect04"
+	"scout_mvm_resurrect05"
+	"scout_mvm_resurrect06"
+	"scout_mvm_resurrect07"
+	"scout_mvm_resurrect08"
+]
+
+::ScoutVO_LavaTouch <-
+[
+	"Scout.AutoOnFire01"
+	"Scout.AutoOnFire02"
 ]

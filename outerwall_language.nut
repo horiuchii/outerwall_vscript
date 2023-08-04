@@ -29,8 +29,8 @@
 ]
 ::RESET_PROFILE_QUESTIONS <- [
 	::QUESTION_1 <- [
-		"You got some busniness with me?\n\n"
-		"You got some busniness with me?\n\n"
+		"You got some business with me?\n\n"
+		"You got some business with me?\n\n"
 	]
 	::QUESTION_2 <- [
 		"Well, then.\nDo you want to reset your save?\n"
@@ -88,9 +88,9 @@
 	"[ALT-ATTACK] "
 	"[ALT-ATTACK] "
 ]
-::SETTING_BUTTON_SPECIALATTACK <- [
-	"[SPEC-ATTACK] "
-	"[SPEC-ATTACK] "
+::SETTING_BUTTON_RELOAD <- [
+	"[RELOAD] "
+	"[RELOAD] "
 ]
 ::SETTING_TOGGLE <- [
 	"Toggle"
@@ -136,6 +136,10 @@
 	"[LOCKED] REQ: [%s]"
 	"[LOCKED] REQ: [%s]"
 ]
+::SETTING_COMINGSOON<- [
+	"[LOCKED] Coming Soon!"
+	"[LOCKED] Coming Soon!"
+]
 ::SETTING_YES <- [
 	"Yes"
 	"Yes"
@@ -160,53 +164,57 @@
 	"Current Setting: "
 	"Current Setting: "
 ]
-::SOUNDTRACK_AUTHOR <- [
-	"Author: "
-	"Author: "
-]
 ::LEADERBOARD_NOENTRIES <- [
 	"[NO ENTRIES]"
 	"[NO ENTRIES]"
 ]
 
-::SETTING_TITLE <- [
+::MULTISETTING_TITLE <- [
 	"Settings"
 	"Settings"
 ]
-::SETTING_NAME <- [
+::MULTISETTING_NAME <- [
 	::SETTING_FINALTIME_NAME <- [
-		"Final Time Display"
-		"Final Time Display"
+		"Final Time"
+		"Final Time"
 	]
 	::SETTING_CHECKPOINTTIME_NAME <- [
-		"Checkpoint Time Display"
-		"Checkpoint Time Display"
+		"Checkpoint Time"
+		"Checkpoint Time"
 	]
-	::SETTING_SOUNDTRACK <- [
+	::SETTING_PLAYCHARSOUND_NAME <- [
+		"Jump & Land Sound"
+		"Jump & Land Sound"
+	]
+	::SETTING_SOUNDTRACK_NAME <- [
 		"Soundtrack"
 		"Soundtrack"
 	]
-	::SETTING_ENCORE <- [
+	::SETTING_ENCORE_NAME <- [
 		"Encore Mode"
 		"Encore Mode"
 	]
 ]
-::SETTING_DESC <- [
+::MULTISETTING_DESC <- [
 	::SETTING_FINALTIME_DESC <- [
 		"Shows a run's final time\nwhen completing one."
-		"Shows a run's final time,\ncolor representing the rank."
+		"Shows a run's final time\nwhen completing one."
 	]
 	::SETTING_CHECKPOINTTIME_DESC <- [
 		"Display's your checkpoint time\nwhen you reach one."
 		"Display's your checkpoint time\nwhen you reach one."
+	]
+	::SETTING_PLAYCHARSOUND_DESC <- [
+		"Plays a special sound\nwhen jumping & landing."
+		"Plays a special sound\nwhen jumping & landing."
 	]
 	::SETTING_SOUNDTRACK_DESC <- [
 		"The soundtrack variant that\nis currently playing."
 		"The soundtrack variant that\nis currently playing."
 	]
 	::SETTING_ENCORE_DESC <- [
-		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
-		"Encore Mode remixes every course into\na time trial where you run multiple laps\nand collect red crystals for the ultimate challenge!"
+		"Encore Mode remixes every course into\na time trial! Not for the feint of heart!"
+		"Encore Mode remixes every course into\na time trial! Not for the feint of heart!"
 	]
 ]
 ::SETTING_CHECKPOINTTIME_OPTION <- [
@@ -264,6 +272,11 @@
 	]
 ]
 
+::SOUNDTRACK_AUTHOR <- [
+	"Author: "
+	"Author: "
+]
+
 ::LEADERBOARD_TITLE <- [
 	"Leaderboard"
 	"Leaderboard"
@@ -287,12 +300,12 @@
 ]
 ::ACHIEVEMENT_NAME <- [
 	::ACHIEVEMENT_HURT_ALOT_NAME <- [
-		"Pain O' Plenty"
-		"Pain O' Plenty"
+		"5001 Spikes"
+		"5001 Spikes"
 	]
 	::ACHIEVEMENT_RUNS_ALOT_NAME <- [
-		"Moonside Marathon"
-		"Moonside Marathon"
+		"Moonside Marathonist"
+		"Moonside Marathonist"
 	]
 	::ACHIEVEMENT_NOPARKOUR_NAME <- [
 		"Climber's Clamber"
@@ -302,9 +315,9 @@
 		"No Booster Required"
 		"No Booster Required"
 	]
-	::ACHIEVEMENT_HELL_NODMG_NAME <- [
-		"Heavenly Trip Through Hell"
-		"Heavenly Trip Through Hell"
+	::ACHIEVEMENT_KAZE_NODMG_NAME <- [
+		"Wind Walker"
+		"Wind Walker"
 	]
 	::ACHIEVEMENT_SECRETSMOKEY_NAME <- [
 		"Secret Smokester"
@@ -315,8 +328,8 @@
 		"Fuck You, Pyro!"
 	]
 	::ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
-		"A Worthy Performance"
-		"A Worthy Performance"
+		"Outer World Tour"
+		"Outer World Tour"
 	]
 	::ACHIEVEMENT_NORMAL_ALLGOLD_NAME <- [
 		"Outer Ace"
@@ -365,8 +378,8 @@
 ]
 ::ACHIEVEMENT_DESC <- [
 	::ACHIEVEMENT_HURT_ALOT_DESC <- [
-		"Take damage from the\nenvironment 5000 times.\n"
-		"Take damage from the\nenvironment 5000 times.\n"
+		"Take damage from the\nenvironment 5001 times.\n"
+		"Take damage from the\nenvironment 5001 times.\n"
 	]
 	::ACHIEVEMENT_RUNS_ALOT_DESC <- [
 		"Complete 150 Runs.\n\n"
@@ -380,7 +393,7 @@
 		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 	]
-	::ACHIEVEMENT_HELL_NODMG_DESC <- [
+	::ACHIEVEMENT_KAZE_NODMG_DESC <- [
 		"Don't take any environment\ndamage at the Sacred Grounds.\n"
 		"Don't take any environment\ndamage at the Sacred Grounds.\n"
 	]
@@ -515,6 +528,26 @@
 	"Type color in chat as \"RRR GGG BBB\""
 	"Type color in chat as \"RRR GGG BBB\""
 ]
+::COSMETIC_EDIT_COLORHINT <- [
+	"Colors as \"000 000 000\" get skipped"
+	"Colors as \"000 000 000\" get skipped"
+]
+::COSMETIC_EDIT_SUCCESS <- [
+	"Successfully set color %i to "
+	"Successfully set color %i to "
+]
+::COSMETIC_EDIT_ERROR_CHARCOUNT <- [
+	"ERROR: Color contains incorrect number of characters."
+	"ERROR: Color contains incorrect number of characters."
+]
+::COSMETIC_EDIT_ERROR_SPACECOUNT <- [
+	"ERROR: Color contains incorrect number of spaces."
+	"ERROR: Color contains incorrect number of spaces."
+]
+::COSMETIC_EDIT_ERROR_COLOR <- [
+	"ERROR: Failed to parse color. "
+	"ERROR: Failed to parse color. "
+]
 ::COSMETIC_NAME <- [
 	::COSMETIC_BOOSTER_NAME <- [
 		"Booster Trail"
@@ -630,6 +663,18 @@
 ::TIMETRIAL_FINALLAP <- [
 	"Lap\nFINAL"
 	"Lap\nFINAL"
+]
+::TIMETRIAL_MSG_TIME <- [
+	"Time is starting to dilate..."
+	"Time is starting to dilate..."
+]
+::TIMETRIAL_MSG_DEATH <- [
+	"A sense of dread weighs down upon you..."
+	"A sense of dread weighs down upon you..."
+]
+::TIMETRIAL_MSG_CRYSTAL <- [
+	"You've found %i crystals out of 5!"
+	"You've found %i crystals out of 5!"
 ]
 ::TIMER_ENCORE <- [
 	"Encore "
@@ -934,9 +979,13 @@
 	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a rank on each course."
 	// 	"Looking for a challenge? Try Encore Mode! You can unlock it by earning a rank on each course."
 	// ]
-	::TIP_10 <- [
+	::TIP_11 <- [
 		"The air currents at the Inner Wall will allow you to double jump after touching one. Use this to make extra distance you couldn't before!"
 		"The air currents at the Inner Wall will allow you to double jump after touching one. Use this to make extra distance you couldn't before!"
+	]
+	::TIP_12 <- [
+		"You can customize your Outer Wall expierence by heading to the teleporter room and taking a left!"
+		"You can customize your Outer Wall expierence by heading to the teleporter room and taking a left!"
 	]
 ]
 ::TIP_CRAP <- [
@@ -999,6 +1048,14 @@
 	::TIP_20 <- [
 		"I'm bored! Jump off that cliff and kill yourself for my amusement!"
 		"I'm bored! Jump off that cliff and kill yourself for my amusement!"
+	]
+	::TIP_21 <- [
+		"Do you smell it? I smell it. Go take a shower!"
+		"Do you smell it? I smell it. Go take a shower!"
+	]
+	::TIP_22 <- [
+		"You've bothered me %i times, go away now!"
+		"You've bothered me %i times, go away now!"
 	]
 ]
 ::TIP_PARKOUR <- [

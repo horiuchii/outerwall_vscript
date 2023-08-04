@@ -76,6 +76,7 @@
     if(!bHidden)
     {
         client.EmitSound("Achievement.Earned");
+        EntFireByHandle(client, "RunScriptCode", "PlayVO(" + client_index + ",ScoutVO_Achievement);", 2, null, null);
         DispatchParticleEffect("achieved", client.GetOrigin() + Vector(0,0,84), Vector(0,90,0));
         PlayerSaveGame(client);
     }
@@ -107,7 +108,7 @@
     CheckAchievement_RunsAlot(player_index);
     CheckAchievement_NormalOuterWallNoParkour(player_index);
     CheckAchievement_NormalInnerWallNoBoost(player_index);
-    CheckAchievement_NormalHellNoDmg(player_index);
+    CheckAchievement_NormalKazeNoDmg(player_index);
     CheckAchievement_EncoreUnlock(player_index);
     // CheckAchievement_EncoreOsideNoDmg(player_index);
     // CheckAchievement_EncoreBalconyClock(player_index);
@@ -120,7 +121,7 @@
     if(HasAchievement(eAchievements.HurtAlot, player_index))
         return;
 
-    if(PlayerTimesHurt[player_index] >= 5000)
+    if(PlayerTimesHurt[player_index] >= 5001)
         UnlockPlayerAchievement(eAchievements.HurtAlot, player_index);
 }
 
@@ -151,13 +152,13 @@
         UnlockPlayerAchievement(eAchievements.NormalInnerWallNoBoost, player_index);
 }
 
-::CheckAchievement_NormalHellNoDmg <- function(player_index)
+::CheckAchievement_NormalKazeNoDmg <- function(player_index)
 {
-    if(HasAchievement(eAchievements.NormalHellNoDmg, player_index))
+    if(HasAchievement(eAchievements.NormalKazeNoDmg, player_index))
         return;
 
-    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.Hell && !!!PlayerEncoreStatus[player_index])
-        UnlockPlayerAchievement(eAchievements.NormalHellNoDmg, player_index);
+    if(!PlayerDamagedDuringRun[player_index] && PlayerZoneList[player_index] == eCourses.WindFortress && !!!PlayerEncoreStatus[player_index])
+        UnlockPlayerAchievement(eAchievements.NormalKazeNoDmg, player_index);
 }
 
 ::AwardAchievement_SecretClimb <- function()

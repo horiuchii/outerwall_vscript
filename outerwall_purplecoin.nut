@@ -80,9 +80,25 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	EntFire(BONUS_PLAYERHUDTEXT + player_index, "addoutput", ("message " + radar_message + "\n\n" + TranslateString(HUD_COIN, player_index) + count_prefix + PlayerCoinCount[player_index]));
 }
 
+::CachedCoinPositions <- array(PURPLECOIN_COUNT, Vector(0,0,0))
+
+::PrecacheCoinPositions <- function()
+{
+	for (local i = 0; i < PURPLECOIN_COUNT; i++)
+	{
+		local coin = Entities.FindByName(null, PURPLECOIN_COINPATH + (i + 1));
+
+		if(!coin)
+			continue;
+
+		CachedCoinPositions[i] = coin.GetOrigin();
+	}
+}
+
 ::CheckPurpleCoinAnnotateButton <- function(client)
 {
-	if(SetTransmitCoinActive)
+	//annotations dont work when over 32 players
+	if(SetTransmitCoinActive || MaxClients().tointeger() > 32)
 		return;
 
 	local player_index = client.GetEntityIndex();
@@ -118,17 +134,12 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 		if(!coin)
 			continue;
 
-		local trigger = Entities.FindByName(null, coinpath + (i + 1));
-
-		if(!trigger)
-			continue;
-
-		local trigger_position = trigger.GetOrigin();
+		local coin_position = CachedCoinPositions[i];
 
 		local annotate_data = {
-			worldPosX = trigger_position.x
-			worldPosY = trigger_position.y
-			worldPosZ = trigger_position.z + 32
+			worldPosX = coin_position.x
+			worldPosY = coin_position.y
+			worldPosZ = coin_position.z + 32
 			id = (player_index.tostring() + i.tostring()).tointeger()
 			text = "!"
 			lifetime = 6.5

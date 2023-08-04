@@ -1,4 +1,5 @@
 ::PlayerCurrentSettingQuery <- array(MAX_PLAYERS, null)
+::PlayerCurrentMultiSettingQuery <- array(MAX_PLAYERS, eMultiSettings.DisplayTime)
 
 ::SetPlayerSettingQuery <- function(iSetting)
 {
@@ -7,7 +8,11 @@
 	ResetProfileProgress[player_index] = 0;
 	PlayerCosmeticSubMenuActive[player_index] = false;
 	PlayerCosmeticColorEdit[player_index] = 0;
-	UpdateSettingsText(player_index);
+
+	if(iSetting == eSettingQuerys.MultiSetting)
+		UpdateMultiSettingsText(player_index);
+
+	NetProps.SetPropFloat(activator, "m_flNextAttack", (iSetting == null ? 0 : 9999999));
 }
 
 const LEADERBOARD_RESET_TIME = 300
@@ -19,7 +24,6 @@ const LEADERBOARD_RESET_TIME = 300
 ::PlayerCosmeticColorEdit <- array(MAX_PLAYERS, 0)
 ::ResetProfileProgress <- array(MAX_PLAYERS, 0)
 ::LastUpdatedLeaderboard <- 0
-//todo: think of adding setting for player sounds, individual or all together
 
 ::ResetPlayerMenuArrays <- function(player_index)
 {
@@ -27,6 +31,7 @@ const LEADERBOARD_RESET_TIME = 300
 	AchievementSelection[player_index] = 0;
 	CosmeticSelection[player_index] = 0;
 	PlayerCurrentSettingQuery[player_index] = null;
+	PlayerCurrentMultiSettingQuery[player_index] = eMultiSettings.DisplayTime;
 	PlayerCosmeticSubMenuActive[player_index] = false;
 	PlayerCosmeticColorEdit[player_index] = 0;
 }
@@ -35,108 +40,109 @@ const LEADERBOARD_RESET_TIME = 300
 {
 	local player_index = client.GetEntityIndex();
 
-	local buttons = NetProps.GetPropInt(client, "m_nButtons");
-
 	local current_setting = PlayerCurrentSettingQuery[player_index];
 
 	if(current_setting == null)
-	{
-		NetProps.SetPropFloat(client, "m_flNextAttack", 0);
 		return;
-	}
 
+	local buttons = NetProps.GetPropInt(client, "m_nButtons");
 	local ButtonPressed = null;
-	NetProps.SetPropFloat(client, "m_flNextAttack", 9999999);
 
 	//If our previous key capture doesn't contain attack key && new one does.
 	if(!(PreviousButtons[player_index] & IN_ATTACK) && buttons & IN_ATTACK)
 		ButtonPressed = BUTTON_MOUSE1;
 	else if(!(PreviousButtons[player_index] & IN_ATTACK2) && buttons & IN_ATTACK2)
 		ButtonPressed = BUTTON_MOUSE2;
-	else if(!(PreviousButtons[player_index] & IN_ATTACK3) && buttons & IN_ATTACK3)
-		ButtonPressed = BUTTON_MOUSE3;
+	else if(!(PreviousButtons[player_index] & IN_RELOAD) && buttons & IN_RELOAD)
+		ButtonPressed = BUTTON_RELOAD;
 
 	if(ButtonPressed == null)
 		return;
 
 	switch(current_setting)
 	{
-		case eSettingQuerys.DisplayTime:
+		case eSettingQuerys.MultiSetting:
 		{
-			if(ButtonPressed != BUTTON_MOUSE1)
-				return;
+			local current_multisetting = PlayerCurrentMultiSettingQuery[player_index];
 
-			//TODO: remove this when adding encore
-			PlayerSettingDisplayTime[player_index] = (!!!PlayerSettingDisplayTime[player_index]).tointeger();
-			break;
-
-			local current_setting = PlayerSettingDisplayTime[player_index];
-			if(current_setting == 0)
-				PlayerSettingDisplayTime[player_index] = 1;
-			else if(current_setting == 1)
-				PlayerSettingDisplayTime[player_index] = 2;
-			else if(current_setting == 2)
-				PlayerSettingDisplayTime[player_index] = 0;
-
-			break;
-		}
-		case eSettingQuerys.DisplayCheckpoint:
-		{
-			if(ButtonPressed != BUTTON_MOUSE1)
-				return;
-
-			local current_setting = PlayerSettingDisplayCheckpoint[player_index];
-			if(current_setting == 0)
-				PlayerSettingDisplayCheckpoint[player_index] = 1;
-			else if(current_setting == 1)
-				PlayerSettingDisplayCheckpoint[player_index] = 2;
-			else if(current_setting == 2)
-				PlayerSettingDisplayCheckpoint[player_index] = 0;
-
-			break;
-		}
-		case eSettingQuerys.Soundtrack:
-		{
-			if(ButtonPressed == BUTTON_MOUSE3)
-				return;
-
-			local current_track = PlayerSoundtrackList[player_index];
-			if(ButtonPressed == BUTTON_MOUSE1)
+			if(ButtonPressed == BUTTON_RELOAD)
 			{
-				if(current_track == Soundtracks.len() - 1)
-					current_track = 0;
-				else
-					current_track++;
+				PlayerCurrentMultiSettingQuery[player_index] = (current_multisetting != eMultiSettings.MAX - 1 ? current_multisetting + 1 : 0);
 			}
-			else if(ButtonPressed == BUTTON_MOUSE2)
-			{
-				if(current_track == 0)
-					current_track = Soundtracks.len() - 1;
-				else
-					current_track--;
-			}
-
-			SetPlayerSoundtrack(current_track, client);
-			break;
-		}
-		case eSettingQuerys.Encore:
-		{
-			if(ButtonPressed != BUTTON_MOUSE1)
-				return;
-
-			//TODO: REPLACE ME WHEN WE RELEASE WITH ENCORE
-			//if(IsPlayerEncorable(player_index))
-			if(false)
-				PlayerEncoreStatus[player_index] = (!!!PlayerEncoreStatus[player_index]).tointeger();
 			else
-				return;
+			{
+				if(ButtonPressed != BUTTON_MOUSE1)
+					return;
 
-			EncoreTeamCheck(client);
+				switch(current_multisetting)
+				{
+					case eMultiSettings.DisplayTime:
+					{
+						//TODO: remove this when adding encore
+						PlayerSettingDisplayTime[player_index] = (!!!PlayerSettingDisplayTime[player_index]).tointeger();
+						break;
+
+						local current_setting = PlayerSettingDisplayTime[player_index];
+						if(current_setting == 0)
+							PlayerSettingDisplayTime[player_index] = 1;
+						else if(current_setting == 1)
+							PlayerSettingDisplayTime[player_index] = 2;
+						else if(current_setting == 2)
+							PlayerSettingDisplayTime[player_index] = 0;
+
+						break;
+					}
+					case eMultiSettings.DisplayCheckpoint:
+					{
+						local current_setting = PlayerSettingDisplayCheckpoint[player_index];
+						if(current_setting == 0)
+							PlayerSettingDisplayCheckpoint[player_index] = 1;
+						else if(current_setting == 1)
+							PlayerSettingDisplayCheckpoint[player_index] = 2;
+						else if(current_setting == 2)
+							PlayerSettingDisplayCheckpoint[player_index] = 0;
+
+						break;
+					}
+					case eMultiSettings.PlayCharSound:
+					{
+						PlayerSettingPlayCharSounds[player_index] = (!!!PlayerSettingPlayCharSounds[player_index]).tointeger();
+						break;
+					}
+					case eMultiSettings.Soundtrack:
+					{
+						local current_track = PlayerSoundtrackList[player_index];
+
+						if(current_track == Soundtracks.len() - 1)
+							current_track = 0;
+						else
+							current_track++;
+
+						SetPlayerSoundtrack(current_track, client);
+						break;
+					}
+					case eMultiSettings.Encore:
+					{
+						//TODO: REMOVE ME WHEN WE RELEASE WITH ENCORE
+						return;
+
+						if(IsPlayerEncorable(player_index))
+							PlayerEncoreStatus[player_index] = (!!!PlayerEncoreStatus[player_index]).tointeger();
+						else
+							return;
+
+						EncoreTeamCheck(client);
+						break;
+					}
+				}
+			}
+
+			UpdateMultiSettingsText(player_index);
 			break;
 		}
 		case eSettingQuerys.Profile:
 		{
-			if(ButtonPressed == BUTTON_MOUSE3)
+			if(ButtonPressed == BUTTON_RELOAD)
 				return;
 
 			if(ButtonPressed == BUTTON_MOUSE1)
@@ -159,7 +165,7 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Achievement:
 		{
-			if(ButtonPressed == BUTTON_MOUSE3)
+			if(ButtonPressed == BUTTON_RELOAD)
 				return;
 
 			if(ButtonPressed == BUTTON_MOUSE1)
@@ -182,6 +188,8 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Cosmetic:
 		{
+			local bEquipped = false;
+
 			if(!PlayerCosmeticSubMenuActive[player_index])
 			{
 				if(ButtonPressed == BUTTON_MOUSE1)
@@ -198,7 +206,7 @@ const LEADERBOARD_RESET_TIME = 300
 					else
 						CosmeticSelection[player_index]--;
 				}
-				else if(ButtonPressed == BUTTON_MOUSE3)
+				else if(ButtonPressed == BUTTON_RELOAD)
 				{
 					if(HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index) || !!PlayerHasPlaytesterBonus[player_index])
 					{
@@ -207,7 +215,10 @@ const LEADERBOARD_RESET_TIME = 300
 						else if(PlayerCosmeticEquipped[player_index] - 1 == CosmeticSelection[player_index])
 							PlayerCosmeticEquipped[player_index] = 0;
 						else
+						{
 							PlayerCosmeticEquipped[player_index] = CosmeticSelection[player_index] + 1;
+							bEquipped = true;
+						}
 					}
 					else
 						return;
@@ -227,14 +238,20 @@ const LEADERBOARD_RESET_TIME = 300
 					PlayerCosmeticSubMenuActive[player_index] = false;
 					PlayerCosmeticColorEdit[player_index] = 0;
 				}
-				else if(ButtonPressed == BUTTON_MOUSE3)
+				else if(ButtonPressed == BUTTON_RELOAD)
 				{
 					if(PlayerCosmeticEquipped[player_index] - 1 == CosmeticSelection[player_index])
 						PlayerCosmeticEquipped[player_index] = 0;
 					else
+					{
 						PlayerCosmeticEquipped[player_index] = CosmeticSelection[player_index] + 1;
+						bEquipped = true;
+					}
 				}
 			}
+
+			if(bEquipped && RandomInt(1, 100) <= 50)
+				EntFireByHandle(client, "RunScriptCode", "PlayVO(" + player_index + ",ScoutVO_CosmeticEquip);", 0.1, null, null);
 
 			UpdateCosmeticEquipText(client);
 			break;
@@ -243,7 +260,7 @@ const LEADERBOARD_RESET_TIME = 300
 		{
 			return;
 
-			if(ResetProfileProgress[player_index] == -1 || ResetProfileProgress[player_index] == -2 || ButtonPressed == BUTTON_MOUSE3)
+			if(ResetProfileProgress[player_index] == -1 || ResetProfileProgress[player_index] == -2 || ButtonPressed == BUTTON_RELOAD)
 				return;
 
 			if(ButtonPressed == ResetProfile_Answers[ResetProfileProgress[player_index]])
@@ -282,24 +299,21 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 		case eSettingQuerys.Leaderboard:
 		{
-			if(!leaderboard_loaded)
-				return;
-
 			if(ButtonPressed == BUTTON_MOUSE1)
 			{
-				if(leaderboard_max_page == 1)
+				if(!leaderboard_loaded || leaderboard_max_page == 1)
 					return;
 
 				SetLeaderboardPage(current_leaderboard_page + 1);
 			}
 			else if(ButtonPressed == BUTTON_MOUSE2)
 			{
-				if(leaderboard_max_page == 1)
+				if(!leaderboard_loaded || leaderboard_max_page == 1)
 					return;
 
 				SetLeaderboardPage(current_leaderboard_page - 1);
 			}
-			else if(ButtonPressed == BUTTON_MOUSE3)
+			else if(ButtonPressed == BUTTON_RELOAD)
 			{
 				if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
 					return;
@@ -312,77 +326,73 @@ const LEADERBOARD_RESET_TIME = 300
 		}
 	}
 
-	if(current_setting == eSettingQuerys.Profile || current_setting == eSettingQuerys.Achievement || (current_setting == eSettingQuerys.Cosmetic && (ButtonPressed == 1 || ButtonPressed == 2)))
+	if((current_setting == eSettingQuerys.MultiSetting && ButtonPressed == BUTTON_RELOAD) ||
+	current_setting == eSettingQuerys.Profile ||
+	current_setting == eSettingQuerys.Achievement ||
+	(current_setting == eSettingQuerys.Cosmetic && ButtonPressed != BUTTON_RELOAD) ||
+	(current_setting == eSettingQuerys.Leaderboard && ButtonPressed != BUTTON_RELOAD))
 		EmitSoundOnClient(SND_MENU_MOVE, client);
 	else
 		EmitSoundOnClient(SND_MENU_SELECT, client);
-
-	if(current_setting <= eSettingQuerys.Encore)
-		UpdateSettingsText(player_index);
 }
 
-::UpdateSettingsText <- function(player_index)
+::UpdateMultiSettingsText <- function(player_index)
 {
 	local SettingName = null;
 	local SettingDesc = null;
 	local SettingOption = null;
 
-	if(PlayerCurrentSettingQuery[player_index] > eSettingQuerys.Encore || PlayerCurrentSettingQuery[player_index] == null)
-		return;
+	local current_multisetting = PlayerCurrentMultiSettingQuery[player_index];
 
-	SettingName = TranslateString(SETTING_TITLE, player_index) + " - " + TranslateString(SETTING_NAME[PlayerCurrentSettingQuery[player_index]], player_index);
-	SettingDesc = TranslateString(SETTING_DESC[PlayerCurrentSettingQuery[player_index]], player_index);
+	SettingName = TranslateString(MULTISETTING_TITLE, player_index) + " - " + TranslateString(MULTISETTING_NAME[current_multisetting], player_index);
+	SettingDesc = TranslateString(MULTISETTING_DESC[current_multisetting], player_index);
 
-	switch(PlayerCurrentSettingQuery[player_index])
+	switch(current_multisetting)
 	{
-		case eSettingQuerys.DisplayTime:
+		case eMultiSettings.DisplayTime:
 		{
 			SettingOption = TranslateString(SETTING_OPTION[PlayerSettingDisplayTime[player_index].tointeger()], player_index);
 			break;
 		}
-		case eSettingQuerys.DisplayCheckpoint:
+		case eMultiSettings.DisplayCheckpoint:
 		{
 			SettingOption = TranslateString(SETTING_CHECKPOINTTIME_OPTION[PlayerSettingDisplayCheckpoint[player_index].tointeger()], player_index);
 			break;
 		}
-		case eSettingQuerys.Soundtrack:
+		case eMultiSettings.PlayCharSound:
+		{
+			SettingOption = TranslateString(SETTING_OPTION[PlayerSettingPlayCharSounds[player_index].tointeger()], player_index);
+			break;
+		}
+		case eMultiSettings.Soundtrack:
 		{
 			SettingOption = TranslateString(SETTING_SOUNDTRACK_OPTION[PlayerSoundtrackList[player_index]], player_index);
 			break;
 		}
-		case eSettingQuerys.Encore:
+		case eMultiSettings.Encore:
 		{
 			SettingOption = TranslateString(SETTING_OPTION[PlayerEncoreStatus[player_index].tointeger()], player_index);
 			break;
 		}
-		default: break;
 	}
 
 	if(SettingName == null || SettingDesc == null || SettingOption == null)
 		return;
 
-	local SettingsText = SettingName + "\n" + SettingDesc + "\n\n" + TranslateString(SETTING_CURRENT, player_index) + SettingOption + "\n";
+	local SettingsText = SettingName + "\n" + SettingDesc + "\n\n";
 
-	if(!IsPlayerEncorable(player_index) && PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
-		SettingsText += TranslateString(SETTING_ENCORE_NOQUALIFY, player_index);
+	SettingsText += (current_multisetting == eMultiSettings.Soundtrack ? TranslateString(SOUNDTRACK_AUTHOR, player_index) + SoundtrackAuthors[PlayerSoundtrackList[player_index]] : "") + "\n";
+
+	SettingsText += TranslateString(SETTING_CURRENT, player_index) + SettingOption + "\n";
+
+	if(current_multisetting == eMultiSettings.Encore)
+		SettingsText += TranslateString(SETTING_COMINGSOON, player_index) + "\n";
 	else
-	{
-		if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Soundtrack)
-		{
-			SettingsText += TranslateString(SOUNDTRACK_AUTHOR, player_index) + SoundtrackAuthors[PlayerSoundtrackList[player_index]] + "\n";
-			SettingsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
-			SettingsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index);
-		}
-		else
-		{
-			SettingsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_TOGGLE, player_index);
+		SettingsText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_TOGGLE, player_index) + "\n";
 
-			if(PlayerCurrentSettingQuery[player_index] == eSettingQuerys.Encore)
-				SettingsText += "\n" + TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_ENCORETUTORIAL, player_index);
-		}
+	local next_setting = (current_multisetting != eMultiSettings.MAX - 1 ? current_multisetting + 1 : 0);
 
-	}
-
+	SettingsText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + " (" + TranslateString(MULTISETTING_NAME[next_setting], player_index) + ")";
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", SettingsText);
@@ -533,12 +543,12 @@ const LEADERBOARD_RESET_TIME = 300
 		EquipText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
 
 		//if our cosmetic achievement isnt met, display the not unlocked message
-		if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index))
+		if(!HasAchievement(Cosmetic_Requirement[CosmeticSelection[player_index]], player_index) && !!!PlayerHasPlaytesterBonus[player_index])
 			EquipText += format(TranslateString(COSMETIC_REQUIREMENT, player_index), TranslateString(ACHIEVEMENT_NAME[Cosmetic_Requirement[CosmeticSelection[player_index]]], player_index));
 		else if(CosmeticSelection[player_index] == eCosmetics.MachTrail - 1)
-			EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(SETTING_EDIT, player_index) + " / " + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
+			EquipText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_EDIT, player_index) + " / " + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 		else
-			EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
+			EquipText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 	}
 	else
 	{
@@ -546,10 +556,10 @@ const LEADERBOARD_RESET_TIME = 300
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 1) + PlayerMachTrailColor1[player_index] + (PlayerCosmeticColorEdit[player_index] == 1 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 2) + PlayerMachTrailColor2[player_index] + (PlayerCosmeticColorEdit[player_index] == 2 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
 		EquipText += format(TranslateString(COSMETIC_EDIT_COLOR, player_index), 3) + PlayerMachTrailColor3[player_index] + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(COSMETIC_EDIT_CURRENT, player_index) : "") + "\n";
-		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? "" : TranslateString(COSMETIC_EDIT_COLORHOWTO, player_index)) + "\n";
+		EquipText += (PlayerCosmeticColorEdit[player_index] == 0 ? TranslateString(COSMETIC_EDIT_COLORHINT, player_index) : TranslateString(COSMETIC_EDIT_COLORHOWTO, player_index)) + "\n";
 		EquipText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + (PlayerCosmeticColorEdit[player_index] == 3 ? TranslateString(SETTING_EDITSTOP, player_index) : format(TranslateString(SETTING_EDITCOLOR, player_index), (PlayerCosmeticColorEdit[player_index] + 1))) + "\n";
 		EquipText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_RETURN, player_index) + "\n";
-		EquipText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
+		EquipText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString((CosmeticSelection[player_index] + 1 == PlayerCosmeticEquipped[player_index] ? SETTING_UNEQUIP : SETTING_EQUIP), player_index);
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
@@ -592,8 +602,16 @@ const LEADERBOARD_RESET_TIME = 300
 	if(!leaderboard_loaded)
 	{
 		LeaderText = TranslateString(LEADERBOARD_TITLE, player_index) + "\n\n" + TranslateString(LEADERBOARD_NOENTRIES, player_index)
+		LeaderText += "\n\n\n\n\n";
+
+		if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
+			LeaderText += format(TranslateString(LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
+		else
+			LeaderText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
+
 		local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 		NetProps.SetPropString(text, "m_iszMessage", LeaderText);
+
 		return;
 	}
 
@@ -621,10 +639,10 @@ const LEADERBOARD_RESET_TIME = 300
 			player_rank = PlayerCachedLeaderboardPosition[player_index];
 		}
 
-		DebugPrint("cached player " + player_index + "leaderboard rank: " + player_rank);
+		DebugPrint("cached player " + player_index + " leaderboard rank: " + player_rank);
 	}
 
-	LeaderText += (TranslateString(LEADERBOARD_RANK, player_index) + (player_rank != -1 ? ("#" + player_rank) : TranslateString(TIMER_NONE, player_index))) + "\n\n";
+	LeaderText += (TranslateString(LEADERBOARD_RANK, player_index) + (player_rank != -1 ? ("#" + player_rank + " / " + leaderboard_array.len()) : TranslateString(TIMER_NONE, player_index))) + "\n\n\n\n";
 
 	LeaderText += TranslateString(SETTING_BUTTON_ATTACK, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + "\n";
 	LeaderText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
@@ -632,8 +650,7 @@ const LEADERBOARD_RESET_TIME = 300
 	if(LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME > Time())
 		LeaderText += format(TranslateString(LEADERBOARD_BUTTON_REFRESHWAIT, player_index), FormatTime((LastUpdatedLeaderboard + LEADERBOARD_RESET_TIME - Time()).tointeger()));
 	else
-		LeaderText += TranslateString(SETTING_BUTTON_SPECIALATTACK, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
-
+		LeaderText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
 	NetProps.SetPropString(text, "m_iszMessage", LeaderText);

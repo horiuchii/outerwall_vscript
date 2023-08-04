@@ -27,7 +27,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	[100, 70, 50, 40], //oside
 	[75, 45, 35, 30], //last cave
 	[90, 65, 55, 42], //balcony
-	[70, 45, 35, 25], //inner wall
+	[105, 75, 55, 45], //inner wall
 	[165, 100, 85, 65], //hell
 	[175, 110, 95, 85], //wind fortress
 	[185, 135, 115, 95], //sand pit
@@ -148,8 +148,6 @@ const NO_MEDAL_COLOR = "008B8B";
 	PrintToPlayerAndSpectators(player_index, "\x07FF0000" + TranslateString(TIMER_LAPTIME, player_index) + "\x01" + FormatTime(time) + laptext);
 }
 
-::PlayerSpeedStartZoneCheated <- 255;
-
 ::StartPlayerTimer <- function(client)
 {
 	local player_index = client.GetEntityIndex();
@@ -160,7 +158,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerLastUseRadar[player_index] = 0;
 
 	//detect if this bitch has the timer off.
-	if(NetProps.GetPropFloat(client, "m_flMaxspeed") > PlayerSpeedStartZoneCheated)
+	if(NetProps.GetPropFloat(client, "m_flMaxspeed") > 260)
 	{
 		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED");
 		PlayerCheatedCurrentRun[player_index] = true;
@@ -186,7 +184,10 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerCheckpointTimes[player_index][checkpoint] = Time() - PlayerStartTime[player_index];
 
 	if(PlayerSettingDisplayCheckpoint[player_index] == eCheckpointOptions.Bonuses && PlayerZoneList[player_index] == eCourses.OuterWall)
+	{
+		EmitSoundOnClient(SND_CHECKPOINT, activator);
 		return;
+	}
 
 	else if(PlayerSettingDisplayCheckpoint[player_index] == eCheckpointOptions.Never)
 		return;
@@ -214,6 +215,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	}
 
 	PrintToPlayerAndSpectators(player_index, CheckpointString);
+	EmitSoundOnClient(SND_CHECKPOINT, activator);
 }
 
 ::UpdateMedalTimeText <- function(player_index)
@@ -329,6 +331,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	if(medal == null && player_best_medal == -1)
 	{
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + NO_MEDAL_COLOR + TranslateString(TIMER_MESSAGE_NOMEDAL[RandomInt(0, TIMER_MESSAGE_NOMEDAL.len() - 1)], player_index) + format(TranslateString(TIMER_ACHIEVED, player_index), (!!PlayerEncoreStatus[player_index] ? TranslateString(TIMER_ENCORE, player_index) + ZoneNames[iZone] : ZoneNames[iZone]), ZoneSuffixes[iZone]) + TranslateString(TIMER_FAILEDTOQUALIFY, player_index));
+		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + client_index + ",ScoutVO_MedalNone);", 2, null, null);
 	}
 
 	if(PlayerSettingDisplayTime[player_index] == 1)
@@ -364,6 +367,7 @@ const NO_MEDAL_COLOR = "008B8B";
 		CheckAchievementBatch_Medals(player_index);
 		PlayerSaveGame(client);
 		PlayerUpdateLeaderboardTimes(player_index);
+		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + client_index + "," + (best_medal_qualified == 3 ? "ScoutVO_MedalIri" : "ScoutVO_Medal") + ");", 2, null, null);
 	}
 }
 
