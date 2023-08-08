@@ -367,7 +367,7 @@ const NO_MEDAL_COLOR = "008B8B";
 		CheckAchievementBatch_Medals(player_index);
 		PlayerSaveGame(client);
 		PlayerUpdateLeaderboardTimes(player_index);
-		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + client_index + "," + (best_medal_qualified == 3 ? "ScoutVO_MedalIri" : "ScoutVO_Medal") + ");", 2, null, null);
+		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + player_index + "," + (best_medal_qualified == 3 ? "ScoutVO_MedalIri" : "ScoutVO_Medal") + ");", 2, null, null);
 	}
 }
 

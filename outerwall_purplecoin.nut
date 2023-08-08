@@ -205,8 +205,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	{
 		DebugPrint("All Coins Collected for player " + player_index);
 		DoGoal(6, activator);
-		//todo: this doesnt seem to teleport the player, find out why
-		TeleportPlayerToZone(6, activator);
+		//TeleportPlayerToZone(6, activator);
 	}
 	else if(PlayerCoinCount[player_index] == 80)
 	{

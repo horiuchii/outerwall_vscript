@@ -1,3 +1,13 @@
+::PrintPlayerIndex <- function()
+{
+	for (local i = 1; i <= MAX_PLAYERS ; i++)
+	{
+		local player = PlayerInstanceFromIndex(i);
+		if (player == null) continue;
+		printl("Name: " + NetProps.GetPropString(player, "m_szNetname") + " - Index: " + i)
+	}
+}
+
 ::DeltaTime <- function()
 {
 	return clamp(FrameTime(), 0.0, 1.0);
@@ -9,17 +19,9 @@
 		printl("[OUTERWALL DEBUG PRINT] " + Text);
 }
 
-::ToggleDebug <- function()
-{
-	DEBUG_OUTPUT = !DEBUG_OUTPUT;
-	printl("Debug Output: " + DEBUG_OUTPUT ? "ON" : "OFF");
-}
-
 ::max <- function(a, b)
 {
-	if (a > b)
-		return a;
-	return b;
+	return (a > b ? a : b);
 }
 
 ::round <- function(val, decimalPoints)
@@ -149,9 +151,9 @@
 
 	Entities.DispatchSpawn(soundscape);
 	Entities.DispatchSpawn(trigger);
-	EntFireByHandle(trigger, "StartTouch", "", 0.0, client, client);
-	EntFireByHandle(soundscape, "Kill", "", 0.01, client, client);
-	EntFireByHandle(trigger, "Kill", "", 0.01, client, client);
+	EntFireByHandle(trigger, "StartTouch", "", -1, client, client);
+	EntFireByHandle(soundscape, "Kill", "", 0.02, client, client);
+	EntFireByHandle(trigger, "Kill", "", 0.02, client, client);
 	EntFire(player_index, "Kill", "", 0.5, client);
 	EntFire(player_index + player_index, "Kill", "", 0.5, client);
 
@@ -173,6 +175,7 @@
 	local result_str = "";
 	local str_len = str.len();
 	local str_array = array(str_len, "");
+
 	for(local i = 0; i < str_len; i++)
 	{
 		str_array[i] = str[i].tochar();

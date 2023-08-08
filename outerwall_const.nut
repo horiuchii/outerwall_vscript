@@ -166,8 +166,8 @@ enum eCosmetics{
 	".Ridiculon",
 	".Organya",
 	".Plus"
-	//".Remixed",
-	//".Keromix"
+	".Remixed",
+	".Keromix"
 ]
 
 ::Tracks <-
@@ -202,8 +202,8 @@ enum eCosmetics{
 	"ridic"
 	"organya"
 	"plus"
-	//"remixed"
-	//"kero"
+	"remixed"
+	"kero"
 ]
 
 ::PrecacheTrackNames <-

@@ -610,33 +610,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	// get back list of entries
 	if(entry_list_string != null && entry_list_string != "empty")
 	{
-		local load_data = 0;
-
-		local i = 0;
-
-		local save_length = entry_list_string.len();
-
-		local savebuffer = "";
-
-		while(i < save_length)
-		{
-			if(entry_list_string[i] == ',' || i == save_length) //we've gotten to the end
-			{
-				if(savebuffer == "")
-					continue;
-
-				//parse entry list
-				entry_list_array[load_data] = savebuffer.tostring() + "";
-
-				load_data += 1;
-				savebuffer = "";
-				i += 1;
-				continue;
-			}
-
-			savebuffer += entry_list_string[i].tochar();
-			i += 1;
-		}
+		entry_list_array = split(entry_list_string, ",");
 	}
 	else
 	{
@@ -651,7 +625,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 		if(entry_list_array.find(account_id) == null)
 		{
 			//append account_id to the first empty slot
-			local array_index = entry_list_array.find(-1);
+			local array_index = entry_list_array.find("-1");
 
 			//TODO: add support for multiple leaderboard_entries files
 			if(array_index == null)
@@ -684,33 +658,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 
 	local entry_list_array = array(MAX_LEADERBOARD_ENTRIES, -1);
 
-	local load_data = 0;
-
-	local i = 0;
-
-	local save_length = entry_list_string.len();
-
-	local savebuffer = "";
-
-	while(i < save_length)
-	{
-		if(entry_list_string[i] == ',' || i == save_length) //we've gotten to the end
-		{
-			if(savebuffer == "")
-				continue;
-
-			//parse entry list
-			entry_list_array[load_data] = savebuffer.tostring() + "";
-
-			load_data += 1;
-			savebuffer = "";
-			i += 1;
-			continue;
-		}
-
-		savebuffer += entry_list_string[i].tochar();
-		i += 1;
-	}
+	entry_list_array = split(entry_list_string, ",");
 
 	local target_index = entry_list_array.find(account_id)
 
@@ -770,6 +718,9 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 		{
 			if(savebuffer == "")
 				continue;
+
+			if(i > MAX_LEADERBOARD_ENTRIES)
+				break;
 
 			//parse entry list
 			entry_list_array[load_data] = savebuffer.tostring() + "";

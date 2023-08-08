@@ -57,7 +57,7 @@
 {
     for (local i = 0; i < eAchievements.MAX; i++)
     {
-        UnlockPlayerAchievement(i, player_index, true);
+        UnlockPlayerAchievement(i, player_index, false);
     }
     PlayerSaveGame(PlayerInstanceFromIndex(player_index));
 }
@@ -166,9 +166,6 @@
     local player_index = activator.GetEntityIndex();
 
     if(HasAchievement(eAchievements.SecretClimb, player_index))
-        return;
-
-    if(PlayerCheatedCurrentRun[player_index])
         return;
 
     UnlockPlayerAchievement(eAchievements.SecretClimb, player_index);

@@ -316,8 +316,8 @@
 		"No Booster Required"
 	]
 	::ACHIEVEMENT_KAZE_NODMG_NAME <- [
-		"Wind Walker"
-		"Wind Walker"
+		"All Salt, No Wound"
+		"All Salt, No Wound"
 	]
 	::ACHIEVEMENT_SECRETSMOKEY_NAME <- [
 		"Secret Smokester"
@@ -394,8 +394,8 @@
 		"Don't touch any of the air currents\nmore than 2 times at the Inner Wall.\n"
 	]
 	::ACHIEVEMENT_KAZE_NODMG_DESC <- [
-		"Don't take any environment\ndamage at the Sacred Grounds.\n"
-		"Don't take any environment\ndamage at the Sacred Grounds.\n"
+		"Don't take any environment\ndamage at the Wind Fortress.\n"
+		"Don't take any environment\ndamage at the Wind Fortress.\n"
 	]
 	::ACHIEVEMENT_SECRETSMOKEY_DESC <- [
 		"Find Smokey.\n\n"

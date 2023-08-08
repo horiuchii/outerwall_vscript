@@ -8,7 +8,7 @@ function OnGameEvent_teamplay_round_win(eventdata)
     {
         local player = PlayerInstanceFromIndex(player_index);
         if (player == null) continue;
-		DoEntFire("trigger_soundscape_empty", "StartTouch", "", 0.0, player, player);
+		DoEntFire("trigger_soundscape_empty", "StartTouch", "", -1, player, player);
     }
 }
 
@@ -54,7 +54,7 @@ function OnGameEvent_player_say(eventdata)
 		MachTrailColors[PlayerCosmeticColorEdit[player_index] - 1][player_index] = color1 + " " + color2 + " " + color3;
 		UpdateCosmeticEquipText(client);
 		EmitSoundOnClient(SND_MENU_SELECT, client);
-		ClientPrint(client, HUD_PRINTTALK, "\x0700FF00" + format(TranslateString(COSMETIC_EDIT_SUCCESS, player_index), PlayerCosmeticColorEdit[player_index]) + "\"" + eventdata.text + "\".");
+		ClientPrint(client, HUD_PRINTTALK, "\x0700FF00" + format(TranslateString(COSMETIC_EDIT_SUCCESS, player_index), PlayerCosmeticColorEdit[player_index]) + "\"" + MachTrailColors[PlayerCosmeticColorEdit[player_index] - 1][player_index] + "\".");
 		PlayerSaveGame(client);
 	}
 	catch (exception)
@@ -78,6 +78,7 @@ function OnGameEvent_player_spawn(eventdata)
 
 	if(PlayerZoneList[player_index] == null) //player's first spawn
 	{
+		GetPlayerLanguage(client);
 		CreateGameTextForPlayer(player_index);
 		PrecachePlayerSounds(client);
 		ResetPlayerGlobalArrays(player_index);
@@ -85,9 +86,9 @@ function OnGameEvent_player_spawn(eventdata)
 		PlayerLoadGame(player_index);
 		EncoreTeamCheck(client);
 		PlayerUpdateLeaderboardTimes(player_index);
-		GetPlayerLanguage(client);
 		AddThinkToEnt(client, "OuterwallClientThink");
 		DebugPrint("Player " + player_index + " had their first spawn\n");
+		PlayTrack(2, client, true);
 		return;
 	}
 
