@@ -300,8 +300,8 @@
 ]
 ::ACHIEVEMENT_NAME <- [
 	::ACHIEVEMENT_HURT_ALOT_NAME <- [
-		"5001 Spikes"
-		"5001 Spikes"
+		"1001 Spikes"
+		"1001 Spikes"
 	]
 	::ACHIEVEMENT_RUNS_ALOT_NAME <- [
 		"Moonside Marathonist"
@@ -378,12 +378,12 @@
 ]
 ::ACHIEVEMENT_DESC <- [
 	::ACHIEVEMENT_HURT_ALOT_DESC <- [
-		"Take damage from the\nenvironment 5001 times.\n"
-		"Take damage from the\nenvironment 5001 times.\n"
+		"Take damage from the\nenvironment 1001 times.\n"
+		"Take damage from the\nenvironment 1001 times.\n"
 	]
 	::ACHIEVEMENT_RUNS_ALOT_DESC <- [
-		"Complete 150 Runs.\n\n"
-		"Complete 150 Runs.\n\n"
+		"Complete 50 Runs.\n\n"
+		"Complete 50 Runs.\n\n"
 	]
 	::ACHIEVEMENT_NOPARKOUR_DESC <- [
 	 	"Don't touch any rails, ziplines\nor climbable pipes at the Outer Wall.\n"
@@ -410,8 +410,8 @@
 		"Earn a rank in every course.\n\n"
 	]
 	// ::ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
-	// 	"Unlock Encore mode by earning a rank in every course.\n"
-	// 	"Unlock Encore mode by earning a rank in every course.\n"
+	// 	"Unlock Encore mode by earning a rank in every course.\n\n"
+	// 	"Unlock Encore mode by earning a rank in every course.\n\n"
 	// ]
 	::ACHIEVEMENT_NORMAL_ALLGOLD_DESC <- [
 		"Earn an A Rank on each course.\n\n"
@@ -691,6 +691,10 @@
 ::TIMER_PERSONALBEST <- [
 	" Per. "
 	" Per. "
+]
+::TIMER_WORLDRECORD <- [
+	" Rec. "
+	" Rec. "
 ]
 ::TIMER_LAPTIME <- [
 	"Lap Time: "

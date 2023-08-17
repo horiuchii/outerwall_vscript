@@ -105,6 +105,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		EntFire("soldier_statue", "kill");
 
 	SetLeaderboardMedalTimes();
+	PopulateWorldRecordTimesFromFile();
 	PopulateLeaderboard();
 	PrecacheCoinPositions();
 
@@ -575,7 +576,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 			DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - NOCLIP");
 	}
 
-	if(PlayerHasCheatImmunity[player_index] && (client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 215)
+	if(PlayerHasCheatImmunity[player_index] == false && (client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 250)
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
 		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - POSITION (" + (client.GetOrigin() - PlayerLastPosition[player_index]).Length() + ")");
@@ -926,7 +927,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(client == null)
 		client = activator;
 
-	if(!!!PlayerEncoreStatus[player_index])
+	if(!!!PlayerEncoreStatus[client.GetEntityIndex()])
 	{
 		if(iZoneGoal == 0)
 			DoEntFire("end_zone", "StartTouch", "", -1, client, client);
@@ -951,7 +952,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	PlayerActivateTimeTrial(client, false);
 
-	if(PlayerHasCheatImmunity[player_index] || PlayerCheatedCurrentRun[player_index] ||	(iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
+	if(PlayerHasCheatImmunity[player_index] || PlayerCheatedCurrentRun[player_index] || (iZoneGoal == 0 && PlayerCheckpointStatus[player_index] != 2 && PlayerEncoreStatus[player_index] != 1))
 	{
 		ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + TranslateString(TIMER_CHEATED, player_index));
 		EmitSoundOnClient(SND_MEDAL_NONE, client);
@@ -1049,4 +1050,17 @@ IncludeScript("outerwall_gameevents.nut", this);
 		PlayVO(player_index, ScoutVO_JumpPad);
 }
 
-IncludeScript("outerwall_hotfix.nut", this);
+::Test <- function()
+{
+	NetProps.SetPropVector(PlayerInstanceFromIndex(1), "m_vecBaseVelocity", Vector(0,0,1000))
+}
+
+try
+{
+	IncludeScript("outerwall_hotfix.nut", this);
+	printl("[OUTERWALL PRINT] Included hotfix.");
+}
+catch (exception)
+{
+	printl("[OUTERWALL PRINT] No hotfix file found. Not running!");
+}

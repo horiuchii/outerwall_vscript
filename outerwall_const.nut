@@ -60,6 +60,7 @@ const OUTERWALL_SAVEPATH = "pf_outerwall/"
 const OUTERWALL_SAVETYPE = ".sav"
 const OUTERWALL_SAVELEADERBOARDSUFFIX = "_leaderboarddata"
 const OUTERWALL_SAVELEADERBOARD = "leaderboard_entries"
+const OUTERWALL_SAVEWORLDRECORD = "world_records"
 
 ::OUTERWALL_SERVERPATH <- "pf_outerwall/server/"
 ::OUTERWALL_SERVER_LANGUAGEOVERRIDE_ENABLE <- "language_override_enable"

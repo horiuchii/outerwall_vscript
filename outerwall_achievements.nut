@@ -90,7 +90,6 @@
 
         ClientPrint(player, HUD_PRINTTALK, "\x01" + "\x07FFD700" + playername + "\x01" + achieved_string + "\x079EC34F" + achievement_string);
     }
-
 }
 
 ::CheckAchievementBatch_Medals <- function(player_index)
@@ -121,7 +120,7 @@
     if(HasAchievement(eAchievements.HurtAlot, player_index))
         return;
 
-    if(PlayerTimesHurt[player_index] >= 5001)
+    if(PlayerTimesHurt[player_index] >= 1001)
         UnlockPlayerAchievement(eAchievements.HurtAlot, player_index);
 }
 
@@ -130,7 +129,7 @@
     if(HasAchievement(eAchievements.RunsAlot, player_index))
         return;
 
-    if(PlayerRunsRan[player_index] >= 100)
+    if(PlayerRunsRan[player_index] >= 50)
         UnlockPlayerAchievement(eAchievements.RunsAlot, player_index);
 }
 

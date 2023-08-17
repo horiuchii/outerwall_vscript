@@ -22,6 +22,8 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 ::ZONE_COUNT_ENCORE <- 6;
 ::CHECKPOINT_COUNT <- 2;
 
+::PluginSaveActive <- false;
+
 ::PlayerPreventSaving <- array(MAX_PLAYERS, false)
 
 ::PlayerHasPlaytesterBonus <- array(MAX_PLAYERS, 0)
@@ -233,7 +235,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	save += "setting_machcolor3," + PlayerMachTrailColor3[player_index] + ";";
 
 	StringToFile(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVETYPE, save);
-	DebugPrint("GAME SAVED FOR " + player_index)
+
+	if(PluginSaveActive)
+		PluginSavePlayerProfile(player_index);
+
+	DebugPrint("GAME SAVED FOR " + player_index);
 }
 
 ::PlayerLoadGame <- function(player_index)
@@ -561,6 +567,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 			i += 1;
 		}
 
+		GatherWorldRecordTimes();
 		DebugPrint("Save Loaded for player " + player_index);
 	}
 	catch(exception)

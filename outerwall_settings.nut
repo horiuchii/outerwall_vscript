@@ -15,7 +15,7 @@
 	NetProps.SetPropFloat(activator, "m_flNextAttack", (iSetting == null ? 0 : 9999999));
 }
 
-const LEADERBOARD_RESET_TIME = 300
+const LEADERBOARD_RESET_TIME = 90
 
 ::ProfileSelection <- array(MAX_PLAYERS, 0)
 ::AchievementSelection <- array(MAX_PLAYERS, 0)

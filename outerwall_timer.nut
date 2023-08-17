@@ -27,10 +27,10 @@ const NO_MEDAL_COLOR = "008B8B";
 	[100, 70, 50, 40], //oside
 	[75, 45, 35, 30], //last cave
 	[90, 65, 55, 42], //balcony
-	[105, 75, 55, 45], //inner wall
+	[105, 75, 60, 50], //inner wall
 	[165, 100, 85, 65], //hell
-	[175, 110, 95, 85], //wind fortress
-	[185, 135, 115, 95], //sand pit
+	[175, 120, 100, 90], //wind fortress
+	[185, 135, 115, 100], //sand pit
 ]
 
 ::ZoneLaps_Encore <-
@@ -101,6 +101,98 @@ const NO_MEDAL_COLOR = "008B8B";
 	}
 }
 
+::WorldRecordTimeArray <- ConstructTwoDimArray(ZONE_COUNT, 3, 5000)
+::loaded_records <- false;
+
+::PopulateWorldRecordTimesFromFile <- function()
+{
+	if(loaded_records == true)
+		return;
+
+	local entry_list_string = FileToString(OUTERWALL_SAVEPATH + OUTERWALL_SAVEWORLDRECORD + OUTERWALL_SAVETYPE);
+
+	if(entry_list_string == null)
+	{
+		loaded_records = true;
+		return;
+	}
+
+	local iZone = 0;
+	local iTime = 0;
+
+	local i = 0;
+
+	local savebuffer = "";
+
+	local save_length = entry_list_string.len();
+
+	while(i < save_length)
+	{
+		if(entry_list_string[i] == ',' || i == save_length) //we've gotten to the end
+		{
+			if(savebuffer == "")
+				continue;
+
+			if(savebuffer == ";") //we've gotten to the end of the savetype
+			{
+				iTime = 0;
+				savebuffer = "";
+				i += 1;
+				iZone += 1;
+				continue;
+			}
+
+			WorldRecordTimeArray[iZone][iTime] = savebuffer.tofloat();
+
+			iTime += 1;
+			savebuffer = "";
+			i += 1;
+			continue;
+		}
+
+		savebuffer += entry_list_string[i].tochar();
+		i += 1;
+	}
+
+	loaded_records = true;
+	DebugPrint("populated best times")
+}
+
+::GatherWorldRecordTimes <- function()
+{
+	if(loaded_records == false)
+		PopulateWorldRecordTimesFromFile();
+
+    for(local player_index = 1; player_index <= MAX_PLAYERS; player_index++)
+    {
+        local player = PlayerInstanceFromIndex(player_index);
+        if (!player) continue;
+
+		foreach(iZone, zone in WorldRecordTimeArray)
+		{
+			if(PlayerBestTimeArray[player_index][iZone] < WorldRecordTimeArray[iZone][0])
+				WorldRecordTimeArray[iZone][0] = PlayerBestTimeArray[player_index][iZone];
+
+			if(PlayerBestCheckpointTimeArrayOne[player_index][iZone] < WorldRecordTimeArray[iZone][1])
+				WorldRecordTimeArray[iZone][1] = PlayerBestCheckpointTimeArrayOne[player_index][iZone];
+
+			if(PlayerBestCheckpointTimeArrayTwo[player_index][iZone] < WorldRecordTimeArray[iZone][2])
+				WorldRecordTimeArray[iZone][2] = PlayerBestCheckpointTimeArrayTwo[player_index][iZone];
+		}
+    }
+
+	local save = "";
+	foreach(iZone, zone in WorldRecordTimeArray)
+	{
+		foreach(iTime, time in WorldRecordTimeArray[iZone])
+		{
+			save += WorldRecordTimeArray[iZone][iTime] + ",";
+		}
+		save += ";,"
+	}
+	StringToFile(OUTERWALL_SAVEPATH + OUTERWALL_SAVEWORLDRECORD + OUTERWALL_SAVETYPE, save);
+}
+
 ::PlayerStartTime <- array(MAX_PLAYERS, 0)
 ::PlayerCheckpointTimes <- ConstructTwoDimArray(MAX_PLAYERS, CHECKPOINT_COUNT, 5000)
 ::PlayerMedalTimeHUDStatusArray <- array(MAX_PLAYERS, false)
@@ -122,7 +214,19 @@ const NO_MEDAL_COLOR = "008B8B";
 			bTimeIsImprovement = true;
 
 		local personal_diff = (bTimeIsImprovement ? "\x073EFF3E-" : "\x07FF0000+") + FormatTime(fabs(personal_best - time));
-		personal_best_text = TranslateString(TIMER_PERSONALBEST, player_index) + personal_diff;
+		personal_best_text += TranslateString(TIMER_PERSONALBEST, player_index) + personal_diff;
+	}
+
+	local world_record = WorldRecordTimeArray[iZone][0];
+	if(world_record != 5000)
+	{
+		local bTimeIsImprovement = false;
+
+		if(time < world_record || time == world_record)
+			bTimeIsImprovement = true;
+
+		local personal_diff = (bTimeIsImprovement ? "\x073EFF3E-" : "\x07FF0000+") + FormatTime(fabs(world_record - time));
+		personal_best_text += "\x01" + TranslateString(TIMER_WORLDRECORD, player_index) + personal_diff;
 	}
 
 	local rankmessage = "(" + (iMedal == null || iMedal == -1 ? TranslateString(TIMER_MEDAL_NOMEDAL, player_index) : TranslateString(TIMER_MEDAL[iMedal], player_index)) + ")";
@@ -158,9 +262,9 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerLastUseRadar[player_index] = 0;
 
 	//detect if this bitch has the timer off.
-	if(NetProps.GetPropFloat(client, "m_flMaxspeed") > 260)
+	if(NetProps.GetPropFloat(client, "m_flMaxspeed") > 280)
 	{
-		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED");
+		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED (" + NetProps.GetPropFloat(client, "m_flMaxspeed") + ")");
 		PlayerCheatedCurrentRun[player_index] = true;
 	}
 }
@@ -212,6 +316,18 @@ const NO_MEDAL_COLOR = "008B8B";
 
 		local checkpoint_personal_diff = (bTimeIsImprovement ? "\x073EFF3E-" : "\x07FF0000+") + FormatTime(fabs(checkpoint_personal_best - current_checkpoint));
 		CheckpointString += TranslateString(TIMER_PERSONALBEST, player_index) + checkpoint_personal_diff;
+	}
+
+	local checkpoint_world_record = WorldRecordTimeArray[iZone][checkpoint + 1];
+	if(checkpoint_world_record != 5000)
+	{
+		local bTimeIsImprovement = false;
+
+		if(current_checkpoint < checkpoint_world_record || current_checkpoint == checkpoint_world_record)
+			bTimeIsImprovement = true;
+
+		local checkpoint_world_diff = (bTimeIsImprovement ? "\x073EFF3E-" : "\x07FF0000+") + FormatTime(fabs(checkpoint_world_record - current_checkpoint));
+		CheckpointString += "\x01" + TranslateString(TIMER_WORLDRECORD, player_index) + checkpoint_world_diff;
 	}
 
 	PrintToPlayerAndSpectators(player_index, CheckpointString);
@@ -345,7 +461,8 @@ const NO_MEDAL_COLOR = "008B8B";
 	local bNewRecord = false;
 
 	//set bNewRecord if we surpass or are equal to our best medal && our time is better than the best time
-	if(best_medal_qualified >= player_best_medal && (total_time < PlayerBestTimeArray[player_index][iZone] || laps_ran >= PlayerBestLapCountEncoreArray[player_index][iZone]))
+	//TODO: fix this for encore mode
+	if(best_medal_qualified >= player_best_medal && (total_time < PlayerBestTimeArray[player_index][iZone])) //|| laps_ran >= PlayerBestLapCountEncoreArray[player_index][iZone]))
 	{
 		bNewRecord = true;
 
@@ -364,11 +481,13 @@ const NO_MEDAL_COLOR = "008B8B";
 	if(medal != null || bNewRecord)
 	{
 		UpdateMedalTimeText(player_index);
-		CheckAchievementBatch_Medals(player_index);
 		PlayerSaveGame(client);
 		PlayerUpdateLeaderboardTimes(player_index);
+		GatherWorldRecordTimes();
 		EntFireByHandle(client, "RunScriptCode", "PlayVO(" + player_index + "," + (best_medal_qualified == 3 ? "ScoutVO_MedalIri" : "ScoutVO_Medal") + ");", 2, null, null);
 	}
+
+	CheckAchievementBatch_Medals(player_index);
 }
 
 ::SpawnPropMedal <- function(medal_type, iZone, client)
