@@ -214,6 +214,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	save += "ach_kazenodmg," + PlayerAchievements[player_index][eAchievements.NormalKazeNoDmg] + ";";
 	save += "ach_smokey," + PlayerAchievements[player_index][eAchievements.SecretSmokey] + ";";
 	save += "ach_pyro," + PlayerAchievements[player_index][eAchievements.SecretClimb] + ";";
+	save += "ach_computer," + PlayerAchievements[player_index][eAchievements.AllComputer] + ";";
 	save += "ach_normalall," + PlayerAchievements[player_index][eAchievements.EncoreUnlock] + ";";
 	save += "ach_normalgold," + PlayerAchievements[player_index][eAchievements.NormalGold] + ";";
 	save += "ach_normaliri," + PlayerAchievements[player_index][eAchievements.NormalIri] + ";";
@@ -467,6 +468,11 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 					case "ach_pyro":
 					{
 						PlayerAchievements[player_index][eAchievements.SecretClimb] = value_buffer.tostring();
+						break;
+					}
+					case "ach_computer":
+					{
+						PlayerAchievements[player_index][eAchievements.AllComputer] = value_buffer.tostring();
 						break;
 					}
 					case "ach_normalall":

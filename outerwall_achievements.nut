@@ -4,6 +4,7 @@
 ::PlayerTouchedForbiddenZoneDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerDoubleJumpDuringRun <- array(MAX_PLAYERS, false)
 ::PlayerSmokeyProgress <- array(MAX_PLAYERS, 0)
+::PlayerTipProgress <- array(MAX_PLAYERS, 0)
 
 ::ResetPlayerAchievementArrays <- function(player_index)
 {
@@ -51,6 +52,27 @@
 
     if(PlayerSmokeyProgress[player_index] == SMOKEY_TRIGGER_ALL)
         UnlockPlayerAchievement(eAchievements.SecretSmokey, player_index);
+}
+
+::PlayerTouchTipZone <- function(player_index)
+{
+    if(HasAchievement(eAchievements.AllComputer, player_index) || PlayerCheatedCurrentRun[player_index])
+        return;
+
+    local iZone = PlayerZoneList[player_index];
+
+    if(iZone == null)
+        return;
+
+    local iZoneFlag = SMOKEY_TRIGGER_ZONES[iZone];
+
+    if(PlayerTipProgress[player_index] & iZoneFlag)
+        return;
+
+    PlayerTipProgress[player_index] += iZoneFlag;
+
+    if(PlayerTipProgress[player_index] == SMOKEY_TRIGGER_ALL)
+        UnlockPlayerAchievement(eAchievements.AllComputer, player_index);
 }
 
 ::DebugUnlockAllAchievements <- function(player_index)

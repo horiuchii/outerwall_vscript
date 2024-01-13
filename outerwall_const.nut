@@ -9,7 +9,7 @@ if (!("ConstantNamingConvention" in ROOT)) // make sure folding is only done onc
 				ROOT[k] <- v;
 }
 
-foreach (k, v in getclass())
+foreach (k, v in NetProps.getclass())
     if (k != "IsValid")
 		ROOT[k] <- NetProps[k].bindenv(NetProps);
 
@@ -95,6 +95,7 @@ enum eAchievements{
 	NormalKazeNoDmg
 	SecretSmokey
 	SecretClimb
+	AllComputer
 	EncoreUnlock
 	NormalGold
 	NormalIri

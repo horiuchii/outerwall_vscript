@@ -262,11 +262,13 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerLastUseRadar[player_index] = 0;
 
 	//detect if this bitch has the timer off.
+	/*
 	if(GetPropFloat(client, "m_flMaxspeed") > 350)
 	{
 		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED (" + GetPropFloat(client, "m_flMaxspeed") + ")");
 		PlayerCheatedCurrentRun[player_index] = true;
 	}
+	*/
 }
 
 ::PlayerSetCheckpointTime <- function(player_index)

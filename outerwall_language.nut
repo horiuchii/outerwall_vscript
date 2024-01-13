@@ -327,6 +327,10 @@
 		"Fuck You, Pyro!"
 		"Fuck You, Pyro!"
 	]
+	::ACHIEVEMENT_ALLCOMPUTER_NAME <- [
+		"Tipsy Turvy Tips"
+		"Tipsy Turvy Tips"
+	]
 	::ACHIEVEMENT_ENCORE_UNLOCK_NAME <- [
 		"Outer World Tour"
 		"Outer World Tour"
@@ -404,6 +408,10 @@
 	::ACHIEVEMENT_SECRETCLIMB_DESC <- [
 		"Meet the Pyro.\n\n"
 		"Meet the Pyro.\n\n"
+	]
+	::ACHIEVEMENT_ALLCOMPUTER_DESC <- [
+		"Find all seven helpful computers.\n\n"
+		"Find all seven helpful computers.\n\n"
 	]
 	::ACHIEVEMENT_ENCORE_UNLOCK_DESC <- [
 		"Earn a rank in every course.\n\n"

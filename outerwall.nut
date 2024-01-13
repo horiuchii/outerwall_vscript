@@ -565,6 +565,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	ClientPrint(client, HUD_PRINTTALK, message);
 	PlayerTipsRecieved[player_index]++;
+	PlayerTouchTipZone(player_index);
 }
 
 ::CheckForCheating <- function(client)
@@ -576,9 +577,12 @@ IncludeScript("outerwall_gameevents.nut", this);
 		PlayerCheatedCurrentRun[player_index] = true;
 
 		if(!PlayerCheatedCurrentRun[player_index])
+		{
 			DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - NOCLIP");
+		}
 	}
 
+	/*
 	if(PlayerHasCheatImmunity[player_index] == false && (client.GetOrigin() - PlayerLastPosition[player_index]).Length() > 250)
 	{
 		PlayerCheatedCurrentRun[player_index] = true;
@@ -586,6 +590,16 @@ IncludeScript("outerwall_gameevents.nut", this);
 	}
 
 	PlayerLastPosition[player_index] = client.GetOrigin();
+	*/
+}
+
+::PluginMarkPlayerAsCheater <- function(player_index)
+{
+	if(PlayerCheatedCurrentRun[player_index] == true)
+		return;
+
+	PlayerCheatedCurrentRun[player_index] = true;
+	ClientPrint(client, HUD_PRINTTALK, "\x07" + "FF0000" + "You've executed a command that has invalidated your in-map Outer Wall time. This will NOT effect your parkour.tf time.");
 }
 
 ::PlayerLastIsJumpingState <- array(MAX_PLAYERS, false)
@@ -1050,11 +1064,6 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	if(RandomInt(1, 100) <= 25)
 		PlayVO(player_index, ScoutVO_JumpPad);
-}
-
-::Test <- function()
-{
-	SetPropVector(PlayerInstanceFromIndex(1), "m_vecBaseVelocity", Vector(0,0,1000))
 }
 
 try
