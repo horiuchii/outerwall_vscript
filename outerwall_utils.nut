@@ -151,6 +151,8 @@
 
 	Entities.DispatchSpawn(soundscape);
 	Entities.DispatchSpawn(trigger);
+	NetProps.SetPropBool(soundscape, "m_bForcePurgeFixedupStrings", true);
+	NetProps.SetPropBool(trigger, "m_bForcePurgeFixedupStrings", true);
 	EntFireByHandle(trigger, "StartTouch", "", -1, client, client);
 	EntFireByHandle(soundscape, "Kill", "", 0.02, client, client);
 	EntFireByHandle(trigger, "Kill", "", 0.02, client, client);

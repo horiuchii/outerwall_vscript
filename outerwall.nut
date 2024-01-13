@@ -161,6 +161,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 	Entities.DispatchSpawn(gametext_menu);
 	Entities.DispatchSpawn(gametext_bonus);
 	Entities.DispatchSpawn(gametext_encore);
+	NetProps.SetPropBool(gametext_menu, "m_bForcePurgeFixedupStrings", true);
+	NetProps.SetPropBool(gametext_bonus, "m_bForcePurgeFixedupStrings", true);
+	NetProps.SetPropBool(gametext_encore, "m_bForcePurgeFixedupStrings", true);
 }
 
 ::DestroyGameTextForPlayer <- function(player_index)
@@ -776,15 +779,14 @@ IncludeScript("outerwall_gameevents.nut", this);
 		DisableBoneFollowers = true,
 		disableshadows = true,
 		disablereceiveshadows = true,
+		playbackrate = 0,
 		rendermode = 5,
-		renderamt = 0,
+		renderamt = 30,
 		rendercolor = color,
 		DefaultAnim = client.GetSequenceName(client.GetSequence())
 	})
 	Entities.DispatchSpawn(trail);
 
-	EntFireByHandle(trail, "SetPlayBackRate", "0", 0.05, client, null);
-	EntFireByHandle(trail, "Alpha", "30", 0.1, client, null);
 	EntFireByHandle(trail, "Kill", "", 0.75, client, null);
 	PlayerLastCosmeticSpawn[cosmeticindex][player_index] = Time();
 	return true;
