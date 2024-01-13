@@ -74,7 +74,7 @@ function OnGameEvent_player_spawn(eventdata)
 
 	local player_index = client.GetEntityIndex();
 
-	NetProps.SetPropString(client, "m_iName", "outerwall_player_" + player_index);
+	SetPropString(client, "m_iName", "outerwall_player_" + player_index);
 
 	if(PlayerZoneList[player_index] == null) //player's first spawn
 	{

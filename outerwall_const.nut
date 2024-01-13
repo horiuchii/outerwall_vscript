@@ -1,8 +1,17 @@
-//shorten constants for sanity
-foreach (a,b in Constants)
-	foreach (k,v in b)
-		if (!(k in getroottable()))
-			getroottable()[k] <- v;
+::ROOT <- getroottable();
+if (!("ConstantNamingConvention" in ROOT)) // make sure folding is only done once
+{
+	foreach (a,b in Constants)
+		foreach (k,v in b)
+			if (v == null)
+				ROOT[k] <- 0;
+			else
+				ROOT[k] <- v;
+}
+
+foreach (k, v in getclass())
+    if (k != "IsValid")
+		ROOT[k] <- NetProps[k].bindenv(NetProps);
 
 const BUTTON_MOUSE1 = 1
 const BUTTON_MOUSE2 = 2

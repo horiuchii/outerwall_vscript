@@ -118,7 +118,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 		return;
 	}
 
-	local player_networkid = NetProps.GetPropString(client, "m_szNetworkIDString");
+	local player_networkid = GetPropString(client, "m_szNetworkIDString");
 
 	if(player_networkid == null || type(player_networkid) != "string" || player_networkid == "" || player_networkid == "\0" || player_networkid == "null" || player_networkid == "BOT" || player_networkid == "STEAM_ID_LAN" || player_networkid == "STEAM_ID_PENDING" || player_networkid == "HLTV" || player_networkid == "REPLAY" || player_networkid == "UNKNOWN")
 	{
@@ -593,7 +593,7 @@ const MAX_LEADERBOARD_ENTRIES = 1489;
 	if(FileToString(OUTERWALL_SAVEPATH + PlayerAccountID[player_index] + OUTERWALL_SAVELEADERBOARDSUFFIX + OUTERWALL_SAVETYPE) == null && !IsPlayerEncorable(player_index))
 		return;
 
-	local name = AddEscapeChars(NetProps.GetPropString(player, "m_szNetname"));
+	local name = AddEscapeChars(GetPropString(player, "m_szNetname"));
 
 	local total_time = 0;
 

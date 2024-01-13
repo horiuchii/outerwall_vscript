@@ -161,9 +161,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 	Entities.DispatchSpawn(gametext_menu);
 	Entities.DispatchSpawn(gametext_bonus);
 	Entities.DispatchSpawn(gametext_encore);
-	NetProps.SetPropBool(gametext_menu, "m_bForcePurgeFixedupStrings", true);
-	NetProps.SetPropBool(gametext_bonus, "m_bForcePurgeFixedupStrings", true);
-	NetProps.SetPropBool(gametext_encore, "m_bForcePurgeFixedupStrings", true);
+	SetPropBool(gametext_menu, "m_bForcePurgeFixedupStrings", true);
+	SetPropBool(gametext_bonus, "m_bForcePurgeFixedupStrings", true);
+	SetPropBool(gametext_encore, "m_bForcePurgeFixedupStrings", true);
 }
 
 ::DestroyGameTextForPlayer <- function(player_index)
@@ -361,12 +361,12 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(bRoundOver)
 		return;
 
-	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+	local obsmode = GetPropInt(client, "m_iObserverMode");
 	local player_index = client.GetEntityIndex();
 
 	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
 	{
-		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
+		local spectator_target = GetPropEntity(client, "m_hObserverTarget");
 
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
 		{
@@ -410,7 +410,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 		return;
 	}
 
-	local obsmode = NetProps.GetPropInt(client, "m_iObserverMode");
+	local obsmode = GetPropInt(client, "m_iObserverMode");
 	local TimeTrialHUDGameTextEntity = null;
 	local PurpleCoinHUDGameTextEntity = null;
 	local MedalTimeHUDGameTextEntity = null;
@@ -418,7 +418,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	// if we're spectating, get our spec target index
 	if(client.GetTeam() == TEAM_SPECTATOR && obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE)
 	{
-		local spectator_target = NetProps.GetPropEntity(client, "m_hObserverTarget");
+		local spectator_target = GetPropEntity(client, "m_hObserverTarget");
 		if(spectator_target && spectator_target.GetEntityIndex() <= MAX_PLAYERS)
 		{
 			target_index = spectator_target.GetEntityIndex();
@@ -541,7 +541,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 ::UpdatePlayerLastButtons <- function(client)
 {
 	local player_index = client.GetEntityIndex();
-	local buttons = NetProps.GetPropInt(client, "m_nButtons");
+	local buttons = GetPropInt(client, "m_nButtons");
 	PreviousButtons[player_index] = buttons;
 }
 
@@ -599,9 +599,9 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(!!!PlayerSettingPlayCharSounds[player_index])
 		return;
 
-	local jump_state = NetProps.GetPropBool(client, "m_Shared.m_bJumping");
-	local grounded_state = !!(NetProps.GetPropInt(client, "m_fFlags") & FL_ONGROUND);
-	local airdash_count = NetProps.GetPropInt(client, "m_Shared.m_iAirDash");
+	local jump_state = GetPropBool(client, "m_Shared.m_bJumping");
+	local grounded_state = !!(GetPropInt(client, "m_fFlags") & FL_ONGROUND);
+	local airdash_count = GetPropInt(client, "m_Shared.m_iAirDash");
 
 	//If our previous state check is false && new one is true.
 	if(PlayerLastIsJumpingState[player_index] == false && jump_state == true)
@@ -636,7 +636,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	else if(PlayerCurrentLapCount[player_index] >= ZoneLaps_Encore[curr_zone][OUTERWALL_MEDAL_BRONZE])
 		SkyCameraLocation += OUTERWALL_SKYCAMERA_OFFSET_LAPPING;
 
-	NetProps.SetPropVector(PlayerInstanceFromIndex(player_index), "m_Local.m_skybox3d.origin", SkyCameraLocation);
+	SetPropVector(PlayerInstanceFromIndex(player_index), "m_Local.m_skybox3d.origin", SkyCameraLocation);
 }
 
 ::PlayerLastCosmeticSpawn <-
@@ -708,7 +708,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	//only do speed check if we are not in a movement
 	if(client.GetMoveType() == MOVETYPE_WALK)
 	{
-		if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
+		if(GetPropFloat(client, "m_flMaxspeed") < speedrequired)
 		{
 			return false;
 		}
@@ -733,7 +733,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	//only do speed check if we are not in a movement
 	if(client.GetMoveType() == MOVETYPE_WALK)
 	{
-		if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
+		if(GetPropFloat(client, "m_flMaxspeed") < speedrequired)
 		{
 			return false;
 		}
@@ -764,7 +764,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	//only do speed check if we are not in a movement
 	if(client.GetMoveType() == MOVETYPE_WALK)
 	{
-		if(NetProps.GetPropFloat(client, "m_flMaxspeed") < speedrequired)
+		if(GetPropFloat(client, "m_flMaxspeed") < speedrequired)
 		{
 			return false;
 		}
@@ -874,7 +874,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	client.SetOrigin(TeleportDest.GetOrigin());
 	client.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
-	NetProps.SetPropVector(client, "m_vecAbsVelocity", Vector(0,0,0));
+	SetPropVector(client, "m_vecAbsVelocity", Vector(0,0,0));
 	DoRespawnEffects(player_index);
 }
 
@@ -895,7 +895,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 	activator.SetOrigin(TeleportDest.GetOrigin());
 	activator.SnapEyeAngles(QAngle(TeleportDest.GetAngles().x, TeleportDest.GetAngles().y, TeleportDest.GetAngles().z));
-	NetProps.SetPropVector(activator, "m_vecAbsVelocity", Vector(0,0,0));
+	SetPropVector(activator, "m_vecAbsVelocity", Vector(0,0,0));
 	DoRespawnEffects(player_index);
 }
 
@@ -987,7 +987,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 	{
 		case 0: //Normal Spike
 		{
-			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,350));
+			SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,350));
 		}
 		case 1: //No Launch Spike
 		{
@@ -1001,14 +1001,14 @@ IncludeScript("outerwall_gameevents.nut", this);
 		}
 		case 2: //Lava
 		{
-			NetProps.SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,650));
+			SetPropVector(client, "m_vecBaseVelocity", Vector(0,0,650));
 			client.TakeDamageEx(null, caller, null, Vector(0,0,0), Vector(0,0,0), 25.0, DMG_BURN);
 			client.EmitSound(SND_QUOTE_HURT_LAVA);
 
 			if(!PlayerCheatedCurrentRun[player_index])
 				PlayerTimesHurt[player_index] += 1;
 
-			if(PlayerLastLavaHurt[player_index] + 2 < Time() && NetProps.GetPropInt(client, "m_iHealth") > 25.0)
+			if(PlayerLastLavaHurt[player_index] + 2 < Time() && GetPropInt(client, "m_iHealth") > 25.0)
 			{
 				PlayVO(player_index, ScoutVO_LavaTouch);
 				PlayerLastLavaHurt[player_index] = Time();
@@ -1039,12 +1039,12 @@ IncludeScript("outerwall_gameevents.nut", this);
 	if(activator.IsNoclipping() || PlayerEncoreStatus[player_index] != bEncoreBooster.tointeger())
 		return;
 
-	local player_velocity = NetProps.GetPropVector(activator, "m_vecAbsVelocity");
+	local player_velocity = GetPropVector(activator, "m_vecAbsVelocity");
 
 	player_velocity.z = 650;
 
-	NetProps.SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
-	NetProps.SetPropInt(activator, "m_Shared.m_iAirDash", 0);
+	SetPropVector(activator, "m_vecAbsVelocity", player_velocity);
+	SetPropInt(activator, "m_Shared.m_iAirDash", 0);
 	activator.EmitSound("TFPlayer.AirBlastImpact");
 	PlayerUseInnerWallBoosterDuringRun[player_index]++;
 
@@ -1054,7 +1054,7 @@ IncludeScript("outerwall_gameevents.nut", this);
 
 ::Test <- function()
 {
-	NetProps.SetPropVector(PlayerInstanceFromIndex(1), "m_vecBaseVelocity", Vector(0,0,1000))
+	SetPropVector(PlayerInstanceFromIndex(1), "m_vecBaseVelocity", Vector(0,0,1000))
 }
 
 try

@@ -106,7 +106,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	if(PlayerZoneList[player_index] != eCourses.SandPit)
 		return;
 
-	local buttons = NetProps.GetPropInt(client, "m_nButtons");
+	local buttons = GetPropInt(client, "m_nButtons");
 
 	if(!PlayerRadarReady[player_index] && PlayerLastUseRadar[player_index] + PURPLECOIN_ANNOTATE_RADAR_COOLDOWN <= Time())
 	{
@@ -178,7 +178,7 @@ const PURPLECOIN_READY_MESSAGE_LENGTH = 2;
 	if(!CoinHandle)
 		return;
 
-	local strCoinName = NetProps.GetPropString(CoinHandle, "m_iName");
+	local strCoinName = GetPropString(CoinHandle, "m_iName");
 
 	local TriggerID = strCoinName.slice(PURPLECOIN_COINPATH.len()).tointeger() - 1;
 

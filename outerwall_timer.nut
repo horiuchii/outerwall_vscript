@@ -262,9 +262,9 @@ const NO_MEDAL_COLOR = "008B8B";
 	PlayerLastUseRadar[player_index] = 0;
 
 	//detect if this bitch has the timer off.
-	if(NetProps.GetPropFloat(client, "m_flMaxspeed") > 350)
+	if(GetPropFloat(client, "m_flMaxspeed") > 350)
 	{
-		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED (" + NetProps.GetPropFloat(client, "m_flMaxspeed") + ")");
+		DebugPrint("PLAYER " + player_index + " MARKED FOR CHEATING - START SPEED (" + GetPropFloat(client, "m_flMaxspeed") + ")");
 		PlayerCheatedCurrentRun[player_index] = true;
 	}
 }
@@ -375,7 +375,7 @@ const NO_MEDAL_COLOR = "008B8B";
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", MedalTimesText);
+	SetPropString(text, "m_iszMessage", MedalTimesText);
 }
 
 ::SetMedalTimeHUD <- function(bSetHUD)

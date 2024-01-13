@@ -39,8 +39,8 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 
 	if(PlayerTimeTrialTime[player_index] <= 0)
 	{
-		NetProps.SetPropInt(client, "m_iHealth", NetProps.GetPropInt(client, "m_iHealth") - 2);
-		if(NetProps.GetPropInt(client, "m_iHealth") <= 0)
+		SetPropInt(client, "m_iHealth", GetPropInt(client, "m_iHealth") - 2);
+		if(GetPropInt(client, "m_iHealth") <= 0)
 			client.TakeDamageEx(null, client.GetActiveWeapon(), null, Vector(0,0,0), Vector(0,0,0), 9999.0, DMG_BURN);
 	}
 	else
@@ -175,7 +175,7 @@ const TIMEPICKUPTOUCHRADIUS = 64;
 	if(!TimePickupHandle)
 		return;
 
-	local strTriggerName = NetProps.GetPropString(TimePickupHandle, "m_iName");
+	local strTriggerName = GetPropString(TimePickupHandle, "m_iName");
 	local TriggerID = strTriggerName.slice(TIMETRIAL_TRIGGERPATH.len()).tointeger() - 1;
 
 	if(PlayerTimePickupStatus[player_index][TriggerID] == false)

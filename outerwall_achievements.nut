@@ -66,7 +66,7 @@
 {
     //foreach client on the server, display message
     local client = PlayerInstanceFromIndex(client_index);
-    local playername = NetProps.GetPropString(client, "m_szNetname");
+    local playername = GetPropString(client, "m_szNetname");
 
     if(HasAchievement(achievement_index, client_index))
         return;

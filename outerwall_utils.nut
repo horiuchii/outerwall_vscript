@@ -4,7 +4,7 @@
 	{
 		local player = PlayerInstanceFromIndex(i);
 		if (player == null) continue;
-		printl("Name: " + NetProps.GetPropString(player, "m_szNetname") + " - Index: " + i)
+		printl("Name: " + GetPropString(player, "m_szNetname") + " - Index: " + i)
 	}
 }
 
@@ -151,8 +151,8 @@
 
 	Entities.DispatchSpawn(soundscape);
 	Entities.DispatchSpawn(trigger);
-	NetProps.SetPropBool(soundscape, "m_bForcePurgeFixedupStrings", true);
-	NetProps.SetPropBool(trigger, "m_bForcePurgeFixedupStrings", true);
+	SetPropBool(soundscape, "m_bForcePurgeFixedupStrings", true);
+	SetPropBool(trigger, "m_bForcePurgeFixedupStrings", true);
 	EntFireByHandle(trigger, "StartTouch", "", -1, client, client);
 	EntFireByHandle(soundscape, "Kill", "", 0.02, client, client);
 	EntFireByHandle(trigger, "Kill", "", 0.02, client, client);
@@ -211,7 +211,7 @@
 
 ::IsPlayerAlive <- function(client)
 {
-    return NetProps.GetPropInt(client, "m_lifeState") == 0; //thank u ficool
+    return GetPropInt(client, "m_lifeState") == 0; //thank u ficool
 }
 
 ::SwapTeam <- function(client)
@@ -286,8 +286,8 @@
 		if (!player || player.GetTeam() != TEAM_SPECTATOR)
 			continue;
 
-		local obsmode = NetProps.GetPropInt(main_player, "m_iObserverMode");
-		local spectator_target = NetProps.GetPropEntity(main_player, "m_hObserverTarget");
+		local obsmode = GetPropInt(main_player, "m_iObserverMode");
+		local spectator_target = GetPropEntity(main_player, "m_hObserverTarget");
 
 		if((obsmode == OBS_MODE_IN_EYE || obsmode == OBS_MODE_CHASE) && spectator_target == main_player)
 			ClientPrint(player, HUD_PRINTTALK, message);

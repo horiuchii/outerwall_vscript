@@ -12,7 +12,7 @@
 	if(iSetting == eSettingQuerys.MultiSetting)
 		UpdateMultiSettingsText(player_index);
 
-	NetProps.SetPropFloat(activator, "m_flNextAttack", (iSetting == null ? 0 : 9999999));
+	SetPropFloat(activator, "m_flNextAttack", (iSetting == null ? 0 : 9999999));
 }
 
 const LEADERBOARD_RESET_TIME = 90
@@ -45,7 +45,7 @@ const LEADERBOARD_RESET_TIME = 90
 	if(current_setting == null)
 		return;
 
-	local buttons = NetProps.GetPropInt(client, "m_nButtons");
+	local buttons = GetPropInt(client, "m_nButtons");
 	local ButtonPressed = null;
 
 	//If our previous key capture doesn't contain attack key && new one does.
@@ -395,7 +395,7 @@ const LEADERBOARD_RESET_TIME = 90
 	SettingsText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_NEXTPAGE, player_index) + " (" + TranslateString(MULTISETTING_NAME[next_setting], player_index) + ")";
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", SettingsText);
+	SetPropString(text, "m_iszMessage", SettingsText);
 }
 
 ::AttemptAutoUpdatePlayerStatsText <- function()
@@ -481,7 +481,7 @@ const LEADERBOARD_RESET_TIME = 90
 	StatsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index) + "\n";
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", StatsText);
+	SetPropString(text, "m_iszMessage", StatsText);
 }
 
 ::UpdateAchievementStatsText <- function(client = null)
@@ -519,7 +519,7 @@ const LEADERBOARD_RESET_TIME = 90
 	StatsText += TranslateString(SETTING_BUTTON_ALTATTACK, player_index) + TranslateString(SETTING_PREVPAGE, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", StatsText);
+	SetPropString(text, "m_iszMessage", StatsText);
 }
 
 ::UpdateCosmeticEquipText <- function(client = null)
@@ -563,7 +563,7 @@ const LEADERBOARD_RESET_TIME = 90
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", EquipText);
+	SetPropString(text, "m_iszMessage", EquipText);
 }
 
 ::UpdateResetProfileText <- function(client = null)
@@ -588,7 +588,7 @@ const LEADERBOARD_RESET_TIME = 90
 	}
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", ResetText);
+	SetPropString(text, "m_iszMessage", ResetText);
 }
 
 ::UpdateLeaderboardText <- function(client = null)
@@ -610,7 +610,7 @@ const LEADERBOARD_RESET_TIME = 90
 			LeaderText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
 
 		local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-		NetProps.SetPropString(text, "m_iszMessage", LeaderText);
+		SetPropString(text, "m_iszMessage", LeaderText);
 
 		return;
 	}
@@ -653,5 +653,5 @@ const LEADERBOARD_RESET_TIME = 90
 		LeaderText += TranslateString(SETTING_BUTTON_RELOAD, player_index) + TranslateString(SETTING_REFRESHLEADERBOARD, player_index);
 
 	local text = Entities.FindByName(null, TIMER_PLAYERHUDTEXT + player_index);
-	NetProps.SetPropString(text, "m_iszMessage", LeaderText);
+	SetPropString(text, "m_iszMessage", LeaderText);
 }
